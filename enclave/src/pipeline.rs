@@ -1,17 +1,23 @@
-//! From account data to an (unsigned, in P1) card.
+//! From account data to a signed card.
 
-use crate::card::{Card, CardStats, CardWindow};
+use crate::card::{self, Card, CardOrders, CardStats, CardWindow, SignedCard};
+use crate::commit;
 use crate::error::{Code, Error, Result};
-use crate::hl::{Point, Series, Source};
+use crate::hl::{Fill, Point, Portfolio, Series, Source};
+use crate::merkle;
+use crate::orders;
+use crate::platform::Platform;
 use crate::rules;
 use crate::stats::{self, MIN_CAPITAL, MS_PER_DAY};
 use rust_decimal::Decimal;
+use serde_json::json;
 
 pub const WINDOWS: [u32; 3] = [30, 90, 180];
+pub const VENUE: &str = "hyperliquid";
 
 /// The account-value series for a window. 30 days uses Hyperliquid's `month` window
 /// (denser sampling); 90 and 180 days slice the sparser `allTime` window.
-pub fn select_series(portfolio: &crate::hl::Portfolio, window_days: u32) -> Result<Series> {
+pub fn select_series(portfolio: &Portfolio, window_days: u32) -> Result<Series> {
     match window_days {
         30 => Ok(portfolio.window("month")?.clone()),
         90 | 180 => {
@@ -26,7 +32,7 @@ pub fn select_series(portfolio: &crate::hl::Portfolio, window_days: u32) -> Resu
 }
 
 /// When the account first held at least MIN_CAPITAL, from the `allTime` history.
-pub fn first_funded_ms(portfolio: &crate::hl::Portfolio) -> Result<u64> {
+pub fn first_funded_ms(portfolio: &Portfolio) -> Result<u64> {
     portfolio
         .window("allTime")?
         .account_value
@@ -36,7 +42,15 @@ pub fn first_funded_ms(portfolio: &crate::hl::Portfolio) -> Result<u64> {
         .ok_or_else(|| Error::new(Code::NoData, "the account has never held at least $100"))
 }
 
-pub fn build_card(source: &impl Source, address: &str, window_days: u32, issuer: &str, mode: &str) -> Result<Card> {
+/// Statistics for one account and window, with everything a card is built from.
+pub struct Measured {
+    pub window: CardWindow,
+    pub stats: CardStats,
+    pub series: Series,
+    pub fills: Vec<Fill>,
+}
+
+pub fn measure(source: &impl Source, address: &str, window_days: u32) -> Result<Measured> {
     let portfolio = source.portfolio(address)?;
     let series = select_series(&portfolio, window_days)?;
     let requested_end = series.account_value.last().map(|p| p.t).ok_or_else(|| Error::new(Code::NoData, "empty series"))?;
@@ -51,12 +65,7 @@ pub fn build_card(source: &impl Source, address: &str, window_days: u32, issuer:
     rules::check_trades(&t)?;
 
     let win_rate = Decimal::from(t.wins) / Decimal::from(t.trades);
-    Ok(Card {
-        v: 1,
-        venue: "hyperliquid".into(),
-        kind: "trader".into(),
-        scope: "account".into(),
-        issuer: issuer.into(),
+    Ok(Measured {
         window: CardWindow { days: window_days, start: r.start_ms, end: r.end_ms, samples: r.samples },
         stats: CardStats {
             return_bps: stats::to_bps(r.twr),
@@ -68,6 +77,55 @@ pub fn build_card(source: &impl Source, address: &str, window_days: u32, issuer:
             active_days: t.active_days,
             flow_turnover_bps: stats::to_bps(r.flow_turnover),
         },
-        mode: mode.into(),
+        series,
+        fills,
     })
+}
+
+pub struct IssueParams<'a> {
+    pub address: &'a str,
+    pub window_days: u32,
+    pub issuer: &'a str,
+    pub nonce: u64,
+    pub issued_at: u64,
+    pub outlayer_request_id: Option<String>,
+    pub mode: &'a str,
+}
+
+/// Measure, commit to every order, store what a later reveal needs, and sign.
+pub fn issue(source: &impl Source, platform: &impl Platform, p: &IssueParams) -> Result<SignedCard> {
+    let m = measure(source, p.address, p.window_days)?;
+    let records = orders::records(&m.fills, &m.series.account_value);
+    let root = merkle::root(&orders::leaves(&records)?);
+
+    let card = Card {
+        v: 1,
+        venue: VENUE.into(),
+        kind: "trader".into(),
+        scope: "account".into(),
+        issuer: p.issuer.into(),
+        commitment: commit::commitment(platform, VENUE, p.address)?,
+        window: m.window,
+        stats: m.stats,
+        orders: CardOrders { root: hex::encode(root), count: records.len() as u32 },
+        issued_at: p.issued_at,
+        nonce: p.nonce,
+        outlayer_request_id: p.outlayer_request_id.clone(),
+        mode: p.mode.into(),
+    };
+
+    // A reveal (P7) re-reads the account's orders and checks them against this root.
+    // The key is the card hash, never anything secret; the value is encrypted storage.
+    let hash = hex::encode(card::card_hash(&card)?);
+    let stored = json!({
+        "v": 1,
+        "venue": VENUE,
+        "address": p.address.to_lowercase(),
+        "window": { "start": card.window.start, "end": card.window.end },
+        "orders_root": card.orders.root,
+    });
+    platform.store(&format!("card:{hash}"), stored.to_string().as_bytes())?;
+
+    let sig = card::sign(platform, &card)?;
+    Ok(SignedCard { card, sig: hex::encode(sig) })
 }

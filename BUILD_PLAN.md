@@ -204,17 +204,21 @@ balances: LookupMap<AccountId, U128>, fee_bps: u16, usdc: AccountId
 ```json
 {
   "v": 1, "venue": "hyperliquid", "kind": "trader|agent",
-  "issuer": "alice.near", "commitment": "9f…", "version": "<wasm sha256>",
-  "window": { "start": 1790000000, "end": 1792592000, "days": 30, "samples": 45 },
+  "issuer": "alice.near", "commitment": "d8aca93b…",
+  "window": { "start": 1791325080034, "end": 1793978799608, "days": 30, "samples": 46 },
   "scope": "account", "mode": "live",
-  "stats": { "return_bps": 1830, "precision_bps": 100, "max_dd_bps": 740, "win_rate_bps": 5800, "trades": 64,
-             "profit_factor_x100": 171, "volume_band": "1e6", "active_days": 21, "flow_turnover_bps": 350 },
-  "privacy": { "k_anon": 112, "k_min": 25 },
-  "fills": { "root": "ab…", "count": 64 },
-  "issued_at": 1792600000, "nonce": "…", "outlayer_request_id": "…"
+  "stats": { "return_bps": 1494, "max_dd_bps": 6283, "win_rate_bps": 6190, "trades": 42,
+             "profit_factor_x100": 209, "volume_band": "1e7", "active_days": 16, "flow_turnover_bps": 661 },
+  "orders": { "root": "ccbb2ed0…", "count": 91 },
+  "issued_at": 1793981611, "nonce": 0, "outlayer_request_id": "10776"
 }
 ```
-Signature: `ed25519(sha256("proveit-card-v1\n" + canonical_json))` with `card_pubkey`. `card_hash = sha256(canonical_json)`.
+(Real values from the T2.8 run inside the OutLayer TEE. P9 adds `"privacy": {"k_anon", "k_min"}` and `"precision_bps"`.)
+
+- **Canonical bytes:** sorted keys, no whitespace, integers only, ASCII only (`enclave/src/canonical.rs`, `packages/verify/src/canonical.ts`).
+- **Signature:** `ed25519(cards key, sha256("proveit-card-v1\n" ‖ canonical))`. `card_hash = sha256(canonical)` is what the registry stores.
+- **No code hash in the card:** the code can't know its own hash. The registry records the version it pinned, and the attestation's `wasm_hash` proves which binary ran.
+- **`orders`, not `fills`:** the Merkle leaves are one coarsened record per order (`hour, coin, dir, size_bps, pnl_bps, fills`: no IDs, prices or dollar sizes). Per-fill leaves would make reveals 2–3× larger (the `winner` fixture: 2,352 fills, 91 orders).
 
 ### 4.4 Verify algorithm — `packages/verify` (TypeScript library + CLI, shared by the web app)
 
@@ -401,10 +405,12 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** the enclave outputs a signed, compact, canonical card, and the deployed binary is reproducible.
 
 **Tasks**
-- [ ] `commit.rs` (`mac("commit", "hl:"+addr)`), `merkle.rs`, `card.rs` (canonical JSON + `sign("cards", …)`), worker storage write, `pubkey` op.
-- [ ] `test-vectors/merkle.json`, `test-vectors/card-sig.json` (generated with a fixed test key in local mode).
-- [ ] Reproducible `enclave/build.sh` (pinned Docker image); manifest embedded; `dev` feature build.
-- [ ] Upload and deploy to the OutLayer **testnet** project `proveit.testnet/enclave`.
+- [x] `commit.rs` (`mac("commit", "hyperliquid:"+addr)`), `merkle.rs`, `orders.rs` (per-order records), `canonical.rs`, `card.rs` (canonical JSON + `sign("cards", …)`), encrypted worker storage write (`card:<hash>` → address, window, root), `pubkey` op.
+- [x] `Platform` trait: OutLayer host functions inside the TEE, a public test key (`test-keys` feature) for tests and local runs.
+- [x] `packages/verify/src/{canonical,merkle,card}.ts` (the start of the P6 verifier) and `scripts/gen-p2-vectors.ts` → `test-vectors/merkle.json`, `test-vectors/card-sig.json`, so the Rust code is checked against an independent TypeScript implementation.
+- [x] Reproducible `enclave/build.sh` (Rust image pinned by digest, `--locked`, fixed paths, **linux/amd64**: arm64 builds produce different bytes); `enclave/expected-hashes.txt`, checked by a CI job.
+- [x] Builds: `live`, `fixtures` (local), `demo-fixture` (a recorded account compiled in, signed with the TEE's keys). The demo build is a **separate project** (`enclave-demo`), because signing keys are per project and a fixture card must never carry the production key.
+- [x] Deployed to OutLayer testnet: `proveit-realist.testnet/enclave` (live, `8fac34b1…`) and `proveit-realist.testnet/enclave-demo` (`3b2ab5f6…`); test contract `p2.proveit-realist.testnet`.
 
 **Exit tests**
 
@@ -416,8 +422,8 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T2.4 | `card::output_size` | the largest fixture card serializes to < 1,024 bytes (keeps the fast 1-call resolve path) |
 | T2.5 | `./enclave/build.sh` twice from a clean tree | identical sha256 both times (also a CI job) |
 | T2.6 | `wasm-tools print enclave.wasm \| grep -c outlayer.manifest` | ≥ 1 |
-| T2.7 | Testnet: `pubkey` op through the S2 test contract | returns a 32-byte key, stable across 2 runs |
-| T2.8 | Testnet: `issue` with a real ownership signature for a team-controlled Hyperliquid account | returns a signed card; its attestation shows `wasm_hash` = the T2.5 hash and `output_hash` = sha256 of the output |
+| T2.7 | Testnet: `pubkey` op of the live build through a test contract | returns a 32-byte key, stable across 2 runs |
+| T2.8 | Testnet: `issue` inside the TEE (demo build: a recorded real account, no ownership check) | returns a signed card that verifies in Rust **and** TypeScript; its attestation shows `wasm_hash` = the reproducible build hash and `output_hash` = sha256 of the output. **Deviation:** the plan first asked for a real ownership signature here; no team wallet had signed yet, so that moves to T3.6. The ownership check itself is covered by T1.1–T1.2 and the live local wasm run. |
 
 **Done when:** T2.1–T2.8 pass and the testnet wasm hash is logged in `docs/PHASES.md`.
 
@@ -440,7 +446,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T3.3 | Sandbox: `bootstrap_key` | `card_pubkey` is set from the mock's `pubkey` output; non-owner call panics |
 | T3.4 | Sandbox: `verify_card` | valid → ok; edited JSON → `HASH_MISMATCH`; revoked → `REVOKED`; old → `STALE`; retired version → `VERSION_RETIRED` |
 | T3.5 | Sandbox: permissions and money | non-issuer `revoke` panics; deposit below minimum panics; failed execution refunds `payer_account_id` |
-| T3.6 | Live testnet: `scripts/e2e-testnet.sh` | issues a card for a real Hyperliquid account; `near view proveit.testnet verify_card` returns `{"valid":true}` |
+| T3.6 | Live testnet: `scripts/e2e-testnet.sh` | issues a card for a real Hyperliquid account **with a real ownership signature from its wallet** (moved here from T2.8); `near view <registry> verify_card` returns `{"valid":true}` |
 | T3.7 | Gas log | `request_card` + callback complete under 300 Tgas with ≥ 20% margin (value logged) |
 
 **Done when:** T3.1–T3.7 pass and the sandbox suite is in CI.

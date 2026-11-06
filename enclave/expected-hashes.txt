@@ -1,0 +1,4 @@
+# sha256 of the reproducible builds (enclave/build.sh, linux/amd64). CI rebuilds and compares.
+# After changing enclave code, run enclave/build.sh (and enclave/build.sh demo-fixture) and update.
+8fac34b1779bf3f609daf46d5ad8989b74cb89c2de8b4982df7fba6a255e4b29  dist/proveit-enclave.wasm
+3b2ab5f666fa7a38daad301dbec9fc023289ce4c7337af4b5799c5e97eb11ef7  dist/proveit-enclave-demo-fixture.wasm

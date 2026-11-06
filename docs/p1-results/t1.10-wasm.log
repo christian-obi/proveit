@@ -1,5 +1,5 @@
 few_orders   refused as expected: TOO_FEW_TRADES
 hlp_vault    refused as expected: TOO_FEW_TRADES
 late_funded  refused as expected: WINDOW_TOO_SHORT
-loser        card ok: hyperliquid 30d return -839 bps, max drawdown 2066 bps, 116 trades, mode fixture
-winner       card ok: hyperliquid 30d return 1494 bps, max drawdown 6283 bps, 42 trades, mode fixture
+loser        card ok: hyperliquid 30d return -839 bps, max drawdown 2066 bps, 116 trades, 213 orders, mode fixture
+winner       card ok: hyperliquid 30d return 1494 bps, max drawdown 6283 bps, 42 trades, 91 orders, mode fixture

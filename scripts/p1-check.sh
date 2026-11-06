@@ -32,7 +32,7 @@ W=target-fixtures/wasm32-wasip2/release/proveit-enclave.wasm
   for dir in fixtures/*/; do
     name=$(basename "$dir")
     printf "%-12s " "$name"
-    answer=$(echo '{"op":"stats","window_days":30}' | wasmtime run --dir "$dir::/fx" --env PROVEIT_FIXTURE_DIR=/fx "$W")
+    answer=$(echo '{"op":"issue","window_days":30}' | wasmtime run --dir "$dir::/fx" --env PROVEIT_FIXTURE_DIR=/fx "$W")
     expected_status=$(python3 -I -c "import json,sys; print(json.load(open(sys.argv[1]))['status'])" "$dir/expected_stats.json")
     if [[ "$expected_status" == "ok" ]]; then
       echo "$answer" | cargo run -q --example check_card

@@ -38,3 +38,24 @@ Run everything with `scripts/p1-check.sh` (evidence in [p1-results/](p1-results/
 **Mutation check:** three deliberate bugs (Dietz with full flow, pagination at `last + 1`, trades per fill) each made tests fail; sources restored byte for byte.
 
 **P1 status:** ✔ complete (10 of 10), 6 Nov 2026. Live wasm sha256 `4e09cc1e…0d05` (non-reproducible build; P2 makes it reproducible).
+
+## P2 — Enclave card: commit, Merkle, signing, OutLayer testnet
+
+Offline: `scripts/p1-check.sh` (cargo tests) and `scripts/p2-check.sh`. Live: `scripts/p2-live.sh` (evidence in [p2-results/](p2-results/)).
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T2.1 | shuffled keys → identical bytes; floats and non-ASCII refused | ✔ | `tests/card.rs`: `canonical_is_stable`, `canonical_refuses_floats_and_non_ascii`; Rust bytes equal the TypeScript vector |
+| T2.2 | Merkle roots and proofs equal the TypeScript vector; edits fail | ✔ | `tests/merkle.rs`: 0/1/2/5-leaf trees, every proof; forged leaf and moved proof fail; all 91 real orders of `winner` prove |
+| T2.3 | Rust signer reproduces the TypeScript signature | ✔ | `signature_vector`: pubkey, card hash, signing message and signature byte for byte |
+| T2.4 | answer < 1,024 bytes | ✔ | `output_size`; inside the TEE: 754 bytes |
+| T2.5 | two clean reproducible builds, same sha256 | ✔ | `8fac34b1779bf3f609daf46d5ad8989b74cb89c2de8b4982df7fba6a255e4b29` three times on linux/amd64 (arm64 differs, so builds are pinned to amd64); CI job `reproducible-build` |
+| T2.6 | manifest section embedded | ✔ | 1 `outlayer.manifest` section; imports signing keys, encryption keys, storage, HTTP |
+| T2.7 | live build's `pubkey` through a contract, stable | ✔ | `3360d719…6cd4` twice via `p2.proveit-realist.testnet` ([log](p2-results/t27.log)) |
+| T2.8 | signed card from the TEE; attestation hashes match | ✔ (deviation) | demo build, request 10776: signature verifies (Rust and TypeScript), `output_hash` and `wasm_hash` match the local reproducible build ([attestation](p2-results/t28-attestation.json)). The real-wallet signature moves to T3.6. |
+
+**Also verified:** the TEE computed exactly the golden stats (+14.94%, 6,283 bps drawdown, 42 trades), so macOS, Linux CI and Intel TDX agree; editing the TEE-signed card's return makes the TypeScript check fail.
+
+**Testnet deployment:** `proveit-realist.testnet/enclave` live `8fac34b1…4b29`; `proveit-realist.testnet/enclave-demo` `3b2ab5f6…1ef7`.
+
+**P2 status:** ✔ complete (8 of 8, T2.8 with the deviation noted), 6 Nov 2026.

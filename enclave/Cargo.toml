@@ -13,10 +13,16 @@ name = "proveit-enclave"
 path = "src/main.rs"
 
 [features]
-# Reads recorded Hyperliquid data from PROVEIT_FIXTURE_DIR instead of the network and
-# skips the ownership check. For local tests only: a build with it never ships, and its
-# cards say "mode": "fixture".
-fixtures = []
+# A deterministic, PUBLIC test key in place of the enclave's signing and MAC keys.
+# Tests and local runs only: no build that ships enables it.
+test-keys = ["dep:ed25519-dalek", "dep:hmac"]
+# Local runs under plain wasmtime: data from PROVEIT_FIXTURE_DIR, test keys, no ownership
+# check. Its cards say "mode": "fixture".
+fixtures = ["test-keys"]
+# Testnet smoke test inside a real OutLayer TEE: the `winner` fixture is compiled in and
+# signed with the REAL enclave keys, no ownership check. Its cards say "mode": "fixture",
+# and the registry never approves such a build.
+demo-fixture = []
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -24,13 +30,20 @@ serde_json = "1.0"
 rust_decimal = { version = "1", default-features = false, features = ["std", "serde-str"] }
 k256 = { version = "0.13", default-features = false, features = ["ecdsa", "arithmetic"] }
 sha3 = { version = "0.10", default-features = false }
+sha2 = "0.10"
 hex = "0.4"
+ed25519-dalek = { version = "2", default-features = false, features = ["std"], optional = true }
+hmac = { version = "0.12", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasi-http-client = "0.2"
+wit-bindgen = "0.36"
 
 [dev-dependencies]
 proptest = "1"
+# Integration tests link the library as a dependency, so they turn its test keys on here.
+proveit-enclave = { path = ".", features = ["test-keys"] }
+ed25519-dalek = { version = "2", default-features = false, features = ["std"] }
 
 [profile.release]
 opt-level = "z"

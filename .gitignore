@@ -22,3 +22,4 @@ credentials/
 .DS_Store
 .vscode/
 .idea/
+dist/

@@ -1,0 +1,14 @@
+{
+  "name": "@proveit/verify",
+  "private": true,
+  "type": "module",
+  "description": "Verify Prove-It cards: canonical encoding, signatures, Merkle proofs (more checks land in P6)",
+  "exports": {
+    "./canonical": "./src/canonical.ts",
+    "./merkle": "./src/merkle.ts",
+    "./card": "./src/card.ts"
+  },
+  "scripts": {
+    "test": "node --test src/*.test.ts"
+  }
+}

@@ -12,6 +12,8 @@ importers:
         specifier: 2.57.16
         version: 2.57.16
 
+  packages/verify: {}
+
   spikes/s3-secrets:
     dependencies:
       '@noble/ciphers':

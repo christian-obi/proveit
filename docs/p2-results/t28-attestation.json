@@ -1,0 +1,19 @@
+{
+  "request_id": 10776,
+  "output": "{\"card\":{\"commitment\":\"d8aca93b0585c36a0578b73033e6f36e58e9ca50f72ae3b54faadbd769ecbaf3\",\"issued_at\":1793981611,\"issuer\":\"proveit-realist.testnet\",\"kind\":\"trader\",\"mode\":\"fixture\",\"nonce\":0,\"orders\":{\"count\":91,\"root\":\"ccbb2ed0e44ed75ad6bc169b0541d604cef10ef471c7369377c2539ea82f49a8\"},\"outlayer_request_id\":\"10776\",\"scope\":\"account\",\"stats\":{\"active_days\":16,\"flow_turnover_bps\":661,\"max_dd_bps\":6283,\"profit_factor_x100\":209,\"return_bps\":1494,\"trades\":42,\"volume_band\":\"1e7\",\"win_rate_bps\":6190},\"v\":1,\"venue\":\"hyperliquid\",\"window\":{\"days\":30,\"end\":1793978799608,\"samples\":46,\"start\":1791325080034}},\"sig\":\"15765faa294419ca99b50fcf2b2a60cbab76133032d65aefa97bac38717cb2fedf8f7a667b1f773e3bd706ae82ea4995fbdcfe7d8bbebcb1949ff223d6968f04\",\"status\":\"ok\"}",
+  "output_bytes": 754,
+  "output_sha256": "a5eef07491f8b30aed5c658f70c201df83623c98447cd0f096359ebd26be1414",
+  "attestation": {
+    "task_id": 23610,
+    "wasm_hash": "3b2ab5f666fa7a38daad301dbec9fc023289ce4c7337af4b5799c5e97eb11ef7",
+    "executed_wasm_sha256": "3b2ab5f666fa7a38daad301dbec9fc023289ce4c7337af4b5799c5e97eb11ef7",
+    "input_hash": "16c8adf407cbd121abce8e47eea9942c82bd5b893525fe10d4dbec349e4a0b53",
+    "output_hash": "a5eef07491f8b30aed5c658f70c201df83623c98447cd0f096359ebd26be1414",
+    "caller_account_id": "proveit-realist.testnet",
+    "project_id": "proveit-realist.testnet/enclave-demo"
+  },
+  "checks": {
+    "output_hash matches": true,
+    "wasm_hash matches local build": true
+  }
+}

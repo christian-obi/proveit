@@ -21,15 +21,15 @@ fn expected(name: &str) -> Value {
 /// T1.3: every fixture matches the independent reference (scripts/reference-stats.ts).
 fn golden(name: &str) {
     let exp = expected(name);
-    let got = pipeline::build_card(&fixture(name), "fixture", 30, "fixture", "fixture");
+    let got = pipeline::measure(&fixture(name), "fixture", 30);
     match exp["status"].as_str().unwrap() {
         "ok" => {
-            let card = got.unwrap_or_else(|e| panic!("{name}: expected a card, got {e}"));
-            assert_eq!(serde_json::to_value(&card.stats).unwrap(), exp["stats"], "{name}: stats");
-            assert_eq!(serde_json::to_value(&card.window).unwrap(), exp["window"], "{name}: window");
+            let m = got.unwrap_or_else(|e| panic!("{name}: expected a card, got {e}"));
+            assert_eq!(serde_json::to_value(&m.stats).unwrap(), exp["stats"], "{name}: stats");
+            assert_eq!(serde_json::to_value(&m.window).unwrap(), exp["window"], "{name}: window");
         }
         _ => {
-            let err = got.expect_err(&format!("{name}: expected a refusal"));
+            let err = got.err().unwrap_or_else(|| panic!("{name}: expected a refusal"));
             assert_eq!(serde_json::to_value(err.code).unwrap(), exp["code"], "{name}: code");
         }
     }
@@ -257,6 +257,6 @@ fn rules_window_too_short() {
 
 #[test]
 fn bad_window_length_is_refused() {
-    let e = pipeline::build_card(&fixture("winner"), "fixture", 45, "fixture", "fixture").unwrap_err();
+    let e = pipeline::measure(&fixture("winner"), "fixture", 45).err().unwrap();
     assert_eq!(e.code, Code::BadInput);
 }

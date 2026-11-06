@@ -19,10 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      # P1 exit tests except T1.9, which needs the live leaderboard.
+      # P1 exit tests (and the cargo tests for T2.1–T2.4) except T1.9, which needs the live leaderboard.
       - run: OFFLINE=1 scripts/p1-check.sh
 
-  spikes:
+  typescript:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,3 +34,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # S3: browser-side encryption to the OutLayer keystore (offline cases only).
       - run: OFFLINE=1 node --test spikes/s3-secrets/test.mjs
+      # P2: test vectors in sync; the TypeScript verifier accepts Rust- and TEE-signed cards.
+      - run: SKIP_BUILD=1 scripts/p2-check.sh
+
+  reproducible-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bytecodealliance/actions/wasm-tools/setup@v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # T2.5/T2.6: rebuild in the pinned image; the hashes must equal enclave/expected-hashes.txt.
+      - run: scripts/p2-check.sh
