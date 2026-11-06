@@ -1,0 +1,54 @@
+Uploading to FastFS...
+  File: /Users/realist/projects/proveit/spikes/s1-hello-hl/target/wasm32-wasip2/release/s1-hello-hl.wasm
+  Size: 423565 bytes
+  SHA256: 0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf
+  Sender: proveit-realist.testnet
+  Receiver: outlayer.testnet
+
+  Uploading... tx: FbWaZr3yJnmkjDDsFt2F9rGenSbEZvsrRLcws61WS3Hg
+
+Upload complete!
+
+FastFS URL: https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf.wasm
+
+Run directly:
+  outlayer run --wasm https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf.wasm '{}' 
+
+Or deploy as project version:
+  outlayer deploy <name> --wasm-url https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf.wasm
+Downloading WASM to compute hash...
+Error: Failed to download WASM: HTTP 404 Not Found
+already on FastFS: https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf.wasm
+Deploying proveit-realist.testnet/s1-hello-hl...
+  Source: WasmUrl (https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf.wasm)
+  Creating new project...
+  Project deployed
+
+Run with: outlayer run proveit-realist.testnet/s1-hello-hl '{"command": "hello"}'
+Uploading to FastFS...
+  File: /Users/realist/projects/proveit/spikes/s2-enclave/target/wasm32-wasip2/release/s2-enclave.wasm
+  Size: 148350 bytes
+  SHA256: f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f
+  Sender: proveit-realist.testnet
+  Receiver: outlayer.testnet
+
+  Uploading... tx: 7cpwkH4WX8U2EEinZJNTMHe77QZ7DDqiyzAk7eoJke3t
+
+Upload complete!
+
+FastFS URL: https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f.wasm
+
+Run directly:
+  outlayer run --wasm https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f.wasm '{}' 
+
+Or deploy as project version:
+  outlayer deploy <name> --wasm-url https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f.wasm
+scripts/p0-live.sh: line 89: shaâ: unbound variable
+already deployed: proveit-realist.testnet/s1-hello-hl at 0ac564c377
+already on FastFS: https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f.wasm
+Deploying proveit-realist.testnet/s2-enclave...
+  Source: WasmUrl (https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f.wasm)
+  Creating new project...
+  Project deployed
+
+Run with: outlayer run proveit-realist.testnet/s2-enclave '{"command": "hello"}'

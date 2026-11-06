@@ -1,0 +1,24 @@
+[package]
+name = "s2-contract"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.86"
+description = "P0 spikes S2/S3/S5: a contract that starts OutLayer runs, so keys bind to it as predecessor"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5.9.0"
+
+[dev-dependencies]
+near-sdk = { version = "5.9.0", features = ["unit-testing"] }
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true

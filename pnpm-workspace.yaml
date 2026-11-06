@@ -1,0 +1,5 @@
+packages:
+  - "packages/*"
+  - "web"
+  - "spikes/s3-secrets"
+  - "spikes/s6-chainsig-match"

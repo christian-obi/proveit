@@ -1,0 +1,63 @@
+local sha256: 0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf
+Executing on-chain with NEAR deposit.
+
+Running proveit-realist.testnet/s1-hello-hl (on-chain, ~0.0020 NEAR)...
+Tx: H8qEn9kiDdCJm89Pb9v6JMRTGxJoS8LUaNP7MiCkS33A
+{
+  "bytes_fetched": 36602,
+  "spike": "s1",
+  "windows": {
+    "allTime": {
+      "first_ts": 1683758700034,
+      "last_account_value": "150923738.8913539946",
+      "last_ts": 1793962872214,
+      "points": 102
+    },
+    "day": {
+      "first_ts": 1793873632466,
+      "last_account_value": "150923738.8913539946",
+      "last_ts": 1793962872214,
+      "points": 54
+    },
+    "month": {
+      "first_ts": 1791331183899,
+      "last_account_value": "150923738.8913539946",
+      "last_ts": 1793962872214,
+      "points": 44
+    },
+    "perpAllTime": {
+      "first_ts": 1714607953536,
+      "last_account_value": "11101744.1238770001",
+      "last_ts": 1793962872214,
+      "points": 81
+    },
+    "perpDay": {
+      "first_ts": 1793873632466,
+      "last_account_value": "11101744.1238770001",
+      "last_ts": 1793962872214,
+      "points": 54
+    },
+    "perpMonth": {
+      "first_ts": 1791331183899,
+      "last_account_value": "11101744.1238770001",
+      "last_ts": 1793962872214,
+      "points": 45
+    },
+    "perpWeek": {
+      "first_ts": 1793317779783,
+      "last_account_value": "11101744.1238770001",
+      "last_ts": 1793962872214,
+      "points": 62
+    },
+    "week": {
+      "first_ts": 1793317779783,
+      "last_account_value": "150923738.8913539946",
+      "last_ts": 1793962872214,
+      "points": 62
+    }
+  }
+}
+
+Now fetch the attestation for the run above (task id from the output, or from the dashboard):
+  curl -s https://testnet-api.outlayer.ai/attestations/<task_id> | python3 -m json.tool
+Pass when wasm_hash == local sha256 and output_hash == sha256 of the printed output.

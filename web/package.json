@@ -1,0 +1,12 @@
+{
+  "name": "web",
+  "private": true,
+  "type": "module",
+  "description": "Prove-It web app. P0 placeholder; replaced by the Next.js app in P5.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}

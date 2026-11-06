@@ -1,0 +1,15 @@
+{
+  "name": "s3-secrets",
+  "private": true,
+  "type": "module",
+  "description": "P0 spike S3: encrypt a secret to the OutLayer keystore in JS (ECIES v1)",
+  "scripts": {
+    "test": "node --test test.mjs",
+    "encrypt": "node encrypt.mjs"
+  },
+  "dependencies": {
+    "@noble/ciphers": "1.3.0",
+    "@noble/curves": "1.9.2",
+    "@noble/hashes": "1.8.0"
+  }
+}

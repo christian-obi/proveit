@@ -1,0 +1,20 @@
+[package]
+name = "s1-hello-hl"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "P0 spike S1: fetch a Hyperliquid portfolio from inside a WASI P2 module"
+
+[[bin]]
+name = "s1-hello-hl"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasi-http-client = "0.2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true

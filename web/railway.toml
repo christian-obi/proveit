@@ -1,0 +1,9 @@
+# Railway config-as-code for the `web` service. Set the service root directory to `web/`.
+[build]
+builder = "RAILPACK"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/healthz"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"

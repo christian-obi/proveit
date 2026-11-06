@@ -1,0 +1,9 @@
+T0.2 verification (6 Nov 2026), run via scripts/p0-live.sh t02
+tx:          H8qEn9kiDdCJm89Pb9v6JMRTGxJoS8LUaNP7MiCkS33A (testnet)
+request_id:  10257  -> attestation task_id 22859
+attestation: https://testnet-api.outlayer.ai/attestations/by-request/10257
+code:   local sha256 0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf == wasm_hash == executed_wasm_sha256
+input:  sha256('{"user":"0xdfc24b077bc1425ad1dea75bcb6f8158e10df303"}') = 14b427e085c89614a0eaa9a46e3449d1d15b4f9221ff8eea789bb0a9dd9a1f5a == input_hash
+output: sha256(979 bytes returned on-chain) = 88e03bc625fed81fa2fbeea1ea9a6f36240af4935b2333f0d9203734a20d2480 == output_hash
+run: 989 ms, 2,222,154 instructions, cost 0.0012 NEAR; 979-byte output took the stored (large-output) path
+note: /attestations/{id} is keyed by TASK id; /attestations/10257 is an unrelated run. Use /attestations/by-request/{request_id}.

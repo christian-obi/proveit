@@ -1,0 +1,24 @@
+# Rust
+target/
+target-*/
+
+# Node
+node_modules/
+.next/
+*.tsbuildinfo
+
+# Built artifacts (published by hash, rebuilt reproducibly)
+*.wasm
+!test-vectors/**/*.wasm
+
+# Secrets and local credentials: never commit
+.env
+.env.*
+!.env.example
+*.key
+credentials/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

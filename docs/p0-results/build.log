@@ -1,0 +1,3 @@
+0ac564c377b26506919e08222e09c2afac9b7fb3703166cfa0ae56bdea7cafbf  /Users/realist/projects/proveit/spikes/s1-hello-hl/target/wasm32-wasip2/release/s1-hello-hl.wasm
+f5e25c06192f22f242fa26bbd98314eb1f866fbe6f9249e89efeb2813df4ad5f  /Users/realist/projects/proveit/spikes/s2-enclave/target/wasm32-wasip2/release/s2-enclave.wasm
+9b3a2bf78108579b8b4e75727485af6cde7c56c0d7e887f75a620f113b923240  /Users/realist/projects/proveit/spikes/s2-enclave/target-v2/wasm32-wasip2/release/s2-enclave.wasm

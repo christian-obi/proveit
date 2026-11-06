@@ -1,0 +1,11 @@
+{
+  "display": { "name": "Prove-It P0 spike (keys, secrets, output size)" },
+  "operations": ["env", "pubkey", "sign", "mac", "secret_hash", "blob"],
+  "capabilities": { "network": [] },
+  "signing_keys": [
+    { "path": "cards", "type": "ed25519", "caller": "predecessor" }
+  ],
+  "encryption_keys": [
+    { "path": "commit", "caller": "predecessor" }
+  ]
+}

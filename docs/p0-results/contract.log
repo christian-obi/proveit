@@ -1,0 +1,146 @@
+Migrating config.toml from V4 to V5...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+├  Unsigned transaction:
+│    signer_id:    proveit-chris.testnet
+│    receiver_id:  spike.proveit-chris.testnet
+│    actions:
+│       -- create account:      spike.proveit-chris.testnet
+│       -- transfer deposit:    3 NEAR
+│       -- add access key:     
+│                       public key:   ed25519:AmJhb6q9A3X52HJ1V4yTuFuuW1yE81gZ74Jwm6PdvbaD
+│                       nonce:        0
+│                       permission:   FullAccess
+│     [0m
+[33m├  Warning: no access keys found in keychain, trying legacy keychain[0m
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near account create-account fund-myself spike.proveit-chris.testnet '3 NEAR' autogenerate-new-keypair --signature-scheme ed25519 save-to-keychain sign-as proveit-chris.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+Error: 
+   0: [91mAccess key file for account <proveit-chris.testnet> on network <testnet> not found! 
+      Search location: "/Users/realist/.near-credentials/testnet/proveit-chris.testnet.json"[0m
+   1: [91mNo such file or directory (os error 2)[0m
+
+Location:
+   [35msrc/transaction_signature_options/sign_with_legacy_keychain/mod.rs[0m:[35m143[0m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  spike.proveit-realist.testnet
+│    actions:
+│       -- create account:      spike.proveit-realist.testnet
+│       -- transfer deposit:    3 NEAR
+│       -- add access key:     
+│                       public key:   ed25519:4L2B2StuBkcb8doYZD83JrAZSFoDoxaKYvjFALQ1uYVd
+│                       nonce:        0
+│                       permission:   FullAccess
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:5bgHK9v46hodh15fd4ZxiLQPRUCcMfCnjWHjq2tAoPBefQqSJs63hG6CYodRAVUib6JHMM8XfZBtyByDwAJMihSr
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.825 Tgas
+│    Transaction fee: 0.00008249476875 NEAR
+│    Transaction ID: DgNhwEbgViDLcufuKX77KnjSvgwwYS7AoNyA8opUrSvE
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/DgNhwEbgViDLcufuKX77KnjSvgwwYS7AoNyA8opUrSvE
+│     [0m
+
+
+New account <spike.proveit-realist.testnet> has been successfully created.
+<proveit-realist.testnet> has transferred 3 NEAR to <spike.proveit-realist.testnet> successfully.
+Added access key = ed25519:4L2B2StuBkcb8doYZD83JrAZSFoDoxaKYvjFALQ1uYVd to spike.proveit-realist.testnet.
+
+The data for the access key is saved in the keychain
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near account create-account fund-myself spike.proveit-realist.testnet '3 NEAR' autogenerate-new-keypair --signature-scheme ed25519 save-to-keychain sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+Migrating config.toml from V1 to V2...
+Migrating config.toml from V2 to V3...
+Migrating config.toml from V3 to v4...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+• Collecting cargo project metadata...
+• done
+
+• Checking rustc version...
+• done
+
+• Checking the host environment...
+• done
+
+• Generating ABI
+ │     Finished `dev` profile [unoptimized] target(s) in 0.17s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │     Finished `release` profile [optimized] target(s) in 0.15s
+
+Modification timestamps of:
+ |    "/Users/realist/projects/proveit/spikes/s2-contract/target/wasm32-unknown-unknown/release/s2_contract.wasm" = SystemTime { tv_sec: 1793815638, tv_nsec: 477406917 }
+ |    "/Users/realist/projects/proveit/spikes/s2-contract/target/near/s2_contract.wasm" = SystemTime { tv_sec: 1793815638, tv_nsec: 812950086 }
+
+• Skipped running wasm-opt as final target exists and is newer than wasm produced by cargo
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /Users/realist/projects/proveit/spikes/s2-contract/target/near/s2_contract.wasm
+     -                  Size: 143.3 KB (143286 bytes)
+     - SHA-256 checksum hex : da7e60246ca06495044b3702383fe482020c4bfce7ea18f6261fd636fce55b73
+     - SHA-256 checksum bs58: FhueRmdYm4Q37p3GRMC24nUZbzRRsXwEuqpNqiwS3Bmt
+     -                   ABI: /Users/realist/projects/proveit/spikes/s2-contract/target/near/s2_contract_abi.json
+     -          Embedded ABI: /Users/realist/projects/proveit/spikes/s2-contract/target/near/s2_contract_abi.zst
+    Finished cargo near build in 1s
+├  [0mUnsigned transaction:
+│    signer_id:    spike.proveit-realist.testnet
+│    receiver_id:  spike.proveit-realist.testnet
+│    actions:
+│       -- deploy code <FhueRmdYm4Q37p3GRMC24nUZbzRRsXwEuqpNqiwS3Bmt> to a account <spike.proveit-realist.testnet>
+│       -- function call:      
+│                       method name:  new
+│                       args:         {
+│                                       "outlayer": "outlayer.testnet",
+│                                       "project_id": "proveit-realist.testnet/s2-enclave"
+│                                     }
+│                       gas:          100.0 Tgas
+│                       deposit:      0 NEAR
+│     
+├  [0mYour transaction was signed successfully.
+│    Public key: ed25519:4L2B2StuBkcb8doYZD83JrAZSFoDoxaKYvjFALQ1uYVd
+│    Signature:  ed25519:2SJRq8ued9q8xvzAKtf8ipn53j3GvxSw7BxyS53WGFpSTS87Wii1jkVb9ijv8sbpMdBaqeZcSaBvAH9NsnofqcKe
+│     
+├  [0mTransaction Execution Info:
+│    Gas burned: 1.5 Tgas
+│    Transaction fee: 0.000146922044317 NEAR
+│    Transaction ID: 4VR5z72AJj6DJARNQCVZpH7Uj8TcMLZ6MT7CiMeJtCob
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/4VR5z72AJj6DJARNQCVZpH7Uj8TcMLZ6MT7CiMeJtCob
+│     
+├  [0mFunction execution logs:
+│    Logs [spike.proveit-realist.testnet]:   No logs
+│    Logs [spike.proveit-realist.testnet]:   No logs
+│     
+├  [0mFunction execution return value:
+│    Empty return value
+│     
+
+Contract code has been successfully deployed.
+The "new" call to <spike.proveit-realist.testnet> on behalf of <spike.proveit-realist.testnet> succeeded.
+
+
+Here is the console command if you ever need to re-run it again:
+cargo near deploy build-non-reproducible-wasm spike.proveit-realist.testnet with-init-call new json-args '{"outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/s2-enclave"}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send
+
+cargo-near has a new update available 0.22.0 → 0.23.0
+To update run: /Users/realist/.cargo/bin/cargo-near near self-update
+["outlayer.testnet","proveit-realist.testnet/s2-enclave",0]
