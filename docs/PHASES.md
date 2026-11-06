@@ -17,3 +17,24 @@ One row per exit test from BUILD_PLAN §5. A phase is complete only when every r
 | T0.9 | S7: confidential history item saved as a fixture, session-token scope recorded (or "no access by 8 Nov") | ☐ | needs invite access from the NEAR Intents team (message in BUILD_PLAN §7) |
 
 **P0 status:** 7 of 9 passed (T0.1–T0.7). All platform risk is retired and P1 can start. Waiting on outside access: T0.8 (near.com test account), T0.9 (1Click history access; passes as "no access" after 8 Nov). Neither blocks P1–P8.
+
+## P1 — Enclave core: ownership, data, stats
+
+Run everything with `scripts/p1-check.sh` (evidence in [p1-results/](p1-results/)). CI runs it offline on every push.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T1.1 | viem-signed ownership proof is accepted; digest equals viem's | ✔ | `tests/ownership.rs`: `valid_signature`, `digest_matches_viem`, `checksummed_or_lowercase_account_both_work` |
+| T1.2 | other key, tampered fields, high-s → `SIG_INVALID`; other NEAR account → `NEAR_ACCOUNT_MISMATCH`; expired → `SIG_EXPIRED`; expiry > 24 h → `BAD_INPUT` | ✔ | `tests/ownership.rs`: 7 rejection tests |
+| T1.3 | 5 fixtures match the independent TypeScript reference | ✔ | `golden_winner` (+14.94%), `golden_loser` (−8.39%), `golden_few_orders`, `golden_late_funded`, `golden_hlp_vault`; goldens in sync with `reference-stats.ts` |
+| T1.4 | deposits and withdrawals don't change TWR | ✔ | `twr_ignores_deposits`: 6,000+ random accounts (3 × 2,000 cases) |
+| T1.5 | MDD in [0, 10,000] bps; rising equity → 0 | ✔ | `mdd_bounds` (6,000+ cases), `mdd_is_zero_for_rising_equity`, `mdd_of_a_known_path` (+100%, −50%, +25% → 50% MDD, +25% return) |
+| T1.6 | trades grouped per order, net of fees | ✔ | `trade_grouping`, `profit_factor_is_none_without_losses`, `non_usdc_fees_are_not_subtracted` |
+| T1.7 | 4,500 fills over pages with shared milliseconds → 4,500 unique | ✔ | `tests/pagination.rs`: also window bounds, cap, one-millisecond full page |
+| T1.8 | rules refuse correctly | ✔ | `rules_too_few_trades`, `rules_account_too_new`, `rules_window_too_short`, `more_than_the_cap_is_refused`, `periods_below_min_capital_are_skipped` |
+| T1.9 | within ±1pp of the leaderboard on comparable accounts | ✔ | 2 comparable accounts: 0.12pp and 0.00pp ([log](p1-results/t1.9-crosscheck.log)) |
+| T1.10 | wasm binary prints a strict `Card` | ✔ | fixture build: 2 cards parse, 3 correct refusals ([log](p1-results/t1.10-wasm.log)); live build: real HTTP + ownership, refuses bad key / wrong NEAR account / no secret |
+
+**Mutation check:** three deliberate bugs (Dietz with full flow, pagination at `last + 1`, trades per fill) each made tests fail; sources restored byte for byte.
+
+**P1 status:** ✔ complete (10 of 10), 6 Nov 2026. Live wasm sha256 `4e09cc1e…0d05` (non-reproducible build; P2 makes it reproducible).

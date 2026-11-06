@@ -1,0 +1,8 @@
+{
+  "address": "0xee16198171b3cf5c96af82e538d489f78935fb67",
+  "why": "739 fills but only 6 orders that realized PnL: must be TOO_FEW_TRADES (trades are counted per order)",
+  "recorded_at": "2026-11-06T15:26:44.197Z",
+  "month_start": 1791324240025,
+  "month_end": 1793978803417,
+  "fills": 739
+}

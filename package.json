@@ -1,6 +1,7 @@
 {
   "name": "proveit",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.34.6",
   "engines": {
     "node": ">=22"
@@ -8,5 +9,8 @@
   "scripts": {
     "spike:s3": "pnpm --filter s3-secrets run test",
     "spike:s6": "pnpm --filter s6-chainsig-match run match"
+  },
+  "devDependencies": {
+    "viem": "2.57.16"
   }
 }

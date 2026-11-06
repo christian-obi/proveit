@@ -132,19 +132,18 @@ Written 2026-11-03 (hackathon day 3 of 14). Source spec: `Prove-It Verifiable Pr
 | `issue` with `venue: "intents"` (P9) | same as `issue` | `PROVEIT_SECRET = {venue:"intents", account_id, refresh_token}` | `{card, sig}` |
 
 **`issue` pipeline (`src/`):**
-1. `ownership.rs`: verify the EIP-712 typed data `ProveIt(address account,string nearAccount,uint64 nonce,uint64 expiry)`. Require `nearAccount == NEAR_SENDER_ID`, `expiry > now`, and the recovered address == `address`. A stretch module adds `challenge.rs` (control challenge, F3).
+1. `ownership.rs`: verify the EIP-712 typed data `ProveIt(string statement,address account,string nearAccount,uint64 nonce,uint64 expiry)` (domain `{name: "Prove-It", version: "1"}`, no chain ID so the wallet never asks for a network switch; the statement tells the trader the signature can't move funds). Require `nearAccount == NEAR_SENDER_ID`, `now < expiry ≤ now + 24 h`, a low-s signature, and the recovered address == `account`. A stretch module adds `challenge.rs` (control challenge, F3).
 2. `hl.rs`: POST `https://api.hyperliquid.xyz/info`:
-   - `portfolio` → `perpMonth` / `perpAllTime` `accountValueHistory` and `pnlHistory` (`[ts_ms, "decimal"]`)
-   - `userFillsByTime` paginated (2,000 per page; walk `startTime` forward; documented cap of 10K most recent fills, so refuse a window that exceeds it)
-   - `userNonFundingLedgerUpdates` → first-activity time (account-age rule)
-   - `clearinghouseState` → current open positions (flagged as "unrealized included")
+   - `portfolio` → **total-account** `month` / `allTime` `accountValueHistory` and `pnlHistory` (`[ts_ms, "decimal"]`). **Not `perp*`** (P1 finding: perp-only value moves on spot↔perp transfers and can sit at zero while the account trades); `allTime` also gives the account-age date, so no ledger call is needed
+   - `userFillsByTime` paginated (2,000 per page, oldest first, `startTime` inclusive: each page restarts **at** the last timestamp and de-duplicates by `tid`; more than 10,000 fills → `FILL_CAP_EXCEEDED`)
 3. `stats.rs` (pure, deterministic, golden-tested; use `rust_decimal`, never floats in the signed output):
-   - **Return (deposit-neutral TWR):** for consecutive points i, `r_i = (pnl_i − pnl_{i−1}) / AV_{i−1}`; `TWR = Π(1+r_i) − 1`. `pnlHistory` excludes deposits and withdrawals, so flows do not inflate returns.
+   - **Return: linked Modified Dietz TWR** (P1 finding: `ΔPnL / AV_{i−1}` divides by zero at the first funding and blew up to +294,886% on a real account): `flow_i = ΔAV_i − ΔPnL_i`, `base_i = AV_{i−1} + flow_i/2`, `r_i = ΔPnL_i / base_i`, `TWR = Π(1+r_i) − 1`; measurement starts at the first sample ≥ $100 and periods with base < $100 are skipped. Full spec: `docs/METHODOLOGY.md`.
+   - **Flow turnover:** Σ\|flow\| ÷ average capital, published on the card, because large flows make dollar PnL and TWR disagree (a real fixture: −8.4% TWR while +$1,323).
    - **Max drawdown:** on the index `E_i = Π_{j≤i}(1+r_j)`, `MDD = max_i (peak_i − E_i)/peak_i`.
-   - **Trades:** group fills by `oid` where `dir` ∈ {Close Long, Close Short} or `closedPnl ≠ 0`. A trade's net = Σ`closedPnl` − Σ`fee`. **Win rate** = wins / trades.
+   - **Trades:** group fills by `oid` where `dir` starts with `Close` or `closedPnl ≠ 0`. A trade's net = Σ`closedPnl` − Σ USDC `fee`. **Win rate** = trades with net > 0 / trades. Counting per order, not per fill, stops a trader inflating the trade count by splitting orders (a real fixture: 739 fills, 6 trades).
    - **Profit factor**, **active days**, **volume bucket** (log10 band, never exact).
-   - Windows: 30d from `perpMonth`; 90/180d from `perpAllTime` points inside the window (the card shows sample count). Stretch: daily reconstruction from fills + `userFunding`.
-4. `rules.rs` (anti-gaming, refuse to issue otherwise): `trades ≥ 20`, `window ≥ 30d`, `first_activity ≤ window_start`. Return, MDD and trade count are **always** published.
+   - Windows: 30d from `month`; 90/180d from `allTime` points inside the window (the card shows the sample count). Stretch: daily reconstruction from fills + `userFunding`.
+4. `rules.rs` (anti-gaming, refuse to issue otherwise): `trades ≥ 20`; capital held for ≥ N − 1 days of an N-day window (`WINDOW_TOO_SHORT`); first funded (from `allTime`) before the window starts (`ACCOUNT_TOO_NEW`). Return, MDD and trade count are **always** published.
 5. `kanon.rs`: stream-parse the leaderboard (~40 MB; **spike S4** checks memory and time limits). Count accounts whose `month.roi` falls in the card's published return bucket. Coarsen the precision from 0.1% → 1% → 5% → named band until `k ≥ 25`. Output `k_anon` and `precision`. Fallback if it is too heavy: run it only for 30d cards, or ship a pinned leaderboard snapshot hash in the input.
 6. `commit.rs`: `commitment = hex(mac("commit", "hl:" ‖ lowercase(address)))`.
 7. `merkle.rs`: leaves = `sha256(canonical(coarsened_fill))` in time order. `fills_root` plus `fills_count`.
@@ -207,8 +206,9 @@ balances: LookupMap<AccountId, U128>, fee_bps: u16, usdc: AccountId
   "v": 1, "venue": "hyperliquid", "kind": "trader|agent",
   "issuer": "alice.near", "commitment": "9f…", "version": "<wasm sha256>",
   "window": { "start": 1790000000, "end": 1792592000, "days": 30, "samples": 45 },
-  "stats": { "return_bps": 1830, "precision_bps": 100, "max_dd_bps": 740,
-             "win_rate_bps": 5800, "trades": 64, "profit_factor_x100": 171, "volume_band": "1e6" },
+  "scope": "account", "mode": "live",
+  "stats": { "return_bps": 1830, "precision_bps": 100, "max_dd_bps": 740, "win_rate_bps": 5800, "trades": 64,
+             "profit_factor_x100": 171, "volume_band": "1e6", "active_days": 21, "flow_turnover_bps": 350 },
   "privacy": { "k_anon": 112, "k_min": 25 },
   "fills": { "root": "ab…", "count": 64 },
   "issued_at": 1792600000, "nonce": "…", "outlayer_request_id": "…"
@@ -262,7 +262,7 @@ proveit/
   contract/ Cargo.toml src/{lib,cards,versions,viewing,ft,events}.rs tests/ mock-outlayer/
   packages/verify/  src/{index,checks,canonical,near,outlayer}.ts bin/verify.ts bin/agent-guard.ts
   web/  app/ components/ lib/{near,evm,ecies,oneclick}.ts railway.toml   # Railway config-as-code (service root dir: web/)
-  scripts/ deploy-mainnet.sh issue-demo-card.sh demo.sh e2e-testnet.sh record-fixtures.ts crosscheck.ts leakcheck.py
+  scripts/ deploy-mainnet.sh issue-demo-card.sh demo.sh e2e-testnet.sh record-fixtures.ts reference-stats.ts gen-eip712-vectors.ts crosscheck.ts leakcheck.py p0-live.sh p1-check.sh
   test-vectors/  eip712.json merkle.json card-sig.json ecies.json ecies-follower.json   # shared by Rust and TS tests
   spikes/        s1 … s5 (P0 throwaway code)
   docs/          PHASES.md (test log) SPIKES.md METHODOLOGY.md CLAIMS.md
@@ -370,25 +370,27 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** the enclave computes correct, deterministic stats from real Hyperliquid data and only for a proven owner.
 
 **Tasks**
-- [ ] `scripts/record-fixtures.ts`: records `portfolio`, paginated `userFillsByTime`, `userNonFundingLedgerUpdates` and `clearinghouseState` for 3 accounts (HLP vault + 2 active leaderboard traders) into `enclave/fixtures/`.
-- [ ] `hl.rs` client with pagination (2,000 per page) and a fixture mode for tests.
-- [ ] `ownership.rs`: EIP-712 `ProveIt(address account,string nearAccount,uint64 nonce,uint64 expiry)`; `test-vectors/eip712.json` generated with viem.
-- [ ] `stats.rs`: TWR, MDD, trade grouping, win rate, profit factor, volume band (`rust_decimal`, no floats in outputs).
-- [ ] `rules.rs` with error codes `TOO_FEW_TRADES`, `WINDOW_TOO_SHORT`, `ACCOUNT_TOO_NEW`, `SIG_INVALID`, `SIG_EXPIRED`, `NEAR_ACCOUNT_MISMATCH`, `FILL_CAP_EXCEEDED`.
+- [x] `scripts/record-fixtures.ts`: records `portfolio` and paginated `userFillsByTime` for 5 public accounts into `enclave/fixtures/`: `winner`, `loser` (both pass), `few_orders`, `late_funded`, `hlp_vault` (each refused for a different rule).
+- [x] `scripts/reference-stats.ts`: an **independent** TypeScript implementation of the same spec; the golden `expected_stats.json` files come from it, not from the Rust code.
+- [x] `hl.rs` client with pagination and a fixture source; the binary's fixture mode is a compile-time feature that never ships.
+- [x] `ownership.rs`: EIP-712 as in §4.1; `test-vectors/eip712.json` generated with viem (`scripts/gen-eip712-vectors.ts`).
+- [x] `stats.rs`: linked Modified Dietz TWR, MDD, flow turnover, trade grouping, win rate, profit factor, volume band, active days (`rust_decimal`, integers only in outputs).
+- [x] `rules.rs` with error codes `TOO_FEW_TRADES`, `WINDOW_TOO_SHORT`, `ACCOUNT_TOO_NEW`, `SIG_INVALID`, `SIG_EXPIRED`, `NEAR_ACCOUNT_MISMATCH`, `FILL_CAP_EXCEEDED`.
+- [x] `docs/METHODOLOGY.md`; `scripts/p1-check.sh` runs every exit test; `.github/workflows/ci.yml` runs it offline on every push.
 
-**Exit tests** (`cargo test -p proveit-enclave`, all green)
+**Exit tests** (`scripts/p1-check.sh`, all green)
 
 | ID | Test | Pass when |
 |---|---|---|
 | T1.1 | `ownership::valid_signature` | the viem-generated vector is accepted |
-| T1.2 | `ownership::rejects_*` | wrong address → `SIG_INVALID`; other NEAR account → `NEAR_ACCOUNT_MISMATCH`; past expiry → `SIG_EXPIRED` |
-| T1.3 | `stats::golden_*` (3 fixtures) | output equals `fixtures/<acct>/expected_stats.json` byte for byte |
-| T1.4 | `stats::twr_ignores_deposits` (proptest) | injecting random deposits and withdrawals into the ledger never changes TWR |
+| T1.2 | `ownership::rejects_*` | other key / tampered fields / high-s → `SIG_INVALID`; other NEAR account → `NEAR_ACCOUNT_MISMATCH`; past expiry → `SIG_EXPIRED`; expiry > 24 h away → `BAD_INPUT` |
+| T1.3 | `stats::golden_*` (5 fixtures) | the Rust output equals `expected_stats.json` from the independent TypeScript reference, and the goldens are in sync with it |
+| T1.4 | `stats::twr_ignores_deposits` (proptest) | random deposits and withdrawals (never more than the account holds) don't change TWR: it equals Π(1 + r) of the generated returns |
 | T1.5 | `stats::mdd_bounds` | MDD always in [0, 10000] bps; strictly rising equity → MDD = 0 |
 | T1.6 | `stats::trade_grouping` | hand-built fixture: 3 orders with partial fills → exactly 3 trades and the known win rate |
 | T1.7 | `hl::pagination_no_duplicates` | 4,500-fill fixture split over pages → 4,500 unique fills (no duplicates at page boundaries) |
 | T1.8 | `rules::*` | 19 trades → `TOO_FEW_TRADES`; first activity after window start → `ACCOUNT_TOO_NEW`; > 10K fills → `FILL_CAP_EXCEEDED` |
-| T1.9 | `pnpm tsx scripts/crosscheck.ts <addr>` on 2 public accounts | our 30d return is within ±1pp of the leaderboard `month.roi` (difference explained in `docs/METHODOLOGY.md` if larger) |
+| T1.9 | `node scripts/crosscheck.ts <addr…>` | on ≥ 2 accounts with no flows **and** a current leaderboard snapshot, our 30d return is within ±1pp of the leaderboard `month.roi` (which is `PnL ÷ starting value`, not time-weighted, and often a stale snapshot) |
 | T1.10 | `wasmtime` run of the module in fixture mode | prints a complete unsigned card JSON that deserializes into the strict `Card` type |
 
 **Done when:** T1.1–T1.10 pass, they are in CI, and `docs/METHODOLOGY.md` documents every formula.
@@ -613,7 +615,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T10.2 | Simulated screener: a fresh Claude Code session with the prompt "Clone this repo, follow the README, and report which claims you could and could not verify" | every README claim is verified, or the README is fixed |
 | T10.3 | CI | all suites green on `main`, plus the reproducible-hash job |
 | T10.4 | Claims table `docs/CLAIMS.md` | every claim in the README maps to a test ID or a live link |
-| T10.5 | Security checklist, each item ticked with its test: enclave signs only messages it composes; EIP-712 domain includes chain and app name; nonces single-use; callbacks `#[private]`; failed runs refund; `ft_on_transfer` checks the sender is the USDC contract; relayer key is function-call only | every item ✔ |
+| T10.5 | Security checklist, each item ticked with its test: enclave signs only messages it composes; EIP-712 domain has app name and version, and the message binds the NEAR account, nonce and expiry; nonces single-use; callbacks `#[private]`; failed runs refund; `ft_on_transfer` checks the sender is the USDC contract; relayer key is function-call only | every item ✔ |
 | T10.6 | Railway production | all env vars from §4.8 set; `/`, `/create`, `/verify`, `/c/<id>`, `/api/verify` return 200; OG previews still render |
 
 **Done when:** T10.1–T10.6 pass. **Feature freeze starts here.**

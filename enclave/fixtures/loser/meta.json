@@ -1,0 +1,8 @@
+{
+  "address": "0xed01eec66dbbbd05fd43f2b340614dc7b62786ce",
+  "why": "passes every rule with a negative return: exercises rounding below zero",
+  "recorded_at": "2026-11-06T15:26:43.446Z",
+  "month_start": 1791328080036,
+  "month_end": 1793978801746,
+  "fills": 526
+}

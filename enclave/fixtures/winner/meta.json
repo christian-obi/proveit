@@ -1,0 +1,8 @@
+{
+  "address": "0xe986b8e58b5870dca58700c23b5303f20f6823a7",
+  "why": "passes every rule; fills span two API pages; some flows exercise Modified Dietz",
+  "recorded_at": "2026-11-06T15:26:41.768Z",
+  "month_start": 1791325080034,
+  "month_end": 1793978799608,
+  "fills": 2352
+}

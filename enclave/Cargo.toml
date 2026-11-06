@@ -1,0 +1,39 @@
+[package]
+name = "proveit-enclave"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Prove-It enclave: computes verifiable trading statistics inside an OutLayer Intel TDX enclave"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "proveit-enclave"
+path = "src/main.rs"
+
+[features]
+# Reads recorded Hyperliquid data from PROVEIT_FIXTURE_DIR instead of the network and
+# skips the ownership check. For local tests only: a build with it never ships, and its
+# cards say "mode": "fixture".
+fixtures = []
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rust_decimal = { version = "1", default-features = false, features = ["std", "serde-str"] }
+k256 = { version = "0.13", default-features = false, features = ["ecdsa", "arithmetic"] }
+sha3 = { version = "0.10", default-features = false }
+hex = "0.4"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasi-http-client = "0.2"
+
+[dev-dependencies]
+proptest = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1

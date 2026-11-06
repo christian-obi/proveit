@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  enclave:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: enclave
+      - uses: bytecodealliance/actions/wasmtime/setup@v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # P1 exit tests except T1.9, which needs the live leaderboard.
+      - run: OFFLINE=1 scripts/p1-check.sh
+
+  spikes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # S3: browser-side encryption to the OutLayer keystore (offline cases only).
+      - run: OFFLINE=1 node --test spikes/s3-secrets/test.mjs

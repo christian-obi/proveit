@@ -1,0 +1,8 @@
+{
+  "address": "0x0d807461709d1dc2005cfa7dc15716dcf30be423",
+  "why": "empty for the first half of the window: must be WINDOW_TOO_SHORT",
+  "recorded_at": "2026-11-06T15:26:45.840Z",
+  "month_start": 1791330600062,
+  "month_end": 1793978804153,
+  "fills": 344
+}
