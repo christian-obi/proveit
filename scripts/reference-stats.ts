@@ -1,11 +1,11 @@
 // Independent reference implementation of the card statistics.
 //
-//   node scripts/reference-stats.ts enclave/fixtures/<name> [--write]
+//   node scripts/reference-stats.ts enclave/fixtures/<name> [--days 7|30] [--write]
 //
 // Written separately from enclave/src/stats.rs from the same spec (docs/METHODOLOGY.md),
 // in floating point instead of decimals. The golden files the Rust tests compare
 // against come from HERE, so a bug has to be made twice, identically, to pass.
-// --write saves the result as <dir>/expected_stats.json.
+// --write saves the result as <dir>/expected_stats.json (30 days) or expected_stats_7d.json.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -74,7 +74,8 @@ export function tradeStats(fills: Fill[]) {
 export function expected(dir: string, windowDays = 30): Expected {
   const pf = new Map<string, Series>(JSON.parse(readFileSync(join(dir, "portfolio.json"), "utf8")));
   const allFills: Fill[] = JSON.parse(readFileSync(join(dir, "fills.json"), "utf8"));
-  const month = pf.get("month")!;
+  // 7 and 30 days use Hyperliquid's `week` and `month` windows (90/180 are not in the goldens).
+  const month = pf.get(windowDays === 1 ? "day" : windowDays === 7 ? "week" : "month")!;
   const allTime = pf.get("allTime")!;
 
   const end = month.accountValueHistory[month.accountValueHistory.length - 1][0];
@@ -85,7 +86,8 @@ export function expected(dir: string, windowDays = 30): Expected {
 
   const r = linkedReturn(month);
   if (!r) return { status: "err", code: "WINDOW_TOO_SHORT" };
-  if (Math.floor((r.end - r.start) / DAY) < windowDays - 1) return { status: "err", code: "WINDOW_TOO_SHORT" };
+  // Capital held for the window minus min(1 day, a fifth of the window).
+  if (r.end - r.start < windowDays * DAY - Math.min(DAY, (windowDays * DAY) / 5)) return { status: "err", code: "WINDOW_TOO_SHORT" };
 
   const fills = allFills.filter((f) => f.time >= r.start && f.time <= r.end);
   const t = tradeStats(fills);
@@ -110,7 +112,11 @@ export function expected(dir: string, windowDays = 30): Expected {
 if (import.meta.main) {
   const dir = process.argv[2];
   if (!dir) throw new Error("usage: node scripts/reference-stats.ts <fixture dir> [--write]");
-  const result = expected(dir);
+  const i = process.argv.indexOf("--days");
+  const days = i > 0 ? Number(process.argv[i + 1]) : 30;
+  if (![1, 7, 30].includes(days)) throw new Error("--days must be 1, 7 or 30");
+  const result = expected(dir, days);
   console.log(JSON.stringify(result, null, 2));
-  if (process.argv.includes("--write")) writeFileSync(join(dir, "expected_stats.json"), JSON.stringify(result, null, 2) + "\n");
+  const file = days === 30 ? "expected_stats.json" : `expected_stats_${days}d.json`;
+  if (process.argv.includes("--write")) writeFileSync(join(dir, file), JSON.stringify(result, null, 2) + "\n");
 }

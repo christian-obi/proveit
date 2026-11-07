@@ -8,6 +8,7 @@
 pub mod canonical;
 pub mod card;
 pub mod commit;
+pub mod door;
 pub mod error;
 pub mod hl;
 pub mod merkle;

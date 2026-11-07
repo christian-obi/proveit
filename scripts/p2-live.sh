@@ -91,7 +91,8 @@ case "${1:-}" in build | "") ;; *) check_account ;; esac
 
 case "${1:-}" in
   build)
-    { "$ROOT/enclave/build.sh" live; "$ROOT/enclave/build.sh" demo-fixture; } 2>&1 | log build
+    # P2 ran before builds carried a registry (P3); these builds name the P2 test contract.
+    { REGISTRY="$CONTRACT" "$ROOT/enclave/build.sh" live; REGISTRY="$CONTRACT" "$ROOT/enclave/build.sh" demo-fixture; } 2>&1 | log build
     ;;
 
   deploy)

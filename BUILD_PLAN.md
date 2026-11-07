@@ -429,27 +429,31 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 
 ---
 
-### P3 — Registry contract on testnet (Thu 5 – Fri 6 Nov AM)
+### P3 — Registry contract on testnet (built 7 Nov)
 **Goal:** the contract issues, stores and verifies cards, and only from approved enclave versions.
 
 **Tasks**
-- [ ] State and methods from §4.2: `bootstrap_key`/`on_pubkey`, `approve_version`/`retire_version`, `request_card`/`on_card`, `verify_card`, `revoke`, `refresh`, views, NEP-297 events.
-- [ ] `contract/mock-outlayer/`: a mock `outlayer` contract that returns fixture outputs signed with the test key.
-- [ ] Deploy to `proveit.testnet`; `scripts/e2e-testnet.sh`.
+- [x] `contract/` (near-sdk 5, Rust 1.86): `bootstrap_key`, `approve_version`/`retire_version`, `request_card`/`refresh` → `on_result` callback, `verify_card(card_id, card_json?)`, `revoke`, views (`get_card`, `get_card_by_hash`, `get_cards_by_issuer`, `get_cards_by_commitment`, `get_request`, `get_config`, `get_versions`), NEP-297 events (`standard: "proveit"`).
+- [x] The callback recomputes canonical bytes with **explicit key sorting** (not serde_json's map order, which a dependency's `preserve_order` feature would change), pinned to the enclave and TypeScript by `test-vectors/card-sig.json`.
+- [x] Each card stores the key that verified it; fixture cards are accepted only by registries initialised with `accept_fixture_cards: true`; live nonces are single-use; refused cards refund the 0.02 NEAR storage fee, and a failed OutLayer call refunds everything.
+- [x] Enclave: **door check** (`enclave/src/door.rs`, done early from T7.9): `issue`/`pubkey` run only on-chain from the registry compiled in as `PROVEIT_REGISTRY`, so each registry has its own reproducible build (`enclave/expected-hashes.txt`).
+- [x] Enclave and contract: **7-day and 1-day windows** (Hyperliquid's `week` and `day` series), so a new account can get a real card before the deadline; goldens from the TypeScript reference. A 1-day card is for live testing and is labelled as such in the UI.
+- [x] Testnet: `proveit-demo-registry.testnet` → project `enclave-demo` (fixture cards accepted) and `proveit-registry.testnet` → project `enclave` (live only); `scripts/e2e-testnet.sh`.
+- [~] ~~`contract/mock-outlayer/` + near-workspaces sandbox~~: replaced by unit tests that drive the real `on_result` callback with mocked OutLayer results (including refund receipts), plus the same flow against the **real** OutLayer on testnet. A sandbox would only have re-tested the cross-contract wiring that the testnet run already exercises for real.
 
 **Exit tests**
 
 | ID | Test | Pass when |
 |---|---|---|
-| T3.1 | `cargo test -p proveit-registry` (unit) | `on_card` rejects bad signature, wrong issuer, unapproved version, malformed JSON, failed promise; accepts a valid card |
-| T3.2 | Sandbox (`near-workspaces` + mock-outlayer): issuance | `request_card` → `on_card` → `get_card` returns the card; a `card_issued` event is emitted |
-| T3.3 | Sandbox: `bootstrap_key` | `card_pubkey` is set from the mock's `pubkey` output; non-owner call panics |
-| T3.4 | Sandbox: `verify_card` | valid → ok; edited JSON → `HASH_MISMATCH`; revoked → `REVOKED`; old → `STALE`; retired version → `VERSION_RETIRED` |
-| T3.5 | Sandbox: permissions and money | non-issuer `revoke` panics; deposit below minimum panics; failed execution refunds `payer_account_id` |
-| T3.6 | Live testnet: `scripts/e2e-testnet.sh` | issues a card for a real Hyperliquid account **with a real ownership signature from its wallet** (moved here from T2.8); `near view <registry> verify_card` returns `{"valid":true}` |
-| T3.7 | Gas log | `request_card` + callback complete under 300 Tgas with ≥ 20% margin (value logged) |
+| T3.1 | `cd contract && cargo test` | the callback rejects bad signature, edited card, wrong issuer, wrong window, unknown fields, malformed output, missing key, failed promise, fixture card on a live registry, reused nonce; accepts a valid card |
+| T3.2 | issuance end to end | unit: `request_card` → `on_result` → `get_card` / `get_card_by_hash` return the card; **live testnet**: a card issued through the demo registry and the real OutLayer TEE |
+| T3.3 | `bootstrap_key` | the key is set from the enclave's own `pubkey` output (unit and live); non-owner panics |
+| T3.4 | `verify_card` | VALID; same JSON in another key order → VALID; edited → `HASH_MISMATCH`; bad JSON → `BAD_CARD`; unknown → `NOT_FOUND`; old → `STALE`; retired → `VERSION_RETIRED`; revoked → `REVOKED`; refreshed → `SUPERSEDED` (unit; VALID and HASH_MISMATCH also live) |
+| T3.5 | permissions and money | non-owner bootstrap/approve and non-issuer revoke panic; deposit below 0.07 NEAR panics; refusal refunds the storage fee and a failed call refunds everything (asserted on the created receipts, and the 0.02 NEAR refund seen live) |
+| T3.6 | Live testnet: `scripts/e2e-testnet.sh` | issues a card for a real Hyperliquid account **with a real ownership signature from its wallet** (moved here from T2.8); `verify_card` returns VALID |
+| T3.7 | Gas log | `request_card` + callback under 300 Tgas with ≥ 20% margin (value logged) |
 
-**Done when:** T3.1–T3.7 pass and the sandbox suite is in CI.
+**Done when:** T3.1–T3.7 pass and the contract tests are in CI.
 
 ---
 
@@ -543,7 +547,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T7.6 | Live mainnet: $1 USDC `ft_transfer_call` | the browser shows the trades and "N/N Merkle-verified" |
 | T7.7 | `leakcheck.py` on the payment and reveal txs | 0 matches for the address; no plaintext trade data on-chain |
 | T7.8 | Sandbox: offer terms | the seat after `max_seats` is refunded; an expired grant fails `get_grant` and the enclave's check; `requires_approval` escrows, then `approve_buyer` grants and pays out, `reject_buyer` refunds in full; `revoke_grant` refunds the unused share |
-| T7.9 | `enclave::door_checks` | `issue` over HTTPS → refused; `issue` from a contract other than the registry → refused; `reveal` over HTTPS with a valid grant → allowed |
+| T7.9 | `enclave::door_checks` | `issue` over HTTPS → refused; `issue` from a contract other than the registry → refused; `reveal` over HTTPS with a valid grant → allowed. **Issue/pubkey part done in P3** (`enclave/tests/door.rs`, and refused live on testnet) |
 
 **Done when:** T7.1–T7.9 pass.
 

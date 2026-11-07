@@ -2,6 +2,9 @@
 //!
 //! stdin:  {"op": "pubkey"}                      → {"status":"ok","pubkey":"<hex>"}
 //!         {"op": "issue", "window_days": 30}    → {"status":"ok","card":{...},"sig":"<hex>"}
+//!         (window_days: 1, 7, 30, 90 or 180)
+//! door:   inside OutLayer, both ops run only on-chain and only when the caller is the
+//!         registry compiled in as PROVEIT_REGISTRY (src/door.rs)
 //! env:    PROVEIT_SECRET   {"venue":"hyperliquid","proof":{...OwnershipProof}}: an encrypted
 //!                          OutLayer secret, decrypted only inside the TEE
 //!         NEAR_SENDER_ID, NEAR_BLOCK_TIMESTAMP, NEAR_REQUEST_ID   set by the platform
@@ -45,6 +48,7 @@ fn run() -> Result<Value> {
     io::stdin().read_to_string(&mut raw).map_err(|e| Error::new(Code::BadInput, e.to_string()))?;
     let request: Request = serde_json::from_str(&raw).map_err(|e| Error::new(Code::BadInput, format!("bad input: {e}")))?;
     let platform = build::platform();
+    build::check_door()?;
     match request {
         Request::Pubkey => Ok(json!({ "status": "ok", "pubkey": hex::encode(platform.card_public_key()?) })),
         Request::Issue { window_days } => {
@@ -90,6 +94,11 @@ mod build {
         TestPlatform::default()
     }
 
+    /// Local runs have no registry; nothing here is accepted on-chain.
+    pub fn check_door() -> Result<()> {
+        Ok(())
+    }
+
     pub fn issue(platform: &TestPlatform, window_days: u32) -> Result<SignedCard> {
         let dir = env("PROVEIT_FIXTURE_DIR").ok_or_else(|| Error::new(Code::BadInput, "PROVEIT_FIXTURE_DIR is not set"))?;
         let source = FixtureSource { dir: dir.into() };
@@ -129,6 +138,17 @@ mod host {
     use encryption_keys_host::outlayer::encryption_keys::api as encryption_keys;
     use signing_keys_host::outlayer::signing_keys::api as signing_keys;
     use storage_host::near::storage::api as storage;
+
+    /// The registry contract allowed to issue cards (src/door.rs). Set by enclave/build.sh.
+    pub const REGISTRY: &str = env!("PROVEIT_REGISTRY");
+
+    pub fn check_door() -> Result<()> {
+        proveit_enclave::door::check_registry_door(
+            super::env("OUTLAYER_EXECUTION_TYPE").as_deref(),
+            super::env("NEAR_PREDECESSOR_ID").as_deref(),
+            REGISTRY,
+        )
+    }
 
     /// Must match the paths declared in manifest.json.
     const CARD_KEY: &str = "cards";
@@ -173,6 +193,7 @@ mod build {
     use proveit_enclave::hl::{Fill, Portfolio, Source};
     use proveit_enclave::pipeline::{self, IssueParams};
 
+    pub use super::host::check_door;
     pub use super::host::HostPlatform as Platform;
 
     pub fn platform() -> Platform {
@@ -220,6 +241,7 @@ mod build {
     use std::time::Duration;
     use wasi_http_client::Client as Http;
 
+    pub use super::host::check_door;
     pub use super::host::HostPlatform as Platform;
 
     pub fn platform() -> Platform {
@@ -310,6 +332,10 @@ mod build {
 
     pub fn platform() -> Unavailable {
         Unavailable
+    }
+
+    pub fn check_door() -> Result<()> {
+        Err(unavailable())
     }
 
     pub fn issue(_: &Unavailable, _: u32) -> Result<SignedCard> {

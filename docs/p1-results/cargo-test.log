@@ -1,4 +1,5 @@
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+   Compiling proveit-enclave v0.1.0 (/Users/realist/projects/proveit/enclave)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.72s
      Running unittests src/lib.rs (target/debug/deps/proveit_enclave-f2f3b0bfae4537d7)
 
 running 0 tests
@@ -14,8 +15,8 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/card.rs (target/debug/deps/card-5a2286c66802199f)
 
 running 8 tests
-test unknown_fields_are_refused ... ok
 test canonical_refuses_floats_and_non_ascii ... ok
+test unknown_fields_are_refused ... ok
 test canonical_is_stable ... ok
 test signature_vector ... ok
 test a_changed_field_breaks_the_signature ... ok
@@ -23,7 +24,17 @@ test refused_cards_are_not_stored_or_signed ... ok
 test issue_signs_commits_and_stores ... ok
 test output_size ... ok
 
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/door.rs (target/debug/deps/door-27b407a1a7acede1)
+
+running 4 tests
+test a_missing_execution_type_is_refused ... ok
+test another_contract_or_a_direct_call_is_refused ... ok
+test https_is_refused ... ok
+test the_registry_on_chain_is_allowed ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
      Running tests/merkle.rs (target/debug/deps/merkle-c98cd9a1f8c2b5d2)
 
@@ -37,15 +48,15 @@ test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/ownership.rs (target/debug/deps/ownership-1ffb95a45ffcc354)
 
 running 11 tests
-test rejects_another_near_account ... ok
 test rejects_expiry_too_far_ahead ... ok
 test rejects_expired_signature ... ok
-test digest_matches_viem ... ok
+test rejects_another_near_account ... ok
 test statement_matches_the_web_app ... ok
 test rejects_malformed_input ... ok
 test rejects_high_s_twin ... ok
-test rejects_signature_from_another_key ... ok
+test digest_matches_viem ... ok
 test checksummed_or_lowercase_account_both_work ... ok
+test rejects_signature_from_another_key ... ok
 test valid_signature ... ok
 test rejects_tampered_fields ... ok
 
@@ -65,6 +76,8 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 20 tests
 test mdd_is_zero_for_rising_equity ... ok
+test bad_window_length_is_refused ... ok
+test golden_hlp_vault ... ok
 test mdd_of_a_known_path ... ok
 test measurement_starts_at_first_funded_sample ... ok
 test never_funded_is_window_too_short ... ok
@@ -72,20 +85,18 @@ test non_usdc_fees_are_not_subtracted ... ok
 test periods_below_min_capital_are_skipped ... ok
 test profit_factor_is_none_without_losses ... ok
 test rounding_is_half_away_from_zero ... ok
-test golden_late_funded ... ok
 test rules_account_too_new ... ok
 test rules_too_few_trades ... ok
-test trade_grouping ... ok
 test rules_window_too_short ... ok
-test bad_window_length_is_refused ... ok
-test golden_hlp_vault ... ok
+test trade_grouping ... ok
+test golden_late_funded ... ok
 test golden_loser ... ok
 test golden_few_orders ... ok
-test golden_winner ... ok
 test mdd_bounds ... ok
+test golden_winner ... ok
 test twr_ignores_deposits ... ok
 
-test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
    Doc-tests proveit_enclave
 

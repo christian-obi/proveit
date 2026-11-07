@@ -1,0 +1,19 @@
+{
+  "status": "ok",
+  "window": {
+    "days": 7,
+    "start": 1793369280048,
+    "end": 1793978801746,
+    "samples": 62
+  },
+  "stats": {
+    "return_bps": 195,
+    "max_dd_bps": 376,
+    "win_rate_bps": 1884,
+    "trades": 69,
+    "profit_factor_x100": 141,
+    "volume_band": "1e6",
+    "active_days": 7,
+    "flow_turnover_bps": 14080
+  }
+}

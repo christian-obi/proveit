@@ -1,0 +1,10 @@
+Executing on-chain with NEAR deposit.
+
+Running proveit-realist.testnet/enclave (on-chain, ~0.0020 NEAR)...
+Tx: 2KuiGkL2gGNRdH5NnBLAhCQC2xnDxqK9uXgK8CWkoVaB
+{
+  "code": "BAD_INPUT",
+  "message": "only the registry (proveit-registry.testnet) may ask for cards, not proveit-realist.testnet",
+  "status": "err"
+}
+PASS: a direct call to the live enclave is refused

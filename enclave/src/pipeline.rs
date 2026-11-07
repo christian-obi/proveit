@@ -12,13 +12,16 @@ use crate::stats::{self, MIN_CAPITAL, MS_PER_DAY};
 use rust_decimal::Decimal;
 use serde_json::json;
 
-pub const WINDOWS: [u32; 3] = [30, 90, 180];
+pub const WINDOWS: [u32; 5] = [1, 7, 30, 90, 180];
 pub const VENUE: &str = "hyperliquid";
 
-/// The account-value series for a window. 30 days uses Hyperliquid's `month` window
-/// (denser sampling); 90 and 180 days slice the sparser `allTime` window.
+/// The account-value series for a window. 1, 7 and 30 days use Hyperliquid's `day`, `week`
+/// and `month` windows (dense sampling); 90 and 180 days slice the sparser `allTime` window.
+/// 1-day cards exist for live testing with a new account; the UI labels them as such.
 pub fn select_series(portfolio: &Portfolio, window_days: u32) -> Result<Series> {
     match window_days {
+        1 => Ok(portfolio.window("day")?.clone()),
+        7 => Ok(portfolio.window("week")?.clone()),
         30 => Ok(portfolio.window("month")?.clone()),
         90 | 180 => {
             let all = portfolio.window("allTime")?;
@@ -27,7 +30,7 @@ pub fn select_series(portfolio: &Portfolio, window_days: u32) -> Result<Series> 
             let keep = |pts: &[Point]| pts.iter().copied().filter(|p| p.t >= start).collect::<Vec<_>>();
             Ok(Series { account_value: keep(&all.account_value), pnl: keep(&all.pnl) })
         }
-        other => Err(Error::new(Code::BadInput, format!("window_days must be 30, 90 or 180, not {other}"))),
+        other => Err(Error::new(Code::BadInput, format!("window_days must be 1, 7, 30, 90 or 180, not {other}"))),
     }
 }
 

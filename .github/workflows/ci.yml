@@ -22,6 +22,17 @@ jobs:
       # P1 exit tests (and the cargo tests for T2.1–T2.4) except T1.9, which needs the live leaderboard.
       - run: OFFLINE=1 scripts/p1-check.sh
 
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # contract/rust-toolchain.toml pins Rust 1.86; rustup on the runner picks it up.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: contract
+      # P3: registry checks driven through the real callback with mocked OutLayer results.
+      - run: cd contract && cargo test
+
   typescript:
     runs-on: ubuntu-latest
     steps:

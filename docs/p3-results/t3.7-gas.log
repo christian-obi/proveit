@@ -1,0 +1,6 @@
+T3.7 gas for one 30-day card (tx Cfavm4Xp…, testnet)
+  request_card                          2.87 Tgas
+  outlayer.testnet                      4.06 Tgas
+  outlayer.testnet                      3.23 Tgas
+  on_result (registry callback)         3.94 Tgas
+  total burnt                          15.74 Tgas of 300 prepaid  (95% margin)

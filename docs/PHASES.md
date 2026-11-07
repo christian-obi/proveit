@@ -59,3 +59,23 @@ Offline: `scripts/p1-check.sh` (cargo tests) and `scripts/p2-check.sh`. Live: `s
 **Testnet deployment:** `proveit-realist.testnet/enclave` live `8fac34b1…4b29`; `proveit-realist.testnet/enclave-demo` `3b2ab5f6…1ef7`.
 
 **P2 status:** ✔ complete (8 of 8, T2.8 with the deviation noted), 6 Nov 2026.
+
+## P3 — Registry contract on testnet
+
+Offline: `cd contract && cargo test` (26 tests, in CI). Live: `scripts/e2e-testnet.sh` (evidence in [p3-results/](p3-results/)).
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T3.1 | the callback accepts only valid cards | ✔ | 12 accept/refuse tests through the real `on_result` callback with mocked OutLayer results; mutation check: removing the signature, issuer or tamper check each fails tests |
+| T3.2 | issuance end to end | ✔ | unit + **live**: card #0 on `proveit-demo-registry.testnet` through the real OutLayer TEE (tx `Cfavm4Xp…`, [log](p3-results/demo.log)) |
+| T3.3 | `bootstrap_key` from the enclave's own output | ✔ | live: demo registry `b5147545…200d`, live registry `641f094f…0cb0` (different keys: they're bound to the calling registry); non-owner panics |
+| T3.4 | `verify_card` statuses | ✔ | unit: all 9 statuses; live: VALID by id and by exact JSON, HASH_MISMATCH after +20pp on the return |
+| T3.5 | permissions and money | ✔ | unit (refund receipts asserted); live: refused card refunded exactly 0.02 NEAR ([log](p3-results/live-leakcheck.log)) |
+| T3.6 | real Hyperliquid account, real wallet signature, VALID card | ☐ | **waiting for a Hyperliquid account**: funded at least 24 hours earlier, with 20+ trades in the last day (a 1-day card). Everything up to it is proven live: an encrypted secret with an ownership proof (public test key) went through the live registry, the enclave verified the signature, fetched real Hyperliquid data and refused with `TOO_FEW_TRADES`; the address appears in neither transaction ([log](p3-results/live.log)) |
+| T3.7 | gas under 300 Tgas with ≥ 20% margin | ✔ | 15.74 Tgas total, 95% margin; callback 3.94 of 60 Tgas ([log](p3-results/t3.7-gas.log)) |
+
+**Also done in P3:** the door check (T7.9's issue/pubkey part): a direct call to the live enclave is refused ([log](p3-results/door.log)); 7-day and **1-day** windows, with goldens (a 1-day card needs capital held for ~19 of the 24 hours, the account funded before the window, and 20 trades). After the 1-day change: enclave builds redeployed, both registries upgraded in place, card #1 issued and VALID, old card #0 still VALID.
+
+**Testnet:** registries `proveit-demo-registry.testnet` and `proveit-registry.testnet` (owner `proveit-realist.testnet`); current enclave builds `cbac5209…` (demo) and `2fc1b727…` (live), in `enclave/expected-hashes.txt` (earlier `84dfc867…`/`3cb8dd63…` stay approved).
+
+**P3 status:** 6 of 7. T3.6 waits for a Hyperliquid account; nothing else in P3 is open.

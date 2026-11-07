@@ -1,0 +1,6 @@
+keystore pubkey: fdb3a59814fdb540069b08323bd4ea17507d70c7e6172463195e9dbae1710d7e
+expected secret_hash in the enclave: 54605a4948931d2382996b2316df23a701b3fda375ffbae4b58745e668c686ab
+
+Store it (deposit covers storage; check with estimate_storage_cost if it fails):
+
+near contract call-function as-transaction outlayer.testnet store_secrets json-args '{"accessor":{"Project":{"project_id":"proveit-realist.testnet/enclave"}},"profile":"p3live","encrypted_secrets_base64":"Aejm2TEXrUGgJeZwJ2/CNtr9zruR7ZYPdA+mMqiuU99Ec1i3Y+1BCo3WM1CUkpGfNqRIdIKZW7WdAko93j8amfkHKbjw2jA7TLB6LFL7nlTDLIi3M54+7y48pvIT1C7w1qS9MQ7Rg21hMyUQMiWzyRSpgvy0FbXVnXVqe8AyUh6vRujFyR+mZUuP1kcQ/4yYgOBjTgyuaQosFur35xGnnqu0CkVQOlGhWSLlJwfOoY5OXbMrbRx6ylC+swtbbHhV5HKdMRjUYuEv0ktfGKEJTNK6o6Yvbz6h74IsWE0TgzJezNy4yAglJan1Yx/l10lA48tue/u+j6jLFWEn3wovPxkzSE8cIwOmJDtes2dtbosQHnincProqR+5D5pmkVyP8qoVyxaCrUZti+69mrOsfnpk6a+xbhktpw0x62HGoXwJJZSncvPD3W8THR2FgR5j/xGgbT/6Ssvsu4YG8M2g+ls5+5ChNYaB7rfhSkVNxgI4GcvMiRTgia+MPwwxI/o3cZYO+1BeLZIlCkKTFqpliAuiJMGgoqLpj5b3kZ1S7oGhEbuFrb70cKazARkva8Pz5g==","access":{"Whitelist":{"accounts":["proveit-realist.testnet"]}},"vault_id":null}' prepaid-gas '100.0 Tgas' attached-deposit '0.01 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send

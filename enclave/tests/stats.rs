@@ -13,15 +13,22 @@ fn fixture(name: &str) -> FixtureSource {
     FixtureSource { dir: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures").join(name) }
 }
 
-fn expected(name: &str) -> Value {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures").join(name).join("expected_stats.json");
+fn expected(name: &str, days: u32) -> Value {
+    let file = if days == 30 { "expected_stats.json".to_string() } else { format!("expected_stats_{days}d.json") };
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures").join(name).join(file);
     serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
 
 /// T1.3: every fixture matches the independent reference (scripts/reference-stats.ts).
 fn golden(name: &str) {
-    let exp = expected(name);
-    let got = pipeline::measure(&fixture(name), "fixture", 30);
+    golden_days(name, 30);
+    golden_days(name, 7);
+    golden_days(name, 1);
+}
+
+fn golden_days(name: &str, days: u32) {
+    let exp = expected(name, days);
+    let got = pipeline::measure(&fixture(name), "fixture", days);
     match exp["status"].as_str().unwrap() {
         "ok" => {
             let m = got.unwrap_or_else(|e| panic!("{name}: expected a card, got {e}"));

@@ -1,0 +1,75 @@
+storing the encrypted secret
+The "store_secrets" call to <outlayer.testnet> on behalf of <proveit-realist.testnet> succeeded.
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  request_card
+│                       args:         {
+│                                       "secrets_profile": "p3live",
+│                                       "window_days": 30
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0.07 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:3bHNuy9XMpJ7PobdQbGMbRPT8vgNyiTqATs6kbVP9HMaH7CpfcDaVaFcfUSqquSd7NwRaAZuRFnbaubVKBuVepbp
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.311 Tgas
+│    Transaction fee: 0.0000310777471755 NEAR
+│    Transaction ID: 7kqGepFBS7JZutUbi787A9p9gnnx4FYibFuQvdo9EaFj
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/7kqGepFBS7JZutUbi787A9p9gnnx4FYibFuQvdo9EaFj
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_started","data":[{"request":2,"signer":"proveit-realist.testnet","version":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6"}]}
+│    Logs [outlayer.testnet]:
+│      Resolved project: proveit-realist.testnet/enclave, version: "3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6", source: WasmUrl { url: "https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6.wasm", hash: "3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6", build_target: Some("wasm32-wasip2") }, uuid: p00000000000000ff
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_requested","data":[{"request_data":"{\"request_id\":12247,\"sender_id\":\"proveit-realist.testnet\",\"predecessor_id\":\"proveit-registry.testnet\",\"code_source\":{\"WasmUrl\":{\"url\":\"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6.wasm\",\"hash\":\"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6\",\"build_target\":\"wasm32-wasip2\"}},\"resource_limits\":{\"max_instructions\":30000000000,\"max_memory_mb\":256,\"max_execution_seconds\":120},\"input_data\":\"{\\\"op\\\":\\\"issue\\\",\\\"window_days\\\":30}\",\"input_data_in_state\":false,\"secrets_ref\":{\"profile\":\"p3live\",\"account_id\":\"proveit-realist.testnet\"},\"response_format\":\"Json\",\"payment\":\"50000000000000000000000\",\"attached_usd\":\"0\",\"timestamp\":1794066121599971411,\"compile_only\":false,\"force_rebuild\":false,\"store_on_fastfs\":false,\"use_bound_identity\":false,\"project_uuid\":\"p00000000000000ff\",\"project_id\":\"proveit-realist.testnet/enclave\"}","data_id":[22,145,167,253,42,45,12,160,40,183,82,243,34,245,244,245,22,234,139,83,227,61,25,205,86,32,191,171,156,43,135,31],"timestamp":1794066121599971411}]}
+│    Logs [outlayer.testnet]:
+│      [[yNEAR charged: "1184701400000000000000"]]
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_completed","data":[{"sender_id":"proveit-realist.testnet","code_source":{"WasmUrl":{"url":"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6.wasm","hash":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6","build_target":"wasm32-wasip2"}},"resources_used":{"instructions":14134627,"time_ms":1847,"compile_time_ms":null},"success":true,"error_message":null,"payment_charged":"1184701400000000000000","payment_refunded":"48815298600000000000000","compilation_note":"Cached WASM from 2026-11-07T15:39:32.741870+00:00","timestamp":1794066128446581650}]}
+│      Execution completed successfully. Output: Json(101 bytes), Resources: { instructions: 14134627, time_ms: 1847 }, Cost: 1184701400000000000000 yoctoNEAR, Refund: 48815298600000000000000 yoctoNEAR, Cached WASM from 2026-11-07T15:39:32.741870+00:00
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_refused","data":[{"request":2,"signer":"proveit-realist.testnet","code":"TOO_FEW_TRADES","message":"0 trades in the window; at least 20 are required"}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "Refused": {
+    "code": "TOO_FEW_TRADES",
+    "message": "0 trades in the window; at least 20 are required"
+  }
+}
+
+
+The "request_card" call to <proveit-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-registry.testnet request_card json-args '{"window_days":30,"secrets_profile":"p3live"}' prepaid-gas '300.0 Tgas' attached-deposit '0.07 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+== live request 2 tx 7kqGepFBS7JZutUbi787A9p9gnnx4FYibFuQvdo9EaFj → {"Refused":{"code":"TOO_FEW_TRADES","message":"0 trades in the window; at least 20 are required"}}
+expected: TOO_FEW_TRADES (the test key's account never traded), with the 0.02 NEAR storage fee refunded
+== leak check: store_secrets GhS5H2utV1iAaAv2yndY1j2Lbv6QSSKiNub6sZgc9VJd, request_card 7kqGepFBS7JZutUbi787A9p9gnnx4FYibFuQvdo9EaFj
+GhS5H2utV1iAaAv2yndY1j2Lbv6QSSKiNub6sZgc9VJd: {'0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0, 'f39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0}
+7kqGepFBS7JZutUbi787A9p9gnnx4FYibFuQvdo9EaFj: {'0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0, 'f39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0}
+control 'TOO_FEW_TRADES': 4 hit(s)
+PASS: no needle found

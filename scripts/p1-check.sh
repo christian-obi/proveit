@@ -18,10 +18,13 @@ cargo test 2>&1 | tee "$OUT/cargo-test.log" | grep -E "^test |test result"
 echo "== golden files are in sync with the independent reference (scripts/reference-stats.ts)"
 for dir in fixtures/*/; do
   name=$(basename "$dir")
-  if ! diff <(node "$ROOT/scripts/reference-stats.ts" "$dir") "$dir/expected_stats.json" > /dev/null; then
-    echo "  ✘ $name: expected_stats.json is stale; regenerate with --write" && exit 1
-  fi
-  echo "  ✔ $name"
+  for days in 30 7 1; do
+    file=expected_stats.json; [[ "$days" == 30 ]] || file="expected_stats_${days}d.json"
+    if ! diff <(node "$ROOT/scripts/reference-stats.ts" "$dir" --days "$days") "$dir/$file" > /dev/null; then
+      echo "  ✘ $name: $file is stale; regenerate with --days $days --write" && exit 1
+    fi
+  done
+  echo "  ✔ $name (30, 7 and 1 days)"
 done
 
 echo "== T1.10: wasm binary on fixtures (strict Card parse)"
@@ -42,8 +45,8 @@ W=target-fixtures/wasm32-wasip2/release/proveit-enclave.wasm
   done
 } | tee "$OUT/t1.10-wasm.log"
 
-echo "== live wasm build compiles"
-cargo build -q --target wasm32-wasip2 --release
+echo "== live wasm build compiles (reproducible builds with real registries: scripts/p2-check.sh)"
+PROVEIT_REGISTRY=ci-compile-check.testnet cargo build -q --target wasm32-wasip2 --release
 shasum -a 256 target/wasm32-wasip2/release/proveit-enclave.wasm | tee "$OUT/live-wasm-sha256.txt"
 
 if [[ "${OFFLINE:-0}" != "1" ]]; then

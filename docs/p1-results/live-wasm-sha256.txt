@@ -1,1 +1,1 @@
-f71d32d06ddb3424212ece7791ffa73e679f6bb637832e95dbc601f33cd28897  target/wasm32-wasip2/release/proveit-enclave.wasm
+b9dbad792c9238cda46e94d6dc7465a7abfef731de4bceea41ddf419f6b5f0ec  target/wasm32-wasip2/release/proveit-enclave.wasm

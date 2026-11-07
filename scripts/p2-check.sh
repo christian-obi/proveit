@@ -25,9 +25,14 @@ node --test packages/verify/src/*.test.ts 2>&1 | grep -E "^ℹ (pass|fail|skippe
 
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   echo "== T2.5/T2.6: reproducible builds match enclave/expected-hashes.txt"
-  enclave/build.sh live | tail -1
-  enclave/build.sh demo-fixture | tail -1
-  (cd enclave && grep -v '^#' expected-hashes.txt | shasum -a 256 -c -)
+  while read -r variant registry expected; do
+    [[ -z "$variant" || "$variant" == \#* ]] && continue
+    name=proveit-enclave.wasm; [[ "$variant" == live ]] || name="proveit-enclave-$variant.wasm"
+    REGISTRY="$registry" enclave/build.sh "$variant" | tail -1
+    got=$(shasum -a 256 "enclave/dist/$name" | cut -d' ' -f1)
+    [[ "$got" == "$expected" ]] || { echo "  ✘ $variant for $registry: built $got, expected $expected"; exit 1; }
+    echo "  ✔ $variant for $registry: $got"
+  done < enclave/expected-hashes.txt
   for w in enclave/dist/*.wasm; do
     n=$(wasm-tools print "$w" | grep -c 'outlayer.manifest' || true)
     [[ "$n" -ge 1 ]] || { echo "  ✘ $w has no outlayer.manifest section"; exit 1; }

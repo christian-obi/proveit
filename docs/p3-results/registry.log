@@ -1,0 +1,390 @@
+== proveit-demo-registry.testnet → proveit-realist.testnet/enclave-demo (accept_fixture_cards=true)
+Migrating config.toml from V1 to V2...
+Migrating config.toml from V2 to V3...
+Migrating config.toml from V3 to v4...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+• Collecting cargo project metadata...
+• done
+
+• Checking rustc version...
+• done
+
+• Checking the host environment...
+• done
+
+• Generating ABI
+ │    Compiling proveit-registry v0.1.0 (/Users/realist/projects/proveit/contract)
+ │     Finished `dev` profile [unoptimized] target(s) in 1.26s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │    Compiling proveit-registry v0.1.0 (/Users/realist/projects/proveit/contract)
+ │     Finished `release` profile [optimized] target(s) in 2.65s
+
+Modification timestamps of:
+ |    "/Users/realist/projects/proveit/contract/target/wasm32-unknown-unknown/release/proveit_registry.wasm" = SystemTime { tv_sec: 1794065888, tv_nsec: 447657010 }
+ |    "/Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm" = SystemTime { tv_sec: 1794065278, tv_nsec: 242528005 }
+
+• Running an optimize for size post-step with wasm-opt ...
+    Finished wasm-opt -O in 613ms
+• done
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm
+     -                  Size: 280.1 KB (280124 bytes)
+     - SHA-256 checksum hex : 7d01a89f65da6857970977adcfe3358d13111c365020b570e1b069fe0b432256
+     - SHA-256 checksum bs58: 9QyRtieyoWwCQv5oin3XAuTQdRPP8WPC2azkgVKfR8GM
+     -                   ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.json
+     -          Embedded ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.zst
+    Finished cargo near build in 6s
+├  [0mUnsigned transaction:
+│    signer_id:    proveit-demo-registry.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- deploy code <9QyRtieyoWwCQv5oin3XAuTQdRPP8WPC2azkgVKfR8GM> to a account <proveit-demo-registry.testnet>
+│       -- function call:      
+│                       method name:  new
+│                       args:         {
+│                                       "accept_fixture_cards": true,
+│                                       "outlayer": "outlayer.testnet",
+│                                       "owner": "proveit-realist.testnet",
+│                                       "project_id": "proveit-realist.testnet/enclave-demo"
+│                                     }
+│                       gas:          100.0 Tgas
+│                       deposit:      0 NEAR
+│     
+├  [0mYour transaction was signed successfully.
+│    Public key: ed25519:Ads2mMMTZ8zuAACwBqG4BazDYCLdoUjY2TTSiRkqLrHa
+│    Signature:  ed25519:337UMCdd9LKXRRtY5GbtCk5p3Q2CYmq7xB43spaTFpiwYCvGfFqBZ5m2H73vLYTQzRQeKx7rsoKukrUQt4ZLdF12
+│     
+├  [0mTransaction Execution Info:
+│    Gas burned: 2.5 Tgas
+│    Transaction fee: 0.0002401640700108 NEAR
+│    Transaction ID: 7Y9RdtTRpG39GxkB4HP6TSsLibGtAvNueYk7PZ7ZrzMH
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/7Y9RdtTRpG39GxkB4HP6TSsLibGtAvNueYk7PZ7ZrzMH
+│     
+├  [0mFunction execution logs:
+│    Logs [proveit-demo-registry.testnet]:   No logs
+│    Logs [proveit-demo-registry.testnet]:   No logs
+│     
+├  [0mFunction execution return value:
+│    Empty return value
+│     
+
+Contract code has been successfully deployed.
+The "new" call to <proveit-demo-registry.testnet> on behalf of <proveit-demo-registry.testnet> succeeded.
+
+
+Here is the console command if you ever need to re-run it again:
+cargo near deploy build-non-reproducible-wasm proveit-demo-registry.testnet with-init-call new json-args '{"owner":"proveit-realist.testnet","outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/enclave-demo","accept_fixture_cards":true}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send
+
+cargo-near has a new update available 0.22.0 → 0.23.0
+To update run: /Users/realist/.cargo/bin/cargo-near near self-update
+Migrating config.toml from V4 to V5...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  approve_version
+│                       args:         {
+│                                       "hash": "84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:4ZetNRQzocUdHHGeKdxDRSj3jNdBbpcYnN9DXyj1rejiAS4nktKyjb6E36fhvQmZEA2juR78ogwxJViESLBzgEcV
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031235103435 NEAR
+│    Transaction ID: GJnk6L5k41STq5LcbazNWKSA3jQDuDt31CJK3HdPBQL1
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/GJnk6L5k41STq5LcbazNWKSA3jQDuDt31CJK3HdPBQL1
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"version_approved","data":[{"hash":"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084"}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "approve_version" call to <proveit-demo-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-demo-registry.testnet approve_version json-args '{"hash":"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084"}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  bootstrap_key
+│                       args:         {}
+│                       gas:          300.0 Tgas
+│                       deposit:      0.05 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:SsrykNjoAVyd2nzwtJRiVMW8eg24rnVrjBTHS8X8XGdRRfkzh9L18GAee7JKCqc45o8GKS727B2YY9Lj4fSZFPA
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.309 Tgas
+│    Transaction fee: 0.0000308774755725 NEAR
+│    Transaction ID: 2UKbhZT6az8EUBhMzdXKF1WKYjVyXv5ewfLb57pofa3d
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/2UKbhZT6az8EUBhMzdXKF1WKYjVyXv5ewfLb57pofa3d
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_started","data":[{"request":0,"signer":"proveit-realist.testnet","version":"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084"}]}
+│    Logs [outlayer.testnet]:
+│      Resolved project: proveit-realist.testnet/enclave-demo, version: "84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084", source: WasmUrl { url: "https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084.wasm", hash: "84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084", build_target: Some("wasm32-wasip2") }, uuid: p0000000000000100
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_requested","data":[{"request_data":"{\"request_id\":12242,\"sender_id\":\"proveit-realist.testnet\",\"predecessor_id\":\"proveit-demo-registry.testnet\",\"code_source\":{\"WasmUrl\":{\"url\":\"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084.wasm\",\"hash\":\"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084\",\"build_target\":\"wasm32-wasip2\"}},\"resource_limits\":{\"max_instructions\":30000000000,\"max_memory_mb\":256,\"max_execution_seconds\":120},\"input_data\":\"{\\\"op\\\":\\\"pubkey\\\"}\",\"input_data_in_state\":false,\"secrets_ref\":null,\"response_format\":\"Json\",\"payment\":\"50000000000000000000000\",\"attached_usd\":\"0\",\"timestamp\":1794065922956935245,\"compile_only\":false,\"force_rebuild\":false,\"store_on_fastfs\":false,\"use_bound_identity\":false,\"project_uuid\":\"p0000000000000100\",\"project_id\":\"proveit-realist.testnet/enclave-demo\"}","data_id":[133,90,140,224,68,221,165,254,164,129,184,163,253,88,85,70,105,47,196,161,252,89,187,9,124,105,113,46,181,67,246,247],"timestamp":1794065922956935245}]}
+│    Logs [outlayer.testnet]:
+│      [[yNEAR charged: "1136400000000000000000"]]
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_completed","data":[{"sender_id":"proveit-realist.testnet","code_source":{"WasmUrl":{"url":"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084.wasm","hash":"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084","build_target":"wasm32-wasip2"}},"resources_used":{"instructions":59906,"time_ms":577,"compile_time_ms":787},"success":true,"error_message":null,"payment_charged":"1136400000000000000000","payment_refunded":"48863600000000000000000","compilation_note":"Freshly compiled","timestamp":1794065929276969334}]}
+│      Execution completed successfully. Output: Json(91 bytes), Resources: { instructions: 59906, time_ms: 577 }, Cost: 1136400000000000000000 yoctoNEAR, Refund: 48863600000000000000000 yoctoNEAR, Freshly compiled
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"key_set","data":[{"pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d"}]}
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_done","data":[{"request":0,"outcome":{"KeySet":{"pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d"}}}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "KeySet": {
+    "pubkey": "b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d"
+  }
+}
+
+
+The "bootstrap_key" call to <proveit-demo-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-demo-registry.testnet bootstrap_key json-args {} prepaid-gas '300.0 Tgas' attached-deposit '0.05 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+bootstrap: {"KeySet":{"pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d"}}
+{"owner":"proveit-realist.testnet","outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/enclave-demo","active_version":"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084","card_pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d","accept_fixture_cards":true,"stale_after_secs":1209600,"cards":0,"requests":1}
+== proveit-registry.testnet → proveit-realist.testnet/enclave (accept_fixture_cards=false)
+Migrating config.toml from V1 to V2...
+Migrating config.toml from V2 to V3...
+Migrating config.toml from V3 to v4...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+• Collecting cargo project metadata...
+• done
+
+• Checking rustc version...
+• done
+
+• Checking the host environment...
+• done
+
+• Generating ABI
+ │     Finished `dev` profile [unoptimized] target(s) in 0.22s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │     Finished `release` profile [optimized] target(s) in 0.16s
+
+Modification timestamps of:
+ |    "/Users/realist/projects/proveit/contract/target/wasm32-unknown-unknown/release/proveit_registry.wasm" = SystemTime { tv_sec: 1794065888, tv_nsec: 447657010 }
+ |    "/Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm" = SystemTime { tv_sec: 1794065278, tv_nsec: 242528005 }
+
+• Running an optimize for size post-step with wasm-opt ...
+    Finished wasm-opt -O in 563ms
+• done
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm
+     -                  Size: 280.1 KB (280124 bytes)
+     - SHA-256 checksum hex : 7d01a89f65da6857970977adcfe3358d13111c365020b570e1b069fe0b432256
+     - SHA-256 checksum bs58: 9QyRtieyoWwCQv5oin3XAuTQdRPP8WPC2azkgVKfR8GM
+     -                   ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.json
+     -          Embedded ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.zst
+    Finished cargo near build in 2s
+├  [0mUnsigned transaction:
+│    signer_id:    proveit-registry.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- deploy code <9QyRtieyoWwCQv5oin3XAuTQdRPP8WPC2azkgVKfR8GM> to a account <proveit-registry.testnet>
+│       -- function call:      
+│                       method name:  new
+│                       args:         {
+│                                       "accept_fixture_cards": false,
+│                                       "outlayer": "outlayer.testnet",
+│                                       "owner": "proveit-realist.testnet",
+│                                       "project_id": "proveit-realist.testnet/enclave"
+│                                     }
+│                       gas:          100.0 Tgas
+│                       deposit:      0 NEAR
+│     
+├  [0mYour transaction was signed successfully.
+│    Public key: ed25519:CetW9dYqEbcpR71eXowG5ms6t6dWWch8EvvzDqQ8x4qQ
+│    Signature:  ed25519:4GrPhrVdH1D9NHVd7NuRBMUCEhuvwhxsrBkrgX8Fy1kr62g1K2T4J31z7o9BW5mPd3SkpJgEmKXdx88C4Qazd8P4
+│     
+├  [0mTransaction Execution Info:
+│    Gas burned: 2.5 Tgas
+│    Transaction fee: 0.0002401631756372 NEAR
+│    Transaction ID: Cfz5pKippn11RafAyzoAcW8Jfcmd3ovy8VQxFngeyi7q
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/Cfz5pKippn11RafAyzoAcW8Jfcmd3ovy8VQxFngeyi7q
+│     
+├  [0mFunction execution logs:
+│    Logs [proveit-registry.testnet]:   No logs
+│    Logs [proveit-registry.testnet]:   No logs
+│     
+├  [0mFunction execution return value:
+│    Empty return value
+│     
+
+Contract code has been successfully deployed.
+The "new" call to <proveit-registry.testnet> on behalf of <proveit-registry.testnet> succeeded.
+
+
+Here is the console command if you ever need to re-run it again:
+cargo near deploy build-non-reproducible-wasm proveit-registry.testnet with-init-call new json-args '{"owner":"proveit-realist.testnet","outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/enclave","accept_fixture_cards":false}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send
+
+cargo-near has a new update available 0.22.0 → 0.23.0
+To update run: /Users/realist/.cargo/bin/cargo-near near self-update
+Migrating config.toml from V4 to V5...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  approve_version
+│                       args:         {
+│                                       "hash": "3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:5TznVW4yeZ6ZtKRGFMcdhbmfKya8S5kUNEv9e1uUD8JkVAgrMsctD4fhmovpjQtiTUmEYUkbLe2Pua7c6pwbAFa9
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031235103435 NEAR
+│    Transaction ID: Cve6pb6Xxh6iR9DMCRyKeT4fkggDwGNBJL4pWLEpXnQ7
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/Cve6pb6Xxh6iR9DMCRyKeT4fkggDwGNBJL4pWLEpXnQ7
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"version_approved","data":[{"hash":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6"}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "approve_version" call to <proveit-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-registry.testnet approve_version json-args '{"hash":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6"}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  bootstrap_key
+│                       args:         {}
+│                       gas:          300.0 Tgas
+│                       deposit:      0.05 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:zZMdfe6M2GUGSbftQpGRsiVmpfZ1XF1Rk7BajgbdjbNKPswx8PogtPU58DHk5AFRJFgzP4xrXAyPqfAzKVRsFKg
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.309 Tgas
+│    Transaction fee: 0.0000308774755725 NEAR
+│    Transaction ID: Dky8SQcmcdZPsGPEJAFLABNwQYRwbVc1keLAQkUdHGR5
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/Dky8SQcmcdZPsGPEJAFLABNwQYRwbVc1keLAQkUdHGR5
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_started","data":[{"request":0,"signer":"proveit-realist.testnet","version":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6"}]}
+│    Logs [outlayer.testnet]:
+│      Resolved project: proveit-realist.testnet/enclave, version: "3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6", source: WasmUrl { url: "https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6.wasm", hash: "3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6", build_target: Some("wasm32-wasip2") }, uuid: p00000000000000ff
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_requested","data":[{"request_data":"{\"request_id\":12243,\"sender_id\":\"proveit-realist.testnet\",\"predecessor_id\":\"proveit-registry.testnet\",\"code_source\":{\"WasmUrl\":{\"url\":\"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6.wasm\",\"hash\":\"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6\",\"build_target\":\"wasm32-wasip2\"}},\"resource_limits\":{\"max_instructions\":30000000000,\"max_memory_mb\":256,\"max_execution_seconds\":120},\"input_data\":\"{\\\"op\\\":\\\"pubkey\\\"}\",\"input_data_in_state\":false,\"secrets_ref\":null,\"response_format\":\"Json\",\"payment\":\"50000000000000000000000\",\"attached_usd\":\"0\",\"timestamp\":1794065968998358220,\"compile_only\":false,\"force_rebuild\":false,\"store_on_fastfs\":false,\"use_bound_identity\":false,\"project_uuid\":\"p00000000000000ff\",\"project_id\":\"proveit-realist.testnet/enclave\"}","data_id":[171,91,133,120,217,118,87,13,241,139,211,150,144,169,201,54,28,121,72,101,186,40,251,188,236,171,184,55,243,77,206,246],"timestamp":1794065968998358220}]}
+│    Logs [outlayer.testnet]:
+│      [[yNEAR charged: "1159300000000000000000"]]
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_completed","data":[{"sender_id":"proveit-realist.testnet","code_source":{"WasmUrl":{"url":"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6.wasm","hash":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6","build_target":"wasm32-wasip2"}},"resources_used":{"instructions":55836,"time_ms":1090,"compile_time_ms":503},"success":true,"error_message":null,"payment_charged":"1159300000000000000000","payment_refunded":"48840700000000000000000","compilation_note":"Freshly compiled","timestamp":1794065975667541023}]}
+│      Execution completed successfully. Output: Json(91 bytes), Resources: { instructions: 55836, time_ms: 1090 }, Cost: 1159300000000000000000 yoctoNEAR, Refund: 48840700000000000000000 yoctoNEAR, Freshly compiled
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"key_set","data":[{"pubkey":"641f094fcfaf9530b453ad1592f8932611df5bce4d0d47056663c04345900cb0"}]}
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_done","data":[{"request":0,"outcome":{"KeySet":{"pubkey":"641f094fcfaf9530b453ad1592f8932611df5bce4d0d47056663c04345900cb0"}}}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "KeySet": {
+    "pubkey": "641f094fcfaf9530b453ad1592f8932611df5bce4d0d47056663c04345900cb0"
+  }
+}
+
+
+The "bootstrap_key" call to <proveit-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-registry.testnet bootstrap_key json-args {} prepaid-gas '300.0 Tgas' attached-deposit '0.05 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+bootstrap: {"KeySet":{"pubkey":"641f094fcfaf9530b453ad1592f8932611df5bce4d0d47056663c04345900cb0"}}
+{"owner":"proveit-realist.testnet","outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/enclave","active_version":"3cb8dd633d102d1dee7670e855a3610a096dcf6939b0d268a2784a96474e77f6","card_pubkey":"641f094fcfaf9530b453ad1592f8932611df5bce4d0d47056663c04345900cb0","accept_fixture_cards":false,"stale_after_secs":1209600,"cards":0,"requests":1}
