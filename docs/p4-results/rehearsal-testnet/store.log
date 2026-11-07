@@ -1,0 +1,7 @@
+keystore pubkey: fdb3a59814fdb540069b08323bd4ea17507d70c7e6172463195e9dbae1710d7e
+expected secret_hash in the enclave: c1e93b379411972cf01c8598f54f858dc97062002be40e68cbf7549e7d4b0fb4
+
+Store it (deposit covers storage; check with estimate_storage_cost if it fails):
+
+The "store_secrets" call to <outlayer.testnet> on behalf of <proveit-realist.testnet> succeeded.
+store tx: 68uNjHpWUKGF3e7HxqosPQp5wpPFskeT6PGsT7bLrmHS

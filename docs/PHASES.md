@@ -79,3 +79,37 @@ Offline: `cd contract && cargo test` (26 tests, in CI). Live: `scripts/e2e-testn
 **Testnet:** registries `proveit-demo-registry.testnet` and `proveit-registry.testnet` (owner `proveit-realist.testnet`); current enclave builds `cbac5209…` (demo) and `2fc1b727…` (live), in `enclave/expected-hashes.txt` (earlier `84dfc867…`/`3cb8dd63…` stay approved).
 
 **P3 status:** 6 of 7. T3.6 waits for a Hyperliquid account; nothing else in P3 is open.
+
+## P4 — M1: first real card on mainnet
+
+Scripts: `scripts/deploy-mainnet.sh` (preflight, build, enclave, registry, status) and `scripts/issue-demo-card.sh` (store, request, check). Both were rehearsed on testnet ([rehearsal](p4-results/rehearsal-testnet/)): store + 1-day request reached the enclave (refused `TOO_FEW_TRADES`, as the test account never traded), and `check` passed every T4.3–T4.6 check on demo card #1.
+
+Mainnet build (reproducible, registry `proveit.near`): `16f515c2a8abf41de9ed66537e748ea18f37550c96eb221b62bca5cc31aa03aa`, in `enclave/expected-hashes.txt`.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T4.1 | `deploy-mainnet.sh` twice; second run changes nothing | ☐ | needs a funded mainnet owner account and `outlayer login mainnet` |
+| T4.2 | `get_config`: active version = reproducible hash, key set, fixtures refused | ☐ | `deploy-mainnet.sh status` |
+| T4.3 | first card on mainnet, `verify_card` VALID | ☐ | needs the Hyperliquid account (1-day card: funded 24 h earlier, 20+ trades) |
+| T4.4 | attestation: `wasm_hash`, `output_hash`, project match | ☐ | `issue-demo-card.sh check` |
+| T4.5 | leak check: address in no transaction | ☐ | `issue-demo-card.sh check` |
+| T4.6 | card has no address, tx hash, order IDs or exact amounts | ☐ | `issue-demo-card.sh check` |
+
+**P4 status:** scripts built and rehearsed; 0 of 6 until mainnet access (owner account + ~5 NEAR) and the Hyperliquid account exist.
+
+## P5 — Web app: trader create flow (Railway)
+
+Live at https://proveit-production-d47c.up.railway.app/create (testnet). Tests: `pnpm --filter web test` (vitest) and `pnpm --filter web e2e` (Playwright), both in CI.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T5.1 | browser ECIES decrypts with an independent implementation | ✔ | `web/test/ecies.test.ts`: node:crypto decrypts, v1 layout, fresh per call, no address in the blob, tampering fails. The same encryption was accepted by the real OutLayer keystore (T0.4, P3). Deviation: cross-checked against node:crypto (the keystore's algorithm) instead of a Rust decrypt. |
+| T5.2 | EIP-712 hash equals the test vector | ✔ | `web/test/eip712.test.ts`: digest equals the vector; viem's signature reproduces the vector signature byte for byte |
+| T5.3 | no request to the app's server contains the address | ✔ | `web/e2e/no-leak.spec.ts` in Chromium: full live flow, transactions carry only ciphertext, keystore reached directly with a placeholder; forced relay path sees no secret. A planted leak made both tests fail. |
+| T5.4 | Railway build + `/create` 200 | ✔ | 7 Nov: `/`, `/create`, `/healthz` 200; relay refuses unknown projects and returns the real keystore key |
+| T5.5 | a fresh NEAR account creates a card in < 2 min in the browser | ☐ | needs your browser wallets: Meteor (testnet) for NEAR. The **demo data** mode works without a Hyperliquid account; a live card needs the Hyperliquid account |
+| T5.6 | live mode with an account under 20 trades → `TOO_FEW_TRADES` message, deposit refunded | ☐ | needs your browser wallets: Meteor (testnet) + MetaMask/Rabby with any address |
+
+**Design note:** OutLayer's keystore allows browser calls only from listed origins (its dashboard and `localhost:3000`). The app calls it directly when allowed and otherwise uses a relay (`/api/keystore-pubkey`) that rebuilds the request with placeholder values, so it can't forward a secret; the UI tells the trader when the relay was used, because a dishonest relay could swap the key. Asking OutLayer to allowlist the domain removes the relay.
+
+**P5 status:** 4 of 6; T5.5 and T5.6 wait for you to run the flow with your wallets.

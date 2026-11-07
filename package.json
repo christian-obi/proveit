@@ -7,6 +7,8 @@
     "node": ">=22"
   },
   "scripts": {
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
     "spike:s3": "pnpm --filter s3-secrets run test",
     "spike:s6": "pnpm --filter s6-chainsig-match run match"
   },

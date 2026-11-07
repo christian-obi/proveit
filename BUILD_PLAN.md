@@ -461,8 +461,8 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** a real card exists on NEAR mainnet and leaks nothing.
 
 **Tasks**
-- [ ] `scripts/deploy-mainnet.sh` (idempotent): OutLayer mainnet project `proveit.near/enclave`, registry `proveit.near`, `storage_deposit` on USDC, `bootstrap_key`, `approve_version`.
-- [ ] `scripts/issue-demo-card.sh` for the demo Hyperliquid account (≥ 30 days of history and ≥ 20 closed trades).
+- [x] `scripts/deploy-mainnet.sh` (idempotent, with a `preflight` step): OutLayer mainnet project `<owner>/enclave`, registry `proveit.near` (free on 7 Nov), `approve_version`, `bootstrap_key`. `storage_deposit` on USDC moves to P7, where payments start. Rehearsed on testnet; mainnet build `16f515c2…03aa`.
+- [x] `scripts/issue-demo-card.sh` (store, request, check — the check runs T4.3–T4.6) for the demo Hyperliquid account; a **1-day card** is enough (funded 24 h earlier, ≥ 20 trades). Rehearsed on testnet.
 - [x] `scripts/leakcheck.py --signer <acct> --needle <hl-addr> [--control <text>] <tx-hash…>`: pulls every receipt, argument, log and return value of the given txs (decoding base64), searches case-insensitively for the address with and without `0x`, and requires the control string to be found so a broken scan can't pass. Built and proven in P0 (T0.4).
 
 **Exit tests**
@@ -480,13 +480,16 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 
 ---
 
-### P5 — Web app: trader create flow (Sat 7 Nov)
+### P5 — Web app: trader create flow (built 7 Nov)
 **Goal:** a new trader goes from zero to a card in the browser in under 2 minutes, on the Railway deployment.
 
 **Tasks**
-- [ ] Next.js scaffold in `web/`; NEAR login (HOT / near-connect); EVM connect (wagmi/viem); EIP-712 signing.
-- [ ] `web/lib/ecies.ts` (from S3); `store_secrets` + `request_card` batched; progress states; a friendly message for every enclave error code.
-- [ ] Railway service `web` deploys on every push to `main`.
+- [x] Next.js 16 app in `web/` (React 19, Tailwind 4), deployed from the repo root (`railway.toml`) so the pnpm workspace builds.
+- [x] NEAR wallets through HOT's `near-connect` (testnet: Meteor, Intear, Nightly, Ledger; HOT and MyNearWallet don't list testnet); EVM wallet through the injected provider with viem's `signTypedData`.
+- [x] `web/lib/ecies.ts` (the S3 code), `store_secrets` + `request_card` sent together, request number read from the registry's `request_started` event, progress while the enclave runs, a message for every refusal code.
+- [x] **Demo data** mode: one `request_card` to the demo registry, no Hyperliquid account or EVM wallet needed, for judges and the AI screeners.
+- [x] Keystore relay `/api/keystore-pubkey` for origins OutLayer doesn't allow (see §7); the UI says when it was used.
+- [x] `web/test/*` (vitest) and `web/e2e/no-leak.spec.ts` (Playwright) in CI.
 
 **Exit tests**
 
@@ -688,6 +691,10 @@ Cut from the top of this list first: stretch → P9 agent guard → Intents venu
 **One open question, to send to the NEAR Intents team now** (it gates the Intents venue, S7 / T0.9):
 
 > "I'm building Prove-It for the hackathon: verified PnL cards and viewing keys for NEAR Intents confidential trading (the social trading idea Illia posted). Could I get invite access to 1Click `/v0/account/history`? And can a 1Click session token do anything beyond reading balances and history?"
+
+**A second ask, to the OutLayer team** (removes the keystore relay, P5):
+
+> "Could you add `https://proveit-production-d47c.up.railway.app` (and later our custom domain) to the CORS allowlist for `POST /secrets/pubkey` on testnet and mainnet? Our web app encrypts traders' secrets in the browser and currently has to fetch the keystore key through a relay."
 
 Everything else is answered, or a test in this plan produces the answer:
 

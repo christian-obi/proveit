@@ -1,0 +1,16 @@
+== T4.3 verify_card: VALID
+== T4.4 attestation
+  ✔ output_hash = sha256(output returned on-chain)
+  ✔ wasm_hash = the version the registry pinned
+  ✔ project is the registry's enclave project
+== T4.5 leak check
+68uNjHpWUKGF3e7HxqosPQp5wpPFskeT6PGsT7bLrmHS: {'0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0, 'f39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0}
+DYeiqz2ynZ6owyLr9Qf79cdmXS7NM4AzRGHSzQu77dyK: {'0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0, 'f39fd6e51aad88f6f4ce6ab8827279cfffb92266': 0}
+control '7d08f40594cec917a24d174ac99c5f08f0b963d309d0d6b92444cfa931704e16': 4 hit(s)
+PASS: no needle found
+== T4.6 card fields
+  ✔ no address
+  ✔ no transaction hash (0x + 64 hex)
+  ✔ no order or trade ids
+  ✔ volume is a band, not exact
+  ✔ no account value field

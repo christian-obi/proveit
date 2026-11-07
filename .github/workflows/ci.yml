@@ -48,6 +48,23 @@ jobs:
       # P2: test vectors in sync; the TypeScript verifier accepts Rust- and TEE-signed cards.
       - run: SKIP_BUILD=1 scripts/p2-check.sh
 
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # T5.1, T5.2 and the transaction / relay checks.
+      - run: pnpm --filter web test
+      - run: pnpm --filter web build
+      # T5.3: the live create flow in a real browser; the address must never reach the app's server.
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm --filter web e2e
+
   reproducible-build:
     runs-on: ubuntu-latest
     steps:

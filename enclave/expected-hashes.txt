@@ -2,3 +2,4 @@
 # After changing enclave code, rebuild and update.  Format: <variant> <registry> <sha256>
 live proveit-registry.testnet 2fc1b7276678a24af41a0125edaa37cd5eb38117ab43c496deabfff320925862
 demo-fixture proveit-demo-registry.testnet cbac5209b2f5546ca3d1fc40dac4010d42ba054395a3c50aaae5e157c3161644
+live proveit.near 16f515c2a8abf41de9ed66537e748ea18f37550c96eb221b62bca5cc31aa03aa

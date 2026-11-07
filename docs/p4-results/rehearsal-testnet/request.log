@@ -1,0 +1,2 @@
+request_card tx: 6kJE77TNbSgfcBeTc3AtZxqyzFkyWfN7ESeKQSF2ZBmD  (request 3)
+outcome: {"Refused":{"code":"TOO_FEW_TRADES","message":"0 trades in the window; at least 20 are required"}}
