@@ -329,7 +329,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 built (T7.6: mainnet) |
 | P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 6/10 built (T8.4–T8.6, T8.9: mainnet, 1Click key, Hyperliquid account) |
 | P9 | Explore, Intents venue, privacy depth, agent guard | Wed 11 Nov | P6 (Intents venue: S7) | ✔ 6/6 required (T9.7–T9.8 need Intents access, T0.9) |
-| P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ◐ 3/6 built (T10.3 after push; T10.2, T10.6: repo public, keys, mainnet) |
+| P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ◐ 4/6 built (T10.2, T10.6: repo public, keys, mainnet) |
 | P11 | Demo, launch, submit | Fri 13 – Sat 14 Nov | P10 | ☐ |
 | PS | Stretch goals (optional) | only after P10 | P10 | ☐ |
 
