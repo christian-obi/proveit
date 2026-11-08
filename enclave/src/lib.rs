@@ -9,6 +9,7 @@ pub mod canonical;
 pub mod card;
 pub mod commit;
 pub mod door;
+pub mod ecies;
 pub mod error;
 pub mod hl;
 pub mod merkle;
@@ -16,6 +17,7 @@ pub mod orders;
 pub mod ownership;
 pub mod pipeline;
 pub mod platform;
+pub mod reveal;
 pub mod rules;
 pub mod stats;
 

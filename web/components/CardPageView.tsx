@@ -6,7 +6,9 @@ import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 import Card from "@/components/Card";
 import VerifyPanel from "@/components/VerifyPanel";
+import UnlockFlow from "@/components/UnlockFlow";
 import { cardPath, loadCard } from "@/lib/cards";
+import { getOffer, tokenMeta } from "@/lib/keys";
 import { pct, windowLabel } from "@/lib/format";
 
 export async function cardMetadata(id: string, registry: string): Promise<Metadata> {
@@ -19,6 +21,25 @@ export async function cardMetadata(id: string, registry: string): Promise<Metada
   return { title, description, openGraph: { title, description }, twitter: { card: "summary_large_image", title, description } };
 }
 
+async function UnlockLink({ id, registry }: { id: number; registry: string }) {
+  const offer = await getOffer(registry, id).catch(() => null);
+  const token = offer?.token ? await tokenMeta(offer.token).catch(() => null) : null;
+  const href = `${cardPath(id, registry)}/unlock`;
+  return (
+    <Link href={href} className="flex items-center justify-between rounded-lg border border-line bg-panel p-4 text-sm hover:border-accent" data-unlock-link>
+      <span>
+        <span className="font-medium">Follow this trader</span>
+        <span className="text-muted">
+          {offer
+            ? ` · viewing keys from ${Number(offer.offer.price) / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? "USDC"}, ${offer.seats_left} seat${offer.seats_left === 1 ? "" : "s"} left`
+            : " · the trader can sell viewing keys to this card's trades"}
+        </span>
+      </span>
+      <span aria-hidden>→</span>
+    </Link>
+  );
+}
+
 export async function CardPageView({ id, registry, autoRun }: { id: string; registry: string; autoRun: boolean }) {
   const loaded = await loadCard(id, registry);
   if (!loaded) notFound();
@@ -27,6 +48,7 @@ export async function CardPageView({ id, registry, autoRun }: { id: string; regi
     <section className="space-y-6">
       <Card card={card} id={record.id} />
       <VerifyPanel registry={registry} cardId={record.id} cardJson={record.card_json} autoRun={autoRun} />
+      <UnlockLink id={record.id} registry={registry} />
       <p className="text-xs text-muted">
         Registry <span className="font-mono">{registry}</span> · enclave build <span className="font-mono">{record.version.slice(0, 12)}…</span>
         {record.revoked && <span className="text-bad"> · revoked by the issuer</span>}
@@ -39,6 +61,38 @@ export async function CardPageView({ id, registry, autoRun }: { id: string; regi
           </>
         )}
       </p>
+    </section>
+  );
+}
+
+/** /c/<id>/unlock and /demo/<id>/unlock: buy a viewing key, see the trades. */
+export async function UnlockPageView({ id, registry }: { id: string; registry: string }) {
+  const loaded = await loadCard(id, registry);
+  if (!loaded) notFound();
+  const { record, card } = loaded;
+  const offer = await getOffer(registry, record.id).catch(() => null);
+  const token = offer?.token ? await tokenMeta(offer.token).catch(() => null) : null;
+  return (
+    <section className="space-y-6">
+      <Card card={card} id={record.id} />
+      <div>
+        <h1 className="text-lg font-semibold">Viewing key</h1>
+        <p className="text-sm text-muted">
+          Follow this trader: see the trades behind the card, delayed as the trader chose, each one proven to be in the card the enclave signed. The wallet stays private.
+        </p>
+      </div>
+      <UnlockFlow
+        registry={registry}
+        cardId={record.id}
+        cardHash={record.card_hash}
+        issuer={record.issuer}
+        orders={card.orders}
+        initialOffer={offer}
+        token={token}
+      />
+      <Link className="text-sm underline" href={cardPath(record.id, registry)}>
+        Back to the card
+      </Link>
     </section>
   );
 }

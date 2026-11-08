@@ -7,8 +7,8 @@ import { config } from "@/lib/config";
 
 export const revalidate = 60;
 
-// The card shown next to the fake: NEXT_PUBLIC_FEATURED_CARD="<registry>:<id>", default demo card #1.
-const [featuredRegistry, featuredId] = (process.env.NEXT_PUBLIC_FEATURED_CARD ?? `${config.demoRegistry}:1`).split(":");
+// The card shown next to the fake: NEXT_PUBLIC_FEATURED_CARD="<registry>:<id>", default demo card #2 (it sells viewing keys).
+const [featuredRegistry, featuredId] = (process.env.NEXT_PUBLIC_FEATURED_CARD ?? `${config.demoRegistry}:2`).split(":");
 
 export default async function Home() {
   const featured = await loadCard(featuredId, featuredRegistry).catch(() => null);

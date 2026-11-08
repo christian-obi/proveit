@@ -2,6 +2,7 @@
 // and the registry (contract/src/lib.rs).
 
 const MESSAGES: Record<string, string> = {
+  CARD_NOT_FOUND: "This card was issued by an older enclave build that didn't keep its trades for viewing keys. The trader can refresh it to sell keys.",
   TOO_FEW_TRADES: "This account doesn't have 20 trades in the window yet. Trade a bit more, or pick a shorter window.",
   WINDOW_TOO_SHORT: "This account didn't hold capital for the whole window. Pick a shorter window.",
   ACCOUNT_TOO_NEW: "This account is newer than the window you picked. Pick a shorter window.",

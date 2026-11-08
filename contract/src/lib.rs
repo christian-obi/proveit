@@ -10,10 +10,12 @@
 //! through any other door.
 
 mod card;
+mod keys;
 #[cfg(test)]
 mod tests;
 
 use card::{Card, WINDOWS};
+pub use keys::{Grant, Offer, OfferView, Waiting};
 use near_sdk::serde_json::{self, json, Value};
 use near_sdk::store::{IterableMap, LookupMap, LookupSet};
 use near_sdk::{
@@ -24,6 +26,10 @@ const CALLBACK_GAS: Gas = Gas::from_tgas(60);
 /// A floor for OutLayer; with GasWeight(1) it also receives all gas left unreserved.
 const OUTLAYER_MIN_GAS: Gas = Gas::from_tgas(50);
 const MAX_OUTPUT: usize = 16 * 1024;
+/// A reveal carries one ~100-byte record per order, encrypted; a 10,000-fill account has
+/// at most a few thousand orders.
+const MAX_REVEAL_OUTPUT: usize = 1024 * 1024;
+const DEFAULT_FEE_BPS: u16 = 100;
 const MAX_PAGE: u32 = 100;
 const DEFAULT_STALE_AFTER_SECS: u64 = 14 * 24 * 60 * 60;
 /// Kept by the registry to pay for storing the card; refunded if the card is refused.
@@ -42,6 +48,10 @@ enum Key {
     Nonces,
     Pending,
     Requests,
+    Offers,
+    Grants,
+    Waiting,
+    Balances,
 }
 
 #[near(serializers = [borsh, json])]
@@ -79,6 +89,7 @@ pub struct CardRecord {
 pub enum PendingKind {
     Pubkey,
     Card { window_days: u32, supersedes: Option<u64> },
+    Reveal { card_id: u64 },
 }
 
 #[near(serializers = [borsh, json])]
@@ -98,6 +109,9 @@ pub enum RequestOutcome {
     Issued { card_id: u64, card_hash: String },
     KeySet { pubkey: String },
     Refused { code: String, message: String },
+    /// `ciphertext` (base64, for the follower's key) is only in the callback's return
+    /// value, which the follower reads from the transaction; it is never kept in state.
+    Revealed { card_id: u64, shown: u32, total: u32, ciphertext_sha256: String, ciphertext: Option<String> },
 }
 
 #[near(serializers = [json])]
@@ -125,6 +139,8 @@ pub struct Config {
     pub stale_after_secs: u64,
     pub cards: u64,
     pub requests: u64,
+    pub usdc: Option<AccountId>,
+    pub fee_bps: u16,
 }
 
 #[near(contract_state)]
@@ -137,6 +153,39 @@ pub struct Registry {
     versions: IterableMap<String, VersionInfo>,
     card_pubkey: Option<[u8; 32]>,
     /// Testnet demo registries accept the demo build's "fixture" cards; mainnet never does.
+    accept_fixture_cards: bool,
+    stale_after_secs: u64,
+    next_card_id: u64,
+    next_request: u64,
+    cards: LookupMap<u64, CardRecord>,
+    card_by_hash: LookupMap<String, u64>,
+    by_issuer: LookupMap<AccountId, Vec<u64>>,
+    by_commitment: LookupMap<String, Vec<u64>>,
+    used_nonces: LookupSet<String>,
+    pending: LookupMap<u64, Pending>,
+    requests: LookupMap<u64, RequestOutcome>,
+    // ---- viewing keys (P7, src/keys.rs) ----
+    /// The only token accepted for keys (USDC on NEAR); `None` until the owner sets it.
+    usdc: Option<AccountId>,
+    fee_bps: u16,
+    offers: LookupMap<u64, Offer>,
+    /// Per card. Bounded by the offer's seat cap; expired grants are pruned on each sale.
+    grants: LookupMap<u64, Vec<Grant>>,
+    /// Per card: payments held until the issuer approves or rejects the buyer.
+    waiting: LookupMap<u64, Vec<Waiting>>,
+    /// USDC owed to issuers, the fee account and refunded buyers; paid out by `withdraw`.
+    balances: LookupMap<AccountId, u128>,
+}
+
+/// The P3–P6 state, for `migrate`.
+#[near(serializers = [borsh])]
+pub struct RegistryV1 {
+    owner: AccountId,
+    outlayer: AccountId,
+    project_id: String,
+    active_version: Option<String>,
+    versions: IterableMap<String, VersionInfo>,
+    card_pubkey: Option<[u8; 32]>,
     accept_fixture_cards: bool,
     stale_after_secs: u64,
     next_card_id: u64,
@@ -187,6 +236,44 @@ impl Registry {
             used_nonces: LookupSet::new(Key::Nonces),
             pending: LookupMap::new(Key::Pending),
             requests: LookupMap::new(Key::Requests),
+            usdc: None,
+            fee_bps: DEFAULT_FEE_BPS,
+            offers: LookupMap::new(Key::Offers),
+            grants: LookupMap::new(Key::Grants),
+            waiting: LookupMap::new(Key::Waiting),
+            balances: LookupMap::new(Key::Balances),
+        }
+    }
+
+    /// Upgrade a P3–P6 registry in place: cards, versions and the key are kept.
+    #[private]
+    #[init(ignore_state)]
+    pub fn migrate() -> Self {
+        let old: RegistryV1 = env::state_read().unwrap_or_else(|| env::panic_str("no state to migrate"));
+        Self {
+            owner: old.owner,
+            outlayer: old.outlayer,
+            project_id: old.project_id,
+            active_version: old.active_version,
+            versions: old.versions,
+            card_pubkey: old.card_pubkey,
+            accept_fixture_cards: old.accept_fixture_cards,
+            stale_after_secs: old.stale_after_secs,
+            next_card_id: old.next_card_id,
+            next_request: old.next_request,
+            cards: old.cards,
+            card_by_hash: old.card_by_hash,
+            by_issuer: old.by_issuer,
+            by_commitment: old.by_commitment,
+            used_nonces: old.used_nonces,
+            pending: old.pending,
+            requests: old.requests,
+            usdc: None,
+            fee_bps: DEFAULT_FEE_BPS,
+            offers: LookupMap::new(Key::Offers),
+            grants: LookupMap::new(Key::Grants),
+            waiting: LookupMap::new(Key::Waiting),
+            balances: LookupMap::new(Key::Balances),
         }
     }
 
@@ -296,7 +383,8 @@ impl Registry {
     #[private]
     pub fn on_result(&mut self, seq: u64) -> RequestOutcome {
         let p = self.pending.remove(&seq).unwrap_or_else(|| env::panic_str("unknown request"));
-        let outcome = match env::promise_result_checked(0, MAX_OUTPUT) {
+        let max = if matches!(p.kind, PendingKind::Reveal { .. }) { MAX_REVEAL_OUTPUT } else { MAX_OUTPUT };
+        let outcome = match env::promise_result_checked(0, max) {
             // OutLayer refused the request outright; its deposit came back to this contract.
             Err(e) => {
                 Promise::new(p.signer.clone()).transfer(p.outlayer_deposit.saturating_add(p.storage_fee)).detach();
@@ -306,6 +394,7 @@ impl Registry {
                 let result = match &p.kind {
                     PendingKind::Pubkey => self.accept_pubkey(&bytes),
                     PendingKind::Card { window_days, supersedes } => self.accept_card(&p, *window_days, *supersedes, &bytes),
+                    PendingKind::Reveal { card_id } => accept_reveal(*card_id, &bytes),
                 };
                 result.unwrap_or_else(|(code, message)| {
                     if !p.storage_fee.is_zero() {
@@ -315,8 +404,19 @@ impl Registry {
                 })
             }
         };
-        self.requests.insert(seq, outcome.clone());
-        match &outcome {
+        // A reveal's ciphertext goes back in the return value only, never into state or logs.
+        let kept = match &outcome {
+            RequestOutcome::Revealed { card_id, shown, total, ciphertext_sha256, .. } => RequestOutcome::Revealed {
+                card_id: *card_id,
+                shown: *shown,
+                total: *total,
+                ciphertext_sha256: ciphertext_sha256.clone(),
+                ciphertext: None,
+            },
+            other => other.clone(),
+        };
+        self.requests.insert(seq, kept.clone());
+        match &kept {
             RequestOutcome::Refused { code, message } => {
                 event("request_refused", json!({ "request": seq, "signer": p.signer, "code": code, "message": message }))
             }
@@ -434,6 +534,8 @@ impl Registry {
             stale_after_secs: self.stale_after_secs,
             cards: self.next_card_id,
             requests: self.next_request,
+            usdc: self.usdc.clone(),
+            fee_bps: self.fee_bps,
         }
     }
 
@@ -519,6 +621,23 @@ impl Registry {
         r.valid = r.status == "VALID";
         r
     }
+}
+
+/// The enclave's reveal answer: `{"status":"ok","ciphertext":"<base64>","shown":k,"total":n}`.
+fn accept_reveal(card_id: u64, bytes: &[u8]) -> Result<RequestOutcome, (String, String)> {
+    let v: Value = serde_json::from_slice(bytes).map_err(|e| ("BAD_OUTPUT".to_string(), e.to_string()))?;
+    if v["status"] != "ok" {
+        return Err(enclave_error(&v));
+    }
+    let ciphertext = v["ciphertext"].as_str().ok_or(("BAD_OUTPUT".to_string(), "no ciphertext".to_string()))?.to_string();
+    let count = |k: &str| v[k].as_u64().and_then(|n| u32::try_from(n).ok()).ok_or(("BAD_OUTPUT".to_string(), format!("no {k}")));
+    Ok(RequestOutcome::Revealed {
+        card_id,
+        shown: count("shown")?,
+        total: count("total")?,
+        ciphertext_sha256: hex::encode(env::sha256(ciphertext.as_bytes())),
+        ciphertext: Some(ciphertext),
+    })
 }
 
 fn enclave_error(v: &Value) -> (String, String) {

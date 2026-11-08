@@ -372,3 +372,6 @@ fn profile_indices() {
     let first_commitment = vector()["card"]["commitment"].as_str().unwrap().to_string();
     assert_eq!(r.get_cards_by_commitment(first_commitment, None, None).len(), 1);
 }
+
+#[path = "keys_tests.rs"]
+mod keys_tests;

@@ -1,0 +1,66 @@
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  request_card
+│                       args:         {
+│                                       "window_days": 30
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0.07 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:4bbwcNuzouFGxfgLHqjsddyUtur2mcNCt18XYHFjTXcdWKnLsSUHzunt1427DdL79KaABhnL7bZp6gwJUzUK1a3o
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.310 Tgas
+│    Transaction fee: 0.000030949001145 NEAR
+│    Transaction ID: 2xjmwfL28UFjtFKsSiFBdhZSCMbkAKYzJvrrmVWRWhDP
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/2xjmwfL28UFjtFKsSiFBdhZSCMbkAKYzJvrrmVWRWhDP
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_started","data":[{"request":5,"signer":"proveit-realist.testnet","version":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c"}]}
+│    Logs [outlayer.testnet]:
+│      Resolved project: proveit-realist.testnet/enclave-demo, version: "9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c", source: WasmUrl { url: "https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c.wasm", hash: "9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c", build_target: Some("wasm32-wasip2") }, uuid: p0000000000000100
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_requested","data":[{"request_data":"{\"request_id\":13292,\"sender_id\":\"proveit-realist.testnet\",\"predecessor_id\":\"proveit-demo-registry.testnet\",\"code_source\":{\"WasmUrl\":{\"url\":\"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c.wasm\",\"hash\":\"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c\",\"build_target\":\"wasm32-wasip2\"}},\"resource_limits\":{\"max_instructions\":30000000000,\"max_memory_mb\":256,\"max_execution_seconds\":120},\"input_data\":\"{\\\"op\\\":\\\"issue\\\",\\\"window_days\\\":30}\",\"input_data_in_state\":false,\"secrets_ref\":null,\"response_format\":\"Json\",\"payment\":\"50000000000000000000000\",\"attached_usd\":\"0\",\"timestamp\":1794127886441951260,\"compile_only\":false,\"force_rebuild\":false,\"store_on_fastfs\":false,\"use_bound_identity\":false,\"project_uuid\":\"p0000000000000100\",\"project_id\":\"proveit-realist.testnet/enclave-demo\"}","data_id":[92,52,223,123,254,55,108,204,117,120,215,144,195,59,111,82,59,35,20,48,235,231,239,104,233,118,32,239,146,25,59,189],"timestamp":1794127886441951260}]}
+│    Logs [outlayer.testnet]:
+│      [[yNEAR charged: "1282008200000000000000"]]
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_completed","data":[{"sender_id":"proveit-realist.testnet","code_source":{"WasmUrl":{"url":"https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c.wasm","hash":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c","build_target":"wasm32-wasip2"}},"resources_used":{"instructions":82269739,"time_ms":1958,"compile_time_ms":862},"success":true,"error_message":null,"payment_charged":"1282008200000000000000","payment_refunded":"48717991800000000000000","compilation_note":"Freshly compiled","timestamp":1794127895561653926}]}
+│      Execution completed successfully. Output: Json(754 bytes), Resources: { instructions: 82269739, time_ms: 1958 }, Cost: 1282008200000000000000 yoctoNEAR, Refund: 48717991800000000000000 yoctoNEAR, Freshly compiled
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"card_issued","data":[{"card_id":2,"card_hash":"d12e8453e3e78ba2a39aad5750dbb47cb7e727af80dcf680216b7cbf9492a561","issuer":"proveit-realist.testnet","commitment":"816454e5624c560dbd42d296fb4f09c3cecf35889aa0709c85898d6e78aa78e6","version":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c","mode":"fixture"}]}
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_done","data":[{"request":5,"outcome":{"Issued":{"card_id":2,"card_hash":"d12e8453e3e78ba2a39aad5750dbb47cb7e727af80dcf680216b7cbf9492a561"}}}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "Issued": {
+    "card_hash": "d12e8453e3e78ba2a39aad5750dbb47cb7e727af80dcf680216b7cbf9492a561",
+    "card_id": 2
+  }
+}
+
+
+The "request_card" call to <proveit-demo-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-demo-registry.testnet request_card json-args '{"window_days":30}' prepaid-gas '300.0 Tgas' attached-deposit '0.07 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+request 5 tx 2xjmwfL28UFjtFKsSiFBdhZSCMbkAKYzJvrrmVWRWhDP → {"Issued":{"card_id":2,"card_hash":"d12e8453e3e78ba2a39aad5750dbb47cb7e727af80dcf680216b7cbf9492a561"}}
+verify_card(2) = {"status":"VALID","valid":true,"card_id":2,"card_hash":"d12e8453e3e78ba2a39aad5750dbb47cb7e727af80dcf680216b7cbf9492a561","version":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c","mode":"fixture","issued_at":1794127886,"pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d"}

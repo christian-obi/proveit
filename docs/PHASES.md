@@ -130,3 +130,28 @@ Live at https://proveit-production-d47c.up.railway.app (testnet): `/`, `/verify`
 Also in the browser suite: tamper mode goes red then green when the number is put back; the landing page's fake screenshot can't be verified while the real card can; a pasted link on `/verify` opens with checks running; unknown cards 404; a staged race (the unedited check held 4 s) can't overwrite the red result.
 
 **P6 status:** 4 of 6; T6.5 and T6.6 need people and social apps.
+
+## P7 — Viewing keys with direct USDC
+
+Testnet, 8 Nov: both registries upgraded in place (`migrate`; old cards still `VALID`), enclave builds `b77de55e…` (live) and `9688f1bd…` (demo) approved, tUSDC on `proveit-usdc.testnet`. Demo card #2 sells keys: 1 tUSDC, 1-hour delay, 30 days, 5 seats. Mainnet build `ada3c504…` in `enclave/expected-hashes.txt`. Logs: `docs/p7-results/`.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T7.1 | `reveal::delay_boundary` | ✔ | an order whose last fill is exactly `now − delay` is shown; 1 ms newer is hidden, with everything after it (oldest-first prefix); delay 0 shows all up to now; a huge delay saturates; through `seal_for` no shown order is newer than `now − delay` |
+| T7.2 | `reveal::coarsening` | ✔ | records have exactly `coin, dir, fills, hour, pnl_bps, size_bps`; no address, salt seed, last-fill times, tx hash, `tid`, `oid` or millisecond time from the fixture appears anywhere in the plaintext |
+| T7.3 | `reveal::proofs_match_card` | ✔ | for every issuable fixture, delay 0 → `N/N` rebuilds `orders.root` and `count`; an edited, dropped, reordered record or a bigger count fails; prefix proofs proptested for n ≤ 300 (≤ ⌈log2 n⌉ hashes) |
+| T7.4 | `test-vectors/ecies-follower.json` | ✔ | Rust-sealed partial reveal (with a proof) opens in `packages/verify/src/reveal.test.ts`, plaintext byte-identical, root rebuilt; another key fails |
+| T7.5 | payments | ✔ | `contract/src/keys_tests.rs` (unit tests through the real entry points, token simulated): wrong token panics (the token's `ft_resolve_transfer` refunds), underpayment and bad `msg` refunded in full, exact payment → grant and issuer balance = price − 1%, overpayment refunds the excess, reveal without a grant panics, `withdraw` sends `ft_transfer`, a failed payout is owed again. **Live:** 0.5 tUSDC underpayment refunded (`Aii4VvZw…`), 1 tUSDC payment granted the key (`AfwVPUqd…`). Deviation: unit tests plus a live testnet run instead of a `near-workspaces` sandbox. |
+| T7.6 | live $1 USDC → "N/N Merkle-verified" | ◐ | **Testnet done:** `request_reveal` `Dc6MLncG…` from `proveit-follower.testnet`, OutLayer TEE answered, **91/91 Merkle-verified** (`scripts/open-reveal.ts`), and the same transaction replayed in the browser (`web/e2e/unlock.spec.ts`). **Mainnet:** waits for the mainnet deploy (P4) |
+| T7.7 | `leakcheck.py` on payment and reveal | ✔ | fixture address: 0 matches in both; `Open Long`, `Close Long`, `size_bps`: 0 matches in the reveal tx; controls found |
+| T7.8 | offer terms | ✔ | unit tests: seat after `max_seats` refunded (renewals don't need a seat), seat frees on expiry; expired key fails `get_grant` and `request_reveal`; approval escrows (seat held, issuer unpaid), approve grants from approval time and pays, reject refunds in full; `revoke_grant` at ¼ refunds ¾, split between issuer and fee; offer changes don't change sold keys; revoked cards stop selling |
+| T7.9 | door checks | ✔ (on-chain) | `reveal` goes through the same registry-only door as `issue` (`enclave/tests/door.rs`, refused live in P3). **HTTPS reveal moves to P8** with the feed (NEP-413 follower signature + RPC grant check) |
+
+Totals: enclave `cargo test` all pass (8 new reveal tests), contract 42 (16 new), `packages/verify` 20 (4 new), web e2e 13 (4 new: unlock link, terms + buy transaction, real reveal 91/91, wrong key refused).
+
+**Design notes:**
+- **Salted leaves.** An order record has little entropy, so an unsalted leaf hash of a still-hidden order, seen as a proof sibling, could be brute-forced. Salts form a backward hash chain from an enclave-MAC'd seed; a reveal of the first k orders hands over `salt[k-1]` only. This changes the leaf format from P2 (cards issued before P7 can't be revealed; they answer `CARD_NOT_FOUND`).
+- **Stored, not recomputed.** Hyperliquid's account-value windows roll forward, so recomputing records later would change sizes and the root. `issue` stores the coarsened records in encrypted worker storage; reveals never call Hyperliquid.
+- **The ciphertext is a return value.** `on_result` returns it to the follower's transaction and keeps only its sha256 in state; nothing readable is logged.
+
+**P7 status:** 8 of 9; T7.6 on mainnet with real USDC after the mainnet deploy.

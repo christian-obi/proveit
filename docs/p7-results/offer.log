@@ -1,0 +1,65 @@
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  set_offer
+│                       args:         {
+│                                       "card_id": 2,
+│                                       "delay_secs": 3600,
+│                                       "duration_secs": 2592000,
+│                                       "max_seats": 5,
+│                                       "price": "1000000",
+│                                       "requires_approval": false
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:2L4jS2m8XbT1Z6qftFffTzzJaYL7pKv2R7egQMNosQkmCEvcW2WNZUd34QG9GjhpnexYNkAQTFPUE55hpsijvFj8
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.314 Tgas
+│    Transaction fee: 0.000031387691323 NEAR
+│    Transaction ID: 6DxsEsUjfS41bSTQpXpjhctnJ8YhoM2PDaekCvNbgUKp
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/6DxsEsUjfS41bSTQpXpjhctnJ8YhoM2PDaekCvNbgUKp
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"offer_set","data":[{"card_id":2,"offer":{"price":"1000000","delay_secs":3600,"duration_secs":2592000,"max_seats":5,"requires_approval":false,"payout":"proveit-realist.testnet"}}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "card_id": 2,
+  "fee_bps": 100,
+  "offer": {
+    "delay_secs": 3600,
+    "duration_secs": 2592000,
+    "max_seats": 5,
+    "payout": "proveit-realist.testnet",
+    "price": "1000000",
+    "requires_approval": false
+  },
+  "seats_left": 5,
+  "seats_used": 0,
+  "token": "proveit-usdc.testnet",
+  "waiting": 0
+}
+
+
+The "set_offer" call to <proveit-demo-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-demo-registry.testnet set_offer json-args '{"card_id":2,"price":"1000000","delay_secs":3600,"duration_secs":2592000,"max_seats":5,"requires_approval":false}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+get_offer = {"card_id":2,"offer":{"price":"1000000","delay_secs":3600,"duration_secs":2592000,"max_seats":5,"requires_approval":false,"payout":"proveit-realist.testnet"},"seats_used":0,"seats_left":5,"waiting":0,"token":"proveit-usdc.testnet","fee_bps":100}

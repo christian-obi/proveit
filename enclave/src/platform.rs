@@ -15,6 +15,10 @@ pub trait Platform {
     fn commit_mac(&self, data: &[u8]) -> Result<Vec<u8>>;
     /// Keep `value` in encrypted worker storage under `key` (no secret may appear in `key`).
     fn store(&self, key: &str, value: &[u8]) -> Result<()>;
+    /// Read what [`Platform::store`] kept, if anything.
+    fn load(&self, key: &str) -> Result<Option<Vec<u8>>>;
+    /// 32 fresh random bytes (encryption only; nothing signed depends on them).
+    fn random_32(&self) -> Result<[u8; 32]>;
 }
 
 /// A deterministic, PUBLIC key pair and MAC key. Anyone can sign as it, so nothing
@@ -36,6 +40,8 @@ pub mod test {
     #[derive(Default)]
     pub struct TestPlatform {
         pub stored: RefCell<Vec<(String, Vec<u8>)>>,
+        /// Deterministic "randomness": sha256 of a counter.
+        pub draws: RefCell<u64>,
     }
 
     impl TestPlatform {
@@ -63,6 +69,19 @@ pub mod test {
         fn store(&self, key: &str, value: &[u8]) -> Result<()> {
             self.stored.borrow_mut().push((key.to_string(), value.to_vec()));
             Ok(())
+        }
+
+        fn load(&self, key: &str) -> Result<Option<Vec<u8>>> {
+            Ok(self.stored.borrow().iter().rev().find(|(k, _)| k == key).map(|(_, v)| v.clone()))
+        }
+
+        fn random_32(&self) -> Result<[u8; 32]> {
+            let mut n = self.draws.borrow_mut();
+            *n += 1;
+            let mut h = Sha256::new();
+            h.update(b"proveit-test-random");
+            h.update(n.to_le_bytes());
+            Ok(h.finalize().into())
         }
     }
 }

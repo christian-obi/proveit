@@ -67,14 +67,10 @@ function b64(s: string): string {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** A view call, trying each RPC endpoint in turn on rate limits, with backoff between rounds. */
-export async function view<T>(rpc: string | string[], contract: string, method: string, args: object, f: typeof fetch = fetch): Promise<T> {
+/** A JSON-RPC call over the endpoints, falling through on rate limits and server errors. */
+export async function rpc<T>(rpc: string | string[], method: string, params: unknown, f: typeof fetch = fetch): Promise<T> {
   const endpoints = Array.isArray(rpc) ? rpc : [rpc];
-  const payload = JSON.stringify({
-    jsonrpc: "2.0",
-    id: "proveit-verify",
-    method: "query",
-    params: { request_type: "call_function", finality: "final", account_id: contract, method_name: method, args_base64: b64(JSON.stringify(args)) },
-  });
+  const payload = JSON.stringify({ jsonrpc: "2.0", id: "proveit-verify", method, params });
   let last = "";
   for (let round = 0; round < 3; round++) {
     for (const url of endpoints) {
@@ -95,12 +91,22 @@ export async function view<T>(rpc: string | string[], contract: string, method: 
         last = `${url} is rate-limiting`;
         continue;
       }
-      if (err) throw new Error(`${contract}.${method}: ${JSON.stringify(err)}`);
-      return JSON.parse(new TextDecoder().decode(new Uint8Array(body.result.result)));
+      if (err) throw new Error(`${method}: ${JSON.stringify(err)}`);
+      return body.result as T;
     }
     await sleep(400 * 2 ** round);
   }
-  throw new Error(`${contract}.${method}: every RPC endpoint failed (${last})`);
+  throw new Error(`${method}: every RPC endpoint failed (${last})`);
+}
+
+export async function view<T>(endpoints: string | string[], contract: string, method: string, args: object, f: typeof fetch = fetch): Promise<T> {
+  const params = { request_type: "call_function", finality: "final", account_id: contract, method_name: method, args_base64: b64(JSON.stringify(args)) };
+  try {
+    const result = await rpc<{ result: number[] }>(endpoints, "query", params, f);
+    return JSON.parse(new TextDecoder().decode(new Uint8Array(result.result)));
+  } catch (e) {
+    throw new Error(`${contract}.${method}: ${(e as Error).message.replace(/^query: /, "")}`);
+  }
 }
 
 /**

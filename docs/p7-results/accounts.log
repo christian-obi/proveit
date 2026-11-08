@@ -1,0 +1,48 @@
+Migrating config.toml from V4 to V5...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+├  Your transaction:
+│    signer_id:    testnet
+│    actions:
+│       -- create account:      proveit-usdc.testnet
+│       -- add access key:     
+│                       public key:   ed25519:82FX15yH8va5CyH6Pcbu3TcyJtRGMztBrTBJkhrS4tfD
+│                       permission:   FullAccess
+│     [0m
+├  Transaction Execution Info:
+│    Transaction ID: 3qRse7wSiZgQmt9jMneKakLBE4DiCCdBuE3un3PxqtqF
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/3qRse7wSiZgQmt9jMneKakLBE4DiCCdBuE3un3PxqtqF
+[0m
+New account <proveit-usdc.testnet> created successfully.
+The data for the access key is saved in the keychain
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near account create-account sponsor-by-faucet-service proveit-usdc.testnet autogenerate-new-keypair --signature-scheme ed25519 save-to-keychain network-config testnet create[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Your transaction:
+│    signer_id:    testnet
+│    actions:
+│       -- create account:      proveit-follower.testnet
+│       -- add access key:     
+│                       public key:   ed25519:DkMiEHi2CTsow2t75QKr3ESDVBkxYmpgRrBNy5WqcBcv
+│                       permission:   FullAccess
+│     [0m
+├  Transaction Execution Info:
+│    Transaction ID: 6vmRT5grF2WrUgsrzEuyRxhwy4eWnrdSGLL8CpDSUBmX
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/6vmRT5grF2WrUgsrzEuyRxhwy4eWnrdSGLL8CpDSUBmX
+[0m
+New account <proveit-follower.testnet> created successfully.
+The data for the access key is saved in the keychain
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near account create-account sponsor-by-faucet-service proveit-follower.testnet autogenerate-new-keypair --signature-scheme ed25519 save-to-keychain network-config testnet create[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m

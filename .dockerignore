@@ -1,0 +1,16 @@
+# Only package manifests, packages/verify, test-vectors and web go into the image.
+**/node_modules
+**/.next
+**/target
+**/dist
+.git
+enclave
+contract
+docs
+scripts
+spikes
+!spikes/*/package.json
+web/test-results
+web/playwright-report
+.env
+.env.*

@@ -1,0 +1,17 @@
+== the fixture account's address
+AfwVPUqdHaiPXFz1AQ1NPQfnkqGcNdN3Vq8XeWNcKjEt: {'0xe986b8e58b5870dca58700c23b5303f20f6823a7': 0, 'e986b8e58b5870dca58700c23b5303f20f6823a7': 0}
+control 'viewing_key_granted': 1 hit(s)
+PASS: no needle found
+Dc6MLncGGAfV4Va1VMDxQxrtP1wyvgy8kRtwJcXaqKt: {'0xe986b8e58b5870dca58700c23b5303f20f6823a7': 0, 'e986b8e58b5870dca58700c23b5303f20f6823a7': 0}
+control 'Revealed': 3 hit(s)
+PASS: no needle found
+== plaintext trades (every record has a "dir" such as "Open Long")
+Dc6MLncGGAfV4Va1VMDxQxrtP1wyvgy8kRtwJcXaqKt: {'open long': 0}
+control 'ciphertext': 7 hit(s)
+PASS: no needle found
+Dc6MLncGGAfV4Va1VMDxQxrtP1wyvgy8kRtwJcXaqKt: {'close long': 0}
+control 'ciphertext': 7 hit(s)
+PASS: no needle found
+Dc6MLncGGAfV4Va1VMDxQxrtP1wyvgy8kRtwJcXaqKt: {'size_bps': 0}
+control 'ciphertext': 7 hit(s)
+PASS: no needle found

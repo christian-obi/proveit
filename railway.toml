@@ -1,11 +1,11 @@
 # Railway config-as-code. The service builds from the repository root so the pnpm workspace
 # (and its lockfile) is available; deploy with `railway up` from the repo root.
 [build]
-builder = "RAILPACK"
-buildCommand = "pnpm --filter web build"
+# The Dockerfile at the root (see its header for why not Railpack).
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "pnpm --filter web start"
 healthcheckPath = "/healthz"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"

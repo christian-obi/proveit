@@ -25,6 +25,8 @@ REGISTRY_FUNDING="${REGISTRY_FUNDING:-4 NEAR}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LOG_DIR="$ROOT/docs/p4-results"
 WASM="$ROOT/enclave/dist/proveit-enclave.wasm"
+# Circle's native USDC on NEAR mainnet (6 decimals).
+USDC="17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
 mkdir -p "$LOG_DIR"
 
 log() { tee -a "$LOG_DIR/$1.log"; }
@@ -166,6 +168,19 @@ deploy_registry() {
   else
     echo "enclave key already set"
   fi
+  # P7: viewing keys are paid in Circle's native USDC on NEAR. Without storage_deposit
+  # the registry can't receive it (ft_transfer_call to it would fail and refund).
+  cfg=$(rpc_view "$REGISTRY" get_config)
+  if [[ "$(python3 -I -c 'import json,sys; print(json.loads(sys.argv[1]).get("usdc"))' "$cfg")" != "$USDC" ]]; then
+    call "$REGISTRY" set_payments "{\"token\":\"$USDC\",\"fee_bps\":100}"
+  else
+    echo "payments already set to $USDC"
+  fi
+  if [[ "$(rpc_view "$USDC" storage_balance_of "{\"account_id\":\"$REGISTRY\"}")" == "null" ]]; then
+    call "$USDC" storage_deposit "{\"account_id\":\"$REGISTRY\",\"registration_only\":true}" '0.00125 NEAR'
+  else
+    echo "$REGISTRY already registered with USDC"
+  fi
 }
 
 status() {
@@ -180,6 +195,7 @@ checks = {
     "active version = reproducible build hash": c["active_version"] == h,
     "enclave key set": bool(c["card_pubkey"]),
     "fixture cards refused": c["accept_fixture_cards"] is False,
+    "viewing keys paid in native USDC, 1% fee": c.get("usdc") == "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1" and c.get("fee_bps") == 100,
 }
 for k, v in checks.items():
     print(("✔ " if v else "✘ ") + k)

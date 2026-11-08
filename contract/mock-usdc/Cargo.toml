@@ -1,0 +1,22 @@
+[package]
+name = "proveit-mock-usdc"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.86"
+description = "Testnet only: a plain NEP-141 token with USDC's 6 decimals, for paying viewing keys in tests"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5.9.0"
+near-contract-standards = "5.9.0"
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true

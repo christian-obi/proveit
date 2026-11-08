@@ -1,0 +1,129 @@
+├  Unsigned transaction:
+│    signer_id:    proveit-follower.testnet
+│    receiver_id:  proveit-usdc.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  ft_transfer_call
+│                       args:         {
+│                                       "amount": "500000",
+│                                       "msg": "{\"card_id\":2}",
+│                                       "receiver_id": "proveit-demo-registry.testnet"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      1 yoctoNEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:DkMiEHi2CTsow2t75QKr3ESDVBkxYmpgRrBNy5WqcBcv
+│    Signature:  ed25519:5uddM5aimzJmPaLK89jwLogjDT5h8ba6QcfNpyQxqyqNwwbf88Zo15kNMb8v9pb2BfUDxPuZGajFjFFWtFSV11ox
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.314 Tgas
+│    Transaction fee: 0.0000313066290075 NEAR
+│    Transaction ID: Aii4VvZwfWhNGeKeE9ZjFqy8NVgLdgmHu38N9DzrWZhJ
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/Aii4VvZwfWhNGeKeE9ZjFqy8NVgLdgmHu38N9DzrWZhJ
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-usdc.testnet]:
+│      EVENT_JSON:{"standard":"nep141","version":"1.0.0","event":"ft_transfer","data":[{"old_owner_id":"proveit-follower.testnet","new_owner_id":"proveit-demo-registry.testnet","amount":"500000"}]}
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"payment_refused","data":[{"sender":"proveit-follower.testnet","amount":"500000","code":"UNDERPAID","message":"the payment is below the price"}]}
+│    Logs [proveit-follower.testnet]:   No logs
+│    Logs [proveit-usdc.testnet]:
+│      EVENT_JSON:{"standard":"nep141","version":"1.0.0","event":"ft_transfer","data":[{"old_owner_id":"proveit-demo-registry.testnet","new_owner_id":"proveit-follower.testnet","amount":"500000","memo":"refund"}]}
+│    Logs [proveit-follower.testnet]:   No logs
+│    Logs [proveit-follower.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+"0"
+
+
+The "ft_transfer_call" call to <proveit-usdc.testnet> on behalf of <proveit-follower.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-usdc.testnet ft_transfer_call json-args '{"receiver_id":"proveit-demo-registry.testnet","amount":"500000","msg":"{\"card_id\":2}"}' prepaid-gas '300.0 Tgas' attached-deposit '1 yoctoNEAR' sign-as proveit-follower.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; r=json.load(sys.stdin)["result"]; print(bytes(r["result"]).decode())
+                                                                   ~^^^^^^^^^^
+KeyError: 'result'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; r=json.load(sys.stdin)["result"]; print(bytes(r["result"]).decode())
+                                                                   ~^^^^^^^^^^
+KeyError: 'result'
+underpaid 0.5 tUSDC (tx Aii4VvZwfWhNGeKeE9ZjFqy8NVgLdgmHu38N9DzrWZhJ): balance 20000000 → 20000000, grant =  underpaid 0.5 tUSDC (tx Aii4VvZwfWhNGeKeE9ZjFqy8NVgLdgmHu38N9DzrWZhJ): balance 20000000 → 20000000, grant = 
+PASS: refunded in full, no key
+├  Unsigned transaction:
+│    signer_id:    proveit-follower.testnet
+│    receiver_id:  proveit-usdc.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  ft_transfer_call
+│                       args:         {
+│                                       "amount": "1000000",
+│                                       "msg": "{\"card_id\":2}",
+│                                       "receiver_id": "proveit-demo-registry.testnet"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      1 yoctoNEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:DkMiEHi2CTsow2t75QKr3ESDVBkxYmpgRrBNy5WqcBcv
+│    Signature:  ed25519:2Vpffu6oAPUmAsrmahyx9auNexPJwiFVVYsLVGPiB2Y4538aEqwgyPSEp4tRK41jZLVU4fEQKkXNQBgAu2q2uABJ
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.314 Tgas
+│    Transaction fee: 0.000031311397379 NEAR
+│    Transaction ID: AfwVPUqdHaiPXFz1AQ1NPQfnkqGcNdN3Vq8XeWNcKjEt
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/AfwVPUqdHaiPXFz1AQ1NPQfnkqGcNdN3Vq8XeWNcKjEt
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-usdc.testnet]:
+│      EVENT_JSON:{"standard":"nep141","version":"1.0.0","event":"ft_transfer","data":[{"old_owner_id":"proveit-follower.testnet","new_owner_id":"proveit-demo-registry.testnet","amount":"1000000"}]}
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"viewing_key_granted","data":[{"card_id":2,"buyer":"proveit-follower.testnet","expires_at":1796719918,"delay_secs":3600,"paid":"1000000"}]}
+│    Logs [proveit-follower.testnet]:   No logs
+│    Logs [proveit-usdc.testnet]:   No logs
+│    Logs [proveit-follower.testnet]:   No logs
+│    Logs [proveit-follower.testnet]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+"1000000"
+
+
+The "ft_transfer_call" call to <proveit-usdc.testnet> on behalf of <proveit-follower.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-usdc.testnet ft_transfer_call json-args '{"receiver_id":"proveit-demo-registry.testnet","amount":"1000000","msg":"{\"card_id\":2}"}' prepaid-gas '300.0 Tgas' attached-deposit '1 yoctoNEAR' sign-as proveit-follower.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+paid 1 tUSDC (tx AfwVPUqdHaiPXFz1AQ1NPQfnkqGcNdN3Vq8XeWNcKjEt): balance 19000000
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; r=json.load(sys.stdin)["result"]; print(bytes(r["result"]).decode())
+                                                                   ~^^^^^^^^^^
+KeyError: 'result'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; r=json.load(sys.stdin)["result"]; print(bytes(r["result"]).decode())
+                                                                   ~^^^^^^^^^^
+KeyError: 'result'
+grant =  grant = 
+issuer balance in the registry: 0 → "1000000" (owner = issuer here, so it gets the fee too)
+get_offer = {"card_id":2,"offer":{"price":"1000000","delay_secs":3600,"duration_secs":2592000,"max_seats":5,"requires_approval":false,"payout":"proveit-realist.testnet"},"seats_used":1,"seats_left":4,"waiting":0,"token":"proveit-usdc.testnet","fee_bps":100}

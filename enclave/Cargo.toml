@@ -32,12 +32,17 @@ k256 = { version = "0.13", default-features = false, features = ["ecdsa", "arith
 sha3 = { version = "0.10", default-features = false }
 sha2 = "0.10"
 hex = "0.4"
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
+chacha20poly1305 = { version = "0.10", default-features = false, features = ["alloc"] }
+hkdf = "0.12"
+base64 = "0.22"
 ed25519-dalek = { version = "2", default-features = false, features = ["std"], optional = true }
 hmac = { version = "0.12", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasi-http-client = "0.2"
 wit-bindgen = "0.36"
+wasi = "0.13"
 
 [dev-dependencies]
 proptest = "1"

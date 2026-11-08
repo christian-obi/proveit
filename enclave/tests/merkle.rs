@@ -49,7 +49,7 @@ fn every_real_order_proves_against_the_root() {
     let source = FixtureSource { dir: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures").join("winner") };
     let m = pipeline::measure(&source, "x", 30).unwrap();
     let records = orders::records(&m.fills, &m.series.account_value);
-    let leaves = orders::leaves(&records).unwrap();
+    let leaves = orders::leaves(&records, &orders::salts([9u8; 32], records.len())).unwrap();
     let root = merkle::root(&leaves);
     for (i, leaf) in leaves.iter().enumerate() {
         assert!(merkle::verify(leaf, &merkle::proof(&leaves, i), &root));

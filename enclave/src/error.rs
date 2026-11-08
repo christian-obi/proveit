@@ -15,6 +15,8 @@ pub enum Code {
     FillCapExceeded,
     NoData,
     Upstream,
+    /// No reveal data for this card (unknown, or issued before reveals existed).
+    CardNotFound,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

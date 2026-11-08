@@ -77,6 +77,49 @@ pub fn verify(leaf: &Hash, steps: &[Step], expected_root: &Hash) -> bool {
     &acc == expected_root
 }
 
+/// The hashes that, with the first `k` leaves, rebuild the root: one per level where the
+/// known prefix ends inside a pair. They cover only the hidden leaves `k..n`, at most
+/// ⌈log2 n⌉ of them. Leaves are salted (src/orders.rs), so these reveal nothing about the
+/// hidden records.
+pub fn prefix_proof(leaves: &[Hash], k: usize) -> Vec<Hash> {
+    let mut out = Vec::new();
+    if k == 0 || k > leaves.len() {
+        return out;
+    }
+    let mut level = leaves.to_vec();
+    let mut known = k;
+    while level.len() > 1 {
+        if known % 2 == 1 && known < level.len() {
+            out.push(level[known]);
+        }
+        level = next_level(&level);
+        known = known.div_ceil(2);
+    }
+    out
+}
+
+/// Rebuild the root of an `n`-leaf tree from its first leaves and [`prefix_proof`].
+/// `None` when the proof has the wrong number of hashes or nothing was revealed.
+pub fn prefix_root(known: &[Hash], n: usize, proof: &[Hash]) -> Option<Hash> {
+    if known.is_empty() || known.len() > n {
+        return None;
+    }
+    let mut level = known.to_vec();
+    let mut len = n;
+    let mut proof = proof.iter();
+    while len > 1 {
+        if level.len() % 2 == 1 && level.len() < len {
+            level.push(*proof.next()?);
+        }
+        level = next_level(&level);
+        len = len.div_ceil(2);
+    }
+    if proof.next().is_some() {
+        return None;
+    }
+    Some(level[0])
+}
+
 mod hex_hash {
     use serde::{Deserialize, Deserializer, Serializer};
 

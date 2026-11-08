@@ -3,6 +3,10 @@
 //! stdin:  {"op": "pubkey"}                      → {"status":"ok","pubkey":"<hex>"}
 //!         {"op": "issue", "window_days": 30}    → {"status":"ok","card":{...},"sig":"<hex>"}
 //!         (window_days: 1, 7, 30, 90 or 180)
+//!         {"op": "reveal", "card_hash": "<hex>", "follower": "<account>",
+//!          "follower_x25519_pub": "<hex>", "delay_secs": 0}
+//!                                               → {"status":"ok","ciphertext":"<base64>","shown":k,"total":n}
+//!         (the registry sends this only for a follower holding a live grant; src/reveal.rs)
 //! door:   inside OutLayer, both ops run only on-chain and only when the caller is the
 //!         registry compiled in as PROVEIT_REGISTRY (src/door.rs)
 //! env:    PROVEIT_SECRET   {"venue":"hyperliquid","proof":{...OwnershipProof}}: an encrypted
@@ -35,6 +39,7 @@ static OUTLAYER_MANIFEST: [u8; include_bytes!("../manifest.json").len()] = *incl
 enum Request {
     Pubkey,
     Issue { window_days: u32 },
+    Reveal { card_hash: String, follower: String, follower_x25519_pub: String, delay_secs: u64 },
 }
 
 fn main() {
@@ -55,7 +60,22 @@ fn run() -> Result<Value> {
             let signed = build::issue(&platform, window_days)?;
             Ok(json!({ "status": "ok", "card": signed.card, "sig": signed.sig }))
         }
+        Request::Reveal { card_hash, follower, follower_x25519_pub, delay_secs } => {
+            reveal(&platform, &card_hash, &follower, &follower_x25519_pub, delay_secs)
+        }
     }
+}
+
+/// Show the follower the card's orders older than the delay, encrypted to their key.
+fn reveal(platform: &impl Platform, card_hash: &str, follower: &str, follower_pub: &str, delay_secs: u64) -> Result<Value> {
+    use base64::Engine;
+    let sealed = proveit_enclave::reveal::seal_for(platform, card_hash, follower, follower_pub, delay_secs, now_secs())?;
+    Ok(json!({
+        "status": "ok",
+        "ciphertext": base64::engine::general_purpose::STANDARD.encode(sealed.ciphertext),
+        "shown": sealed.shown,
+        "total": sealed.total,
+    }))
 }
 
 fn env(name: &str) -> Option<String> {
@@ -182,6 +202,19 @@ mod host {
             } else {
                 Err(host_err("storage", error))
             }
+        }
+
+        fn load(&self, key: &str) -> Result<Option<Vec<u8>>> {
+            let (value, error) = storage::get_worker(key, None);
+            if !error.is_empty() {
+                return Err(host_err("storage", error));
+            }
+            Ok(if value.is_empty() { None } else { Some(value) })
+        }
+
+        fn random_32(&self) -> Result<[u8; 32]> {
+            let bytes = wasi::random::random::get_random_bytes(32);
+            bytes.try_into().map_err(|_| Error::new(Code::Upstream, "random source gave the wrong length"))
         }
     }
 }
@@ -322,6 +355,12 @@ mod build {
             Err(unavailable())
         }
         fn store(&self, _: &str, _: &[u8]) -> Result<()> {
+            Err(unavailable())
+        }
+        fn load(&self, _: &str) -> Result<Option<Vec<u8>>> {
+            Err(unavailable())
+        }
+        fn random_32(&self) -> Result<[u8; 32]> {
             Err(unavailable())
         }
     }

@@ -9,7 +9,11 @@ import { concat, hex, unhex, utf8 } from "./bytes.ts";
 export type Step = { sibling: string; left: boolean };
 
 export function leafHash(canonicalRecord: string): Uint8Array {
-  return sha256(concat(new Uint8Array([0x00]), utf8(canonicalRecord)));
+  return leafHashBytes(utf8(canonicalRecord));
+}
+
+export function leafHashBytes(bytes: Uint8Array): Uint8Array {
+  return sha256(concat(new Uint8Array([0x00]), bytes));
 }
 
 function nodeHash(left: Uint8Array, right: Uint8Array): Uint8Array {
@@ -46,4 +50,22 @@ export function verify(leaf: Uint8Array, steps: Step[], expectedRoot: string): b
   let acc = leaf;
   for (const s of steps) acc = s.left ? nodeHash(unhex(s.sibling), acc) : nodeHash(acc, unhex(s.sibling));
   return hex(acc) === expectedRoot;
+}
+
+/** Rebuild the root of an `n`-leaf tree from its first leaves and the enclave's prefix
+ *  proof (enclave/src/merkle.rs `prefix_proof`). `null` if the proof doesn't fit. */
+export function prefixRoot(known: Uint8Array[], n: number, proof: string[]): string | null {
+  if (known.length === 0 || known.length > n) return null;
+  let level = known;
+  let len = n;
+  let i = 0;
+  while (len > 1) {
+    if (level.length % 2 === 1 && level.length < len) {
+      if (i >= proof.length) return null;
+      level = [...level, unhex(proof[i++])];
+    }
+    level = nextLevel(level);
+    len = Math.ceil(len / 2);
+  }
+  return i === proof.length ? hex(level[0]) : null;
 }

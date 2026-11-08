@@ -1,0 +1,315 @@
+Migrating config.toml from V1 to V2...
+Migrating config.toml from V2 to V3...
+Migrating config.toml from V3 to v4...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+• Collecting cargo project metadata...
+• done
+
+• Checking rustc version...
+• done
+
+• Checking the host environment...
+• done
+
+• Generating ABI
+ │    Compiling proveit-registry v0.1.0 (/Users/realist/projects/proveit/contract)
+ │     Finished `dev` profile [unoptimized] target(s) in 2.08s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │    Compiling proveit-registry v0.1.0 (/Users/realist/projects/proveit/contract)
+ │     Finished `release` profile [optimized] target(s) in 3.57s
+
+Modification timestamps of:
+ |    "/Users/realist/projects/proveit/contract/target/wasm32-unknown-unknown/release/proveit_registry.wasm" = SystemTime { tv_sec: 1794127835, tv_nsec: 387626578 }
+ |    "/Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm" = SystemTime { tv_sec: 1794066686, tv_nsec: 965328360 }
+
+• Running an optimize for size post-step with wasm-opt ...
+    Finished wasm-opt -O in 711ms
+• done
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm
+     -                  Size: 377.4 KB (377399 bytes)
+     - SHA-256 checksum hex : 1f93ea8cd2d9708413d07fd1ba653085f1d640eaba838b7a0619de21e153d517
+     - SHA-256 checksum bs58: 38GTUbHE95F5mb1JyMvTvx3d1aCf6RZRgbyPHmSzyaLv
+     -                   ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.json
+     -          Embedded ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.zst
+    Finished cargo near build in 8s
+Here is the console command if you ever need to re-run it again:
+cargo near build non-reproducible-wasm
+
+cargo-near has a new update available 0.22.0 → 0.23.0
+To update run: /Users/realist/.cargo/bin/cargo-near near self-update
+== proveit-demo-registry.testnet
+Migrating config.toml from V4 to V5...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+├  Unsigned transaction:
+│    signer_id:    proveit-demo-registry.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- deploy code <38GTUbHE95F5mb1JyMvTvx3d1aCf6RZRgbyPHmSzyaLv> to a account <proveit-demo-registry.testnet>
+│       -- function call:      
+│                       method name:  migrate
+│                       args:         {}
+│                       gas:          100.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:Ads2mMMTZ8zuAACwBqG4BazDYCLdoUjY2TTSiRkqLrHa
+│    Signature:  ed25519:66tXzHtHdy8aXXcbBQP8V7FWc34VuwtGdgoFbDEiZ8AJFXVpXasubFdbFN3FKiXgrRzNsAnxFAxgekkhiM6gGSYG
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 3.1 Tgas
+│    Transaction fee: 0.0003064064383007 NEAR
+│    Transaction ID: 8YeqxA921uG2S9RWmon7wgxo764qNuPUa8me9oLiaVyg
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/8YeqxA921uG2S9RWmon7wgxo764qNuPUa8me9oLiaVyg
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:   No logs
+│    Logs [proveit-demo-registry.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+Contract code has been successfully deployed.
+The "migrate" call to <proveit-demo-registry.testnet> on behalf of <proveit-demo-registry.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract deploy proveit-demo-registry.testnet use-file /Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm with-init-call migrate json-args {} prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  approve_version
+│                       args:         {
+│                                       "hash": "9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:4Qqi9xufvt5iEa2ZWaQ5EZDMNpxBgqt7fexQuYobLryzCN8mwe5q7Hg6iTgNQ4s9kc7Yt5Cwv6YGUeSLgBXbKyVY
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031235103435 NEAR
+│    Transaction ID: HXnhQSwczxHqitXJCxgmB62A2sLdLJDGeUQGpQ5xERsr
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/HXnhQSwczxHqitXJCxgmB62A2sLdLJDGeUQGpQ5xERsr
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"version_approved","data":[{"hash":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c"}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "approve_version" call to <proveit-demo-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-demo-registry.testnet approve_version json-args '{"hash":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c"}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-demo-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  set_payments
+│                       args:         {
+│                                       "fee_bps": 100,
+│                                       "token": "proveit-usdc.testnet"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:26wYYmGG8uFDu2NZtpU9565Zb18hz9v7VsNZzjbJY7274cRLdx7xkCX5Pz7L4CfW53d5d2AwmujWUGgDXsaN2tB3
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.311 Tgas
+│    Transaction fee: 0.000031082515547 NEAR
+│    Transaction ID: 4PDCK9vayEtL5mPKAT7HwCjTWSsNqbFQztE5riDaxWRm
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/4PDCK9vayEtL5mPKAT7HwCjTWSsNqbFQztE5riDaxWRm
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-demo-registry.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "set_payments" call to <proveit-demo-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-demo-registry.testnet set_payments json-args '{"token":"proveit-usdc.testnet","fee_bps":100}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+{"owner":"proveit-realist.testnet","outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/enclave-demo","active_version":"9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c","card_pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d","accept_fixture_cards":true,"stale_after_secs":1209600,"cards":2,"requests":5,"usdc":"proveit-usdc.testnet","fee_bps":100}
+card #0 still verifies: {"status":"VALID","valid":true,"card_id":0,"card_hash":"b1c510afa6ffe89111d6d4fd79a464757a4b26f494e933382b8d9552545802ff","version":"84dfc867bf43d95d5e37c547e915b5605524aa18150db003922e8e7a29954084","mode":"fixture","issued_at":1794065991,"pubkey":"b514754596dfbabf33438824a2208023c97349bfed9c808d78e4bf6036c5200d"}
+== proveit-registry.testnet
+├  Unsigned transaction:
+│    signer_id:    proveit-registry.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- deploy code <38GTUbHE95F5mb1JyMvTvx3d1aCf6RZRgbyPHmSzyaLv> to a account <proveit-registry.testnet>
+│       -- function call:      
+│                       method name:  migrate
+│                       args:         {}
+│                       gas:          100.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:CetW9dYqEbcpR71eXowG5ms6t6dWWch8EvvzDqQ8x4qQ
+│    Signature:  ed25519:5fksgP3MFvVCGHEKAHjZjbBrLpu927Zk9gJpS6URAVsw21NZNt6oeGhANFU3nfNDD3F6eatqHvYLtYmveuieoNBw
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 3.1 Tgas
+│    Transaction fee: 0.0003064064383007 NEAR
+│    Transaction ID: 9FrAgQ6UmSmbcMdpR6P3G4iwpU6JQkQSXoUhjUD6117j
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/9FrAgQ6UmSmbcMdpR6P3G4iwpU6JQkQSXoUhjUD6117j
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-registry.testnet]:   No logs
+│    Logs [proveit-registry.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+Contract code has been successfully deployed.
+The "migrate" call to <proveit-registry.testnet> on behalf of <proveit-registry.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract deploy proveit-registry.testnet use-file /Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm with-init-call migrate json-args {} prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  approve_version
+│                       args:         {
+│                                       "hash": "b77de55e1b2ef724922a27cab913c925e0de7652d54665b8049a0e11e0a2f809"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:5d3xKNcMU81Lrsc5KRbihT9PcSxik2NCxvvVjZJMfKsS4Cw1FbWHVSTij2mNwxGHFwsxTWajHLVhNVcfnuKEB7EQ
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031235103435 NEAR
+│    Transaction ID: FuAvt7bqDCaKWdFCpgaNXQCBG2QRGBM1QpaBZBwio7CY
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/FuAvt7bqDCaKWdFCpgaNXQCBG2QRGBM1QpaBZBwio7CY
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-registry.testnet]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"version_approved","data":[{"hash":"b77de55e1b2ef724922a27cab913c925e0de7652d54665b8049a0e11e0a2f809"}]}
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "approve_version" call to <proveit-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-registry.testnet approve_version json-args '{"hash":"b77de55e1b2ef724922a27cab913c925e0de7652d54665b8049a0e11e0a2f809"}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    proveit-realist.testnet
+│    receiver_id:  proveit-registry.testnet
+│    actions:
+│       -- function call:      
+│                       method name:  set_payments
+│                       args:         {
+│                                       "fee_bps": 100,
+│                                       "token": "proveit-usdc.testnet"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:EJsW5tqThSTwza4u99Rnsxa7FLdTpMnShuXrbQgY37fz
+│    Signature:  ed25519:3vWfeJTF5yVg2j1VgD9ijQGt9hbbKs2LZaYmgfdrhrt73AcF5TEi8q7kRwBRtPNydPkh7rcXMWSXkvNu9EmyEKhZ
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.311 Tgas
+│    Transaction fee: 0.000031082515547 NEAR
+│    Transaction ID: D1euVStHKkNYUqZzyRsW4bxBgD6PYj8WHmAAFqkCfSS4
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.testnet.near.org/transactions/D1euVStHKkNYUqZzyRsW4bxBgD6PYj8WHmAAFqkCfSS4
+│     [0m
+├  Function execution logs:
+│    Logs [proveit-registry.testnet]:   No logs
+│    Logs [proveit-realist.testnet]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "set_payments" call to <proveit-registry.testnet> on behalf of <proveit-realist.testnet> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit-registry.testnet set_payments json-args '{"token":"proveit-usdc.testnet","fee_bps":100}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as proveit-realist.testnet network-config testnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+{"owner":"proveit-realist.testnet","outlayer":"outlayer.testnet","project_id":"proveit-realist.testnet/enclave","active_version":"b77de55e1b2ef724922a27cab913c925e0de7652d54665b8049a0e11e0a2f809","card_pubkey":"641f094fcfaf9530b453ad1592f8932611df5bce4d0d47056663c04345900cb0","accept_fixture_cards":false,"stale_after_secs":1209600,"cards":0,"requests":4,"usdc":"proveit-usdc.testnet","fee_bps":100}
+card #0 still verifies: {"status":"NOT_FOUND","valid":false,"card_id":0,"card_hash":null,"version":null,"mode":null,"issued_at":null,"pubkey":null}

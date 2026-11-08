@@ -60,10 +60,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # T5.1, T5.2 and the transaction / relay checks.
       - run: pnpm --filter web test
-      - run: pnpm --filter web build
-      # T5.3: the live create flow in a real browser; the address must never reach the app's server.
+      # T5.3, P6 and P7 in a real browser against testnet. Before `build`: a fresh production
+      # build in .next makes the dev server Playwright starts reload in a loop.
       - run: pnpm --filter web exec playwright install --with-deps chromium
       - run: pnpm --filter web e2e
+      - run: pnpm --filter web build
 
   reproducible-build:
     runs-on: ubuntu-latest

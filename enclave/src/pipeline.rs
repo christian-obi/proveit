@@ -7,10 +7,11 @@ use crate::hl::{Fill, Point, Portfolio, Series, Source};
 use crate::merkle;
 use crate::orders;
 use crate::platform::Platform;
+use crate::reveal::{Stored, StoredWindow, STORE_VERSION};
 use crate::rules;
 use crate::stats::{self, MIN_CAPITAL, MS_PER_DAY};
 use rust_decimal::Decimal;
-use serde_json::json;
+use sha2::{Digest, Sha256};
 
 pub const WINDOWS: [u32; 5] = [1, 7, 30, 90, 180];
 pub const VENUE: &str = "hyperliquid";
@@ -98,8 +99,14 @@ pub struct IssueParams<'a> {
 /// Measure, commit to every order, store what a later reveal needs, and sign.
 pub fn issue(source: &impl Source, platform: &impl Platform, p: &IssueParams) -> Result<SignedCard> {
     let m = measure(source, p.address, p.window_days)?;
-    let records = orders::records(&m.fills, &m.series.account_value);
-    let root = merkle::root(&orders::leaves(&records)?);
+    let timed = orders::timed_records(&m.fills, &m.series.account_value);
+    let (records, last_fill_ms): (Vec<_>, Vec<_>) = timed.into_iter().unzip();
+    // The newest salt, from the enclave-only MAC key and this card's own inputs.
+    let address = p.address.to_lowercase();
+    let salt_input = format!("order-salts-v1:{VENUE}:{address}:{}:{}:{}:{}", m.window.start, m.window.end, p.issued_at, p.nonce);
+    let last_salt: merkle::Hash = Sha256::digest(platform.commit_mac(salt_input.as_bytes())?).into();
+    let salts = orders::salts(last_salt, records.len());
+    let root = merkle::root(&orders::leaves(&records, &salts)?);
 
     let card = Card {
         v: 1,
@@ -117,17 +124,21 @@ pub fn issue(source: &impl Source, platform: &impl Platform, p: &IssueParams) ->
         mode: p.mode.into(),
     };
 
-    // A reveal (P7) re-reads the account's orders and checks them against this root.
+    // Everything a reveal needs (src/reveal.rs), so it never has to recompute the records.
     // The key is the card hash, never anything secret; the value is encrypted storage.
     let hash = hex::encode(card::card_hash(&card)?);
-    let stored = json!({
-        "v": 1,
-        "venue": VENUE,
-        "address": p.address.to_lowercase(),
-        "window": { "start": card.window.start, "end": card.window.end },
-        "orders_root": card.orders.root,
-    });
-    platform.store(&format!("card:{hash}"), stored.to_string().as_bytes())?;
+    let stored = Stored {
+        v: STORE_VERSION,
+        venue: VENUE.into(),
+        address,
+        window: StoredWindow { start: card.window.start, end: card.window.end },
+        orders_root: card.orders.root.clone(),
+        last_salt: hex::encode(last_salt),
+        records,
+        last_fill_ms,
+    };
+    let bytes = serde_json::to_vec(&stored).map_err(|e| Error::new(Code::BadInput, e.to_string()))?;
+    platform.store(&format!("card:{hash}"), &bytes)?;
 
     let sig = card::sign(platform, &card)?;
     Ok(SignedCard { card, sig: hex::encode(sig) })

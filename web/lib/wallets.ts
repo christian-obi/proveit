@@ -19,16 +19,19 @@ declare global {
   interface Window {
     ethereum?: EIP1193Provider;
     __proveitSent?: Tx[][];
+    /** Playwright only: the fake wallet's account and the tx hash it reports. */
+    __proveitE2eAccount?: string;
+    __proveitE2eTxHash?: string;
   }
 }
 
 export async function connectNear(): Promise<NearSession> {
   if (config.e2e) {
     return {
-      accountId: "e2e-trader.testnet",
+      accountId: window.__proveitE2eAccount ?? "e2e-trader.testnet",
       async signAndSendTransactions(txs) {
         (window.__proveitSent ??= []).push(txs);
-        return txs.map(() => ({ receipts_outcome: [] }));
+        return txs.map(() => ({ receipts_outcome: [], transaction: { hash: window.__proveitE2eTxHash ?? "e2e-not-sent" } }));
       },
       async disconnect() {},
     };
