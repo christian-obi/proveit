@@ -1,0 +1,14 @@
+== 1. The real card: https://proveit-production-d47c.up.railway.app/demo/3
+✔ Enclave signature  signed by the enclave key b514754596df…, which the registry learned from the enclave itself
+✔ On-chain record    card #3 is recorded on proveit-demo-registry.testnet with hash e982e697ae57…
+✔ Enclave code       enclave build 653e74f1177e…: open source, rebuild it with enclave/build.sh and compare
+✔ TEE attestation    Intel TDX attestation for OutLayer request 13345: this build, this project, this issuer, this exact output
+✔ 4/5 checks passed
+== 2. The same card with its return edited to +90%, as a faked screenshot would be
+✘ Enclave signature  signature mismatch: these numbers are not what the enclave signed
+✘ On-chain record    the registry holds a different card under #3: this one was edited
+✔ Enclave code       enclave build 653e74f1177e…: open source, rebuild it with enclave/build.sh and compare
+✘ TEE attestation    the TEE run produced different output than this card
+✘ 3 check(s) failed
+== PASS: the real card verified; the edited copy was caught.
+demo exit 0

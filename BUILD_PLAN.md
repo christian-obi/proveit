@@ -329,7 +329,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 built (T7.6: mainnet) |
 | P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 6/10 built (T8.4–T8.6, T8.9: mainnet, 1Click key, Hyperliquid account) |
 | P9 | Explore, Intents venue, privacy depth, agent guard | Wed 11 Nov | P6 (Intents venue: S7) | ✔ 6/6 required (T9.7–T9.8 need Intents access, T0.9) |
-| P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ☐ |
+| P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ◐ 3/6 built (T10.3 after push; T10.2, T10.6: repo public, keys, mainnet) |
 | P11 | Demo, launch, submit | Fri 13 – Sat 14 Nov | P10 | ☐ |
 | PS | Stretch goals (optional) | only after P10 | P10 | ☐ |
 
@@ -621,9 +621,9 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** a stranger (or Claude Code/Codex) can clone the repo, follow the README and confirm every claim.
 
 **Tasks**
-- [ ] README per §9; `docs/TRUST_MODEL.md`, `THREAT_MODEL.md`, `METHODOLOGY.md`.
-- [ ] `scripts/demo.sh` (`pnpm demo`): verifies the pre-issued mainnet card and a tampered copy, no wallet needed.
-- [ ] Security pass (checklist below), CI complete, Railway production config final.
+- [x] README per §9; `docs/TRUST_MODEL.md`, `THREAT_MODEL.md`, `METHODOLOGY.md`, `CLAIMS.md`.
+- [x] `scripts/demo.ts` (`pnpm demo`): verifies the featured card and a tampered copy, no wallet needed (testnet card #3 until the mainnet card exists: `PROVEIT_DEMO_CARD`).
+- [x] Security pass (checklist in `docs/THREAT_MODEL.md`); CI fixed (reproducible-build installs packages). Railway production config: mainnet values wait for P4.
 
 **Exit tests**
 

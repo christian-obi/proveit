@@ -202,3 +202,18 @@ Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) app
 **Not built:** the NEAR Intents venue (needs T0.9) and an inception-to-date window.
 
 **P9 status:** T9.1–T9.6 done; T9.7–T9.8 not applicable without Intents history access.
+
+## P10 — Hardening for the AI screeners
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T10.1 | clean machine: `pnpm i && pnpm demo` | ✔ | `docs/p10-results/clean-machine.log`: a `node:22` container with only the repository's files; the real card verifies (4 ✔, check 5 amber because it's a demo card), the edited copy fails signature, record and attestation, exit 0. On mainnet the live card will show 5/5 |
+| T10.2 | simulated screener (a fresh Claude Code session follows the README) | ☐ | needs the repo public (or a fresh session given local access); yours to start |
+| T10.3 | CI green on `main` incl. the reproducible-hash job | ◐ | `reproducible-build` failed since P6 because the job never installed the workspace packages that `p2-check.sh`'s TypeScript cross-checks need; fixed in `.github/workflows/ci.yml` (not yet pushed). The P7 run also hit GitHub-release 504s (the outage that broke Railway). All other jobs pass on `f64b09f` |
+| T10.4 | `docs/CLAIMS.md` | ✔ | 18 claims, each mapped to a test ID or live record and a command to check it; the commands were run |
+| T10.5 | security checklist | ✔ | `docs/THREAT_MODEL.md`: every item with its test. New: `enclave/tests/security.rs` (only the card code signs; EIP-712 domain and bindings), `contract::callbacks_are_private` plus a live refusal (`docs/p10-results/private-callback.log`). The relayer item is n/a (fallback B isn't used) |
+| T10.6 | Railway production | ◐ | `docs/p10-results/routes.log`: `/`, `/create`, `/verify`, `/explore`, card, unlock, feed, `/api/verify`, OG image, `/healthz` all 200 (`/c/0` is 404 because the live registry has no card until the Hyperliquid account's). The mainnet env vars wait for the mainnet deploy; the relay and 1Click keys are yours to set |
+
+Also: README rewritten for the screeners (60-second demo, live links, where each part runs, proven / not proven, reproducible hashes, deployments, NEAR protocols, status, disclosures); `docs/TRUST_MODEL.md`, `docs/THREAT_MODEL.md`, `docs/CLAIMS.md`; `docs/METHODOLOGY.md` gains the privacy guard and order records; `pnpm demo` (`scripts/demo.ts`) and `pnpm test` (`scripts/test-all.sh`); the verify CLI prints the return bucket.
+
+**P10 status:** T10.1, T10.4, T10.5 done; T10.3 fixed, waiting on a push; T10.2 and T10.6 need you (repo public, keys, mainnet).

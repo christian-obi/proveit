@@ -58,7 +58,7 @@ const icon: Record<Check["status"], string> = { pass: "✔", fail: "✘", warn: 
 const c = report.card;
 if (c) {
   const pct = (bps: number) => `${bps >= 0 ? "+" : ""}${(bps / 100).toFixed(2)}%`;
-  console.log(`card #${cardId} on ${registry}: ${c.window.days}-day return ${pct(c.stats.return_bps)}, max drawdown ${(c.stats.max_dd_bps / 100).toFixed(2)}%, ${c.stats.trades} trades`);
+  console.log(`card #${cardId} on ${registry}: ${c.window.days}-day return ${c.stats.return_precision_bps ? `${pct(c.stats.return_bps)} to ${pct(c.stats.return_bps + c.stats.return_precision_bps)} (1 of ≥ ${c.stats.k_anon} accounts)` : pct(c.stats.return_bps)}, max drawdown ${(c.stats.max_dd_bps / 100).toFixed(2)}%, ${c.stats.trades} trades`);
 }
 for (const check of report.checks) console.log(`${icon[check.status]} ${check.label.padEnd(18)} ${check.detail}`);
 if (report.attestationUrl) console.log(`  attestation: ${report.attestationUrl}`);

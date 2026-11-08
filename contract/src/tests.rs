@@ -420,3 +420,18 @@ fn agent_cards() {
 
 #[path = "keys_tests.rs"]
 mod keys_tests;
+
+/// T10.5: callbacks are #[private]: nobody but the registry itself can feed it a result.
+/// near-sdk enforces this in the generated wasm entry point (which unit tests bypass), so
+/// this checks the attribute is on every callback; docs/p10-results has the live refusal.
+#[test]
+fn callbacks_are_private() {
+    for (file, src) in [("lib.rs", include_str!("lib.rs")), ("keys.rs", include_str!("keys.rs"))] {
+        for (i, line) in src.lines().enumerate() {
+            if let Some(name) = line.trim().strip_prefix("pub fn on_").map(|r| r.split('(').next().unwrap()) {
+                let prev: Vec<&str> = src.lines().take(i).collect();
+                assert!(prev.iter().rev().take(2).any(|l| l.trim() == "#[private]"), "{file}: on_{name} must be #[private]");
+            }
+        }
+    }
+}

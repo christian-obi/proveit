@@ -1,0 +1,3 @@
+Error: 
+   0: [91mError: An error occurred during a `FunctionCall` action.
+      ExecutionError("Smart contract panicked: Method on_result is private")[0m

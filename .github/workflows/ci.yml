@@ -71,8 +71,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: bytecodealliance/actions/wasm-tools/setup@v1
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: pnpm
+      # p2-check also runs the TypeScript cross-checks, which need the workspace packages.
+      - run: pnpm install --frozen-lockfile
       # T2.5/T2.6: rebuild in the pinned image; the hashes must equal enclave/expected-hashes.txt.
       - run: scripts/p2-check.sh

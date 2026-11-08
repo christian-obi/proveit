@@ -1,0 +1,11 @@
+200 /
+200 /create
+200 /verify
+200 /explore
+404 /c/0
+200 /demo/3
+200 /demo/3/unlock
+200 /demo/3/feed
+200 /api/verify?card=3&registry=proveit-demo-registry.testnet
+200 /demo/3/opengraph-image
+200 /healthz

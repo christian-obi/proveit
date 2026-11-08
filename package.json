@@ -12,7 +12,9 @@
     "spike:s3": "pnpm --filter s3-secrets run test",
     "spike:s6": "pnpm --filter s6-chainsig-match run match",
     "verify": "node packages/verify/bin/verify.ts",
-    "agent-guard": "node packages/verify/bin/agent-guard.ts"
+    "agent-guard": "node packages/verify/bin/agent-guard.ts",
+    "demo": "node scripts/demo.ts",
+    "test": "scripts/test-all.sh"
   },
   "devDependencies": {
     "viem": "2.57.16"
