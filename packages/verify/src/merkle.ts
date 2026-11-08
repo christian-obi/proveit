@@ -1,26 +1,19 @@
 // The Merkle tree of enclave/src/merkle.rs, written separately so each implementation
-// checks the other (test-vectors/merkle.json comes from this one).
+// checks the other (test-vectors/merkle.json comes from this one). Browser- and Node-safe.
 //   leaf = sha256(0x00 ‖ canonical_record)    node = sha256(0x01 ‖ left ‖ right)
 // An odd node is carried up unchanged; an empty tree's root is 32 zero bytes.
 
-import { createHash } from "node:crypto";
+import { sha256 } from "@noble/hashes/sha256";
+import { concat, hex, unhex, utf8 } from "./bytes.ts";
 
 export type Step = { sibling: string; left: boolean };
 
-const sha256 = (...parts: Uint8Array[]) => {
-  const h = createHash("sha256");
-  for (const p of parts) h.update(p);
-  return new Uint8Array(h.digest());
-};
-const hex = (b: Uint8Array) => Buffer.from(b).toString("hex");
-const unhex = (s: string) => new Uint8Array(Buffer.from(s, "hex"));
-
 export function leafHash(canonicalRecord: string): Uint8Array {
-  return sha256(new Uint8Array([0x00]), new TextEncoder().encode(canonicalRecord));
+  return sha256(concat(new Uint8Array([0x00]), utf8(canonicalRecord)));
 }
 
 function nodeHash(left: Uint8Array, right: Uint8Array): Uint8Array {
-  return sha256(new Uint8Array([0x01]), left, right);
+  return sha256(concat(new Uint8Array([0x01]), left, right));
 }
 
 function nextLevel(level: Uint8Array[]): Uint8Array[] {

@@ -113,3 +113,20 @@ Live at https://proveit-production-d47c.up.railway.app/create (testnet). Tests: 
 **Design note:** OutLayer's keystore allows browser calls only from listed origins (its dashboard and `localhost:3000`). The app calls it directly when allowed and otherwise uses a relay (`/api/keystore-pubkey`) that rebuilds the request with placeholder values, so it can't forward a secret; the UI tells the trader when the relay was used, because a dishonest relay could swap the key. Asking OutLayer to allowlist the domain removes the relay.
 
 **P5 status:** 4 of 6; T5.5 and T5.6 wait for you to run the flow with your wallets.
+
+## P6 — M2: card page, verify, tamper mode
+
+Live at https://proveit-production-d47c.up.railway.app (testnet): `/`, `/verify`, `/c/<id>`, `/demo/<id>`. Tests: `node --test packages/verify/src/*.test.ts`, `pnpm --filter web test`, `pnpm --filter web e2e`, all in CI.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T6.1 | verifier unit tests | ✔ | 16 pass: synthetic live card (signed with the public test key) → 5 green; edited stat → signature, record, attestation red; unknown id → all red; unapproved/retired build → code red; attestation output/build/project/caller mismatch → red; revoked/superseded → record red; stale → amber; missing attestation → amber; real recorded testnet card #1; rate-limited RPC falls through; cached re-check asks only `verify_card` |
+| T6.2 | `pnpm verify <railway>/demo/1` | ✔ | 7 Nov, exit 0: signature, record, code, attestation ✔; freshness amber because it is a demo card from a recorded public account (a live card shows 5/5, as in T6.1). A `/c/<id>` live card waits for the Hyperliquid account. |
+| T6.3 | `pnpm verify <railway>/demo/1 --tamper return_bps=3830` | ✔ | exit 1, "signature mismatch"; record and attestation also red |
+| T6.4 | og:image is a 1200×630 PNG | ✔ | `web/e2e/verify.spec.ts` plus `curl` on Railway: 200, `image/png`, 1200×630, `twitter:card` = `summary_large_image` |
+| T6.5 | X and Telegram previews show the card | ☐ | yours: paste https://proveit-production-d47c.up.railway.app/demo/1 into X and Telegram |
+| T6.6 | hallway test, 3 people, green then red in < 10 s | ☐ | yours: log the three times here |
+
+Also in the browser suite: tamper mode goes red then green when the number is put back; the landing page's fake screenshot can't be verified while the real card can; a pasted link on `/verify` opens with checks running; unknown cards 404; a staged race (the unedited check held 4 s) can't overwrite the red result.
+
+**P6 status:** 4 of 6; T6.5 and T6.6 need people and social apps.

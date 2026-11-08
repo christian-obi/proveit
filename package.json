@@ -10,7 +10,8 @@
     "build": "pnpm --filter web build",
     "start": "pnpm --filter web start",
     "spike:s3": "pnpm --filter s3-secrets run test",
-    "spike:s6": "pnpm --filter s6-chainsig-match run match"
+    "spike:s6": "pnpm --filter s6-chainsig-match run match",
+    "verify": "node packages/verify/bin/verify.ts"
   },
   "devDependencies": {
     "viem": "2.57.16"

@@ -1,28 +1,46 @@
-// Card hashing and signature checks, matching enclave/src/card.rs:
+// Card hashing and signature checks, matching enclave/src/card.rs and contract/src/card.rs:
 //   card_bytes = canonical(card)
 //   card_hash  = sha256(card_bytes)
 //   signed     = sha256("proveit-card-v1\n" ‖ card_bytes)
 //   sig        = ed25519(cards key, signed)
+// Works in browsers and Node.
 
-import { createHash, createPublicKey, verify as edVerify } from "node:crypto";
+import { ed25519 } from "@noble/curves/ed25519";
+import { sha256 } from "@noble/hashes/sha256";
+import { concat, hex, unhex, utf8 } from "./bytes.ts";
 import { canonical } from "./canonical.ts";
 
 export const SIGNING_PREFIX = "proveit-card-v1\n";
-const ED25519_SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
 
-export function cardBytes(card: unknown): Buffer {
-  return Buffer.from(canonical(card), "utf8");
+export function cardBytes(card: unknown): Uint8Array {
+  return utf8(canonical(card));
 }
 
 export function cardHash(card: unknown): string {
-  return createHash("sha256").update(cardBytes(card)).digest("hex");
+  return hex(sha256(cardBytes(card)));
 }
 
-export function signingMessage(card: unknown): Buffer {
-  return createHash("sha256").update(SIGNING_PREFIX).update(cardBytes(card)).digest();
+export function signingMessage(card: unknown): Uint8Array {
+  return sha256(concat(utf8(SIGNING_PREFIX), cardBytes(card)));
 }
 
 export function verifyCardSignature(card: unknown, sigHex: string, pubkeyHex: string): boolean {
-  const key = createPublicKey({ key: Buffer.concat([ED25519_SPKI_PREFIX, Buffer.from(pubkeyHex, "hex")]), format: "der", type: "spki" });
-  return edVerify(null, signingMessage(card), key, Buffer.from(sigHex, "hex"));
+  try {
+    return ed25519.verify(unhex(sigHex), signingMessage(card), unhex(pubkeyHex));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The enclave's exact stdout for a card. The enclave serialises {status, card, sig} with
+ * sorted keys, and the card part is its canonical JSON, so the bytes can be rebuilt from
+ * the recorded card and signature and checked against the attestation's output_hash.
+ */
+export function enclaveOutput(card: unknown, sigHex: string): string {
+  return `{"card":${canonical(card)},"sig":${JSON.stringify(sigHex)},"status":"ok"}`;
+}
+
+export function sha256Hex(s: string): string {
+  return hex(sha256(utf8(s)));
 }

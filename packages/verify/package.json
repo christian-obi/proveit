@@ -2,13 +2,22 @@
   "name": "@proveit/verify",
   "private": true,
   "type": "module",
-  "description": "Verify Prove-It cards: canonical encoding, signatures, Merkle proofs (more checks land in P6)",
+  "description": "Verify Prove-It cards with public data only: canonical encoding, signatures, Merkle proofs and the five card checks (browser and Node)",
   "exports": {
     "./canonical": "./src/canonical.ts",
     "./merkle": "./src/merkle.ts",
-    "./card": "./src/card.ts"
+    "./card": "./src/card.ts",
+    "./checks": "./src/checks.ts",
+    "./bytes": "./src/bytes.ts"
   },
   "scripts": {
     "test": "node --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@noble/curves": "1.9.2",
+    "@noble/hashes": "1.8.0"
+  },
+  "bin": {
+    "proveit-verify": "./bin/verify.ts"
   }
 }

@@ -9,6 +9,7 @@
 // "Demo data" skips 2–3: the demo registry's enclave uses a recorded public account.
 
 import { useState } from "react";
+import { cardPath } from "@/lib/cards";
 import { config, WINDOWS } from "@/lib/config";
 import { encryptForKeystore } from "@/lib/ecies";
 import { explain } from "@/lib/errors";
@@ -212,7 +213,7 @@ function Status({ phase }: { phase: Phase }) {
       <div className="rounded-lg border border-accent/50 p-4 text-sm">
         <p className="font-medium">Card #{o.Issued.card_id} issued and recorded on NEAR.</p>
         <p className="mt-1 break-all font-mono text-xs text-muted">hash {o.Issued.card_hash}</p>
-        <a className="mt-2 inline-block text-accent underline" href={`/c/${o.Issued.card_id}?registry=${phase.registry}`}>
+        <a className="mt-2 inline-block text-accent underline" href={`${cardPath(o.Issued.card_id, phase.registry)}?verify=1`}>
           Open the card
         </a>
       </div>

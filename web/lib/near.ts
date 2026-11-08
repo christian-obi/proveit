@@ -1,27 +1,11 @@
 // NEAR reads over RPC, and the transactions the create flow sends.
 
+import { view as rpcView } from "@proveit/verify/checks";
 import { config, MAX_GAS, REQUEST_DEPOSIT_YOCTO } from "./config";
 
-export async function view<T>(contract: string, method: string, args: object = {}): Promise<T> {
-  const res = await fetch(config.nearRpc, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "proveit",
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: contract,
-        method_name: method,
-        args_base64: btoa(JSON.stringify(args)),
-      },
-    }),
-  });
-  const body = await res.json();
-  if (body.error || body.result?.error) throw new Error(`${contract}.${method}: ${JSON.stringify(body.error ?? body.result.error)}`);
-  return JSON.parse(new TextDecoder().decode(new Uint8Array(body.result.result)));
+/** A view call over the configured RPC endpoints, falling through on rate limits. */
+export function view<T>(contract: string, method: string, args: object = {}): Promise<T> {
+  return rpcView<T>(config.nearRpc, contract, method, args);
 }
 
 export type RequestOutcome =

@@ -12,7 +12,14 @@ importers:
         specifier: 2.57.16
         version: 2.57.16(typescript@7.0.2)
 
-  packages/verify: {}
+  packages/verify:
+    dependencies:
+      '@noble/curves':
+        specifier: 1.9.2
+        version: 1.9.2
+      '@noble/hashes':
+        specifier: 1.8.0
+        version: 1.8.0
 
   spikes/s3-secrets:
     dependencies:
@@ -52,6 +59,9 @@ importers:
       '@noble/hashes':
         specifier: 1.8.0
         version: 1.8.0
+      '@proveit/verify':
+        specifier: workspace:*
+        version: link:../packages/verify
       next:
         specifier: 16.4.5
         version: 16.4.5(@playwright/test@1.65.0)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)

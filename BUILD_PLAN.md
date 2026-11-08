@@ -325,7 +325,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ☐ |
 | P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ☐ |
 | P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ☐ |
-| P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ☐ |
+| P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/6 (T6.5, T6.6 yours) |
 | P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ☐ |
 | P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ☐ |
 | P9 | Explore, Intents venue, privacy depth, agent guard | Wed 11 Nov | P6 (Intents venue: S7) | ☐ |
@@ -510,9 +510,10 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** the eureka moment works for a stranger in under 10 seconds.
 
 **Tasks**
-- [ ] `packages/verify` with the 5 checks (§4.4) + `bin/verify.ts`.
-- [ ] `/verify` page with Tamper mode; `/c/[id]` with the OG image; landing page with fake vs real.
-- [ ] Card design pass (it is the hero asset).
+- [x] `packages/verify` with the 5 checks (§4.4) + `bin/verify.ts` (isomorphic, noble crypto; RPC fallback list with backoff on rate limits; per-panel cache so tamper mode re-asks only `verify_card`).
+- [x] `/verify` page with Tamper mode; `/c/[id]` with the OG image; landing page with fake vs real. Demo-registry cards live at `/demo/[id]` (OG image routes get no query string, so the registry is in the path).
+- [x] Card design pass (it is the hero asset).
+- [x] Tamper race: only the latest check may update the panel (a slow check of the unedited card can't show a tampered card as verified); edits debounced 350 ms.
 
 **Exit tests**
 
