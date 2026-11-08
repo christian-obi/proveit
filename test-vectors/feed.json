@@ -1,0 +1,528 @@
+{
+  "about": "Feed pages from enclave/src/feed.rs (test platform, winner fixture) and a NEP-413 message signed with a PUBLIC test key (seed 32×0x01).",
+  "auth": {
+    "account_id": "follower.testnet",
+    "callback_url": null,
+    "message": "proveit-follow-v1|58f1a9c194db0347282b39ecf66bbaf2f032de4cb6a9c411b22c6bd14d926791|13be4feaeaf204c7fd3358fc9c00721881d174278128227ec674f37f7fe97b6d|1794200000",
+    "nonce": "CQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQk=",
+    "public_key": "ed25519:AKnL4NNf3DGWZJS6cPknBuEGnVsV4A4m5tgebLHaRSZ9",
+    "recipient": "proveit",
+    "signature": "gha+GEEuCmzmfD2tTjsYV3klCU3/TYbQ1169YVhRdUHraQbn+EweuQOeX29ji/NcRxM7CxYmED5auNfm2s0UBQ=="
+  },
+  "auth_hash": "65fc4bebd36618b215ed5469f695b66b83715ceb4fbbb5b669e788f30a1657fb",
+  "card_hash": "58f1a9c194db0347282b39ecf66bbaf2f032de4cb6a9c411b22c6bd14d926791",
+  "pages": [
+    {
+      "as_of": 1792889656,
+      "card_hash": "58f1a9c194db0347282b39ecf66bbaf2f032de4cb6a9c411b22c6bd14d926791",
+      "delay_secs": 0,
+      "entries": [
+        {
+          "record": {
+            "coin": "ETH",
+            "dir": "Open Short",
+            "fills": 19,
+            "hour": 497775,
+            "pnl_bps": 0,
+            "size_bps": 24283
+          },
+          "seq": 0
+        },
+        {
+          "record": {
+            "coin": "SOL",
+            "dir": "Open Short",
+            "fills": 53,
+            "hour": 497775,
+            "pnl_bps": 0,
+            "size_bps": 23841
+          },
+          "seq": 1
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Open Long",
+            "fills": 1,
+            "hour": 497775,
+            "pnl_bps": 0,
+            "size_bps": 5624
+          },
+          "seq": 2
+        },
+        {
+          "record": {
+            "coin": "SOL",
+            "dir": "Open Short",
+            "fills": 34,
+            "hour": 497776,
+            "pnl_bps": 0,
+            "size_bps": 22173
+          },
+          "seq": 3
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Open Long",
+            "fills": 1,
+            "hour": 497785,
+            "pnl_bps": 0,
+            "size_bps": 7691
+          },
+          "seq": 4
+        },
+        {
+          "record": {
+            "coin": "SOL",
+            "dir": "Close Short",
+            "fills": 66,
+            "hour": 497786,
+            "pnl_bps": 1459,
+            "size_bps": 79063
+          },
+          "seq": 5
+        },
+        {
+          "record": {
+            "coin": "ETH",
+            "dir": "Close Short",
+            "fills": 46,
+            "hour": 497786,
+            "pnl_bps": 1763,
+            "size_bps": 69319
+          },
+          "seq": 6
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Open Long",
+            "fills": 4,
+            "hour": 497786,
+            "pnl_bps": 0,
+            "size_bps": 20972
+          },
+          "seq": 7
+        },
+        {
+          "record": {
+            "coin": "ETH",
+            "dir": "Open Long",
+            "fills": 14,
+            "hour": 497786,
+            "pnl_bps": 0,
+            "size_bps": 29218
+          },
+          "seq": 8
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 45,
+            "hour": 497786,
+            "pnl_bps": 0,
+            "size_bps": 12268
+          },
+          "seq": 9
+        },
+        {
+          "record": {
+            "coin": "SOL",
+            "dir": "Open Long",
+            "fills": 14,
+            "hour": 497786,
+            "pnl_bps": 0,
+            "size_bps": 6302
+          },
+          "seq": 10
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Open Long",
+            "fills": 1,
+            "hour": 497797,
+            "pnl_bps": 0,
+            "size_bps": 8604
+          },
+          "seq": 11
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Open Long",
+            "fills": 6,
+            "hour": 497857,
+            "pnl_bps": 0,
+            "size_bps": 811
+          },
+          "seq": 12
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Close Long",
+            "fills": 41,
+            "hour": 497857,
+            "pnl_bps": 2,
+            "size_bps": 3681
+          },
+          "seq": 13
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Open Long",
+            "fills": 28,
+            "hour": 497857,
+            "pnl_bps": 0,
+            "size_bps": 7391
+          },
+          "seq": 14
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Close Long",
+            "fills": 15,
+            "hour": 497875,
+            "pnl_bps": -41,
+            "size_bps": 1600
+          },
+          "seq": 15
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Close Long",
+            "fills": 10,
+            "hour": 497875,
+            "pnl_bps": -169,
+            "size_bps": 6394
+          },
+          "seq": 16
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Open Long",
+            "fills": 16,
+            "hour": 497878,
+            "pnl_bps": 0,
+            "size_bps": 3771
+          },
+          "seq": 17
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 9,
+            "hour": 497989,
+            "pnl_bps": 48,
+            "size_bps": 5561
+          },
+          "seq": 18
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 34,
+            "hour": 497989,
+            "pnl_bps": 0,
+            "size_bps": 8258
+          },
+          "seq": 19
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 1,
+            "hour": 497989,
+            "pnl_bps": 23,
+            "size_bps": 2918
+          },
+          "seq": 20
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 21,
+            "hour": 497989,
+            "pnl_bps": 0,
+            "size_bps": 4317
+          },
+          "seq": 21
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Close Long",
+            "fills": 9,
+            "hour": 498015,
+            "pnl_bps": -96,
+            "size_bps": 3860
+          },
+          "seq": 22
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Open Long",
+            "fills": 10,
+            "hour": 498016,
+            "pnl_bps": 0,
+            "size_bps": 1817
+          },
+          "seq": 23
+        }
+      ],
+      "follower": "follower.testnet",
+      "from": 0,
+      "head": "b080fb888c3bbcef14a61ce458d36b88a00e15b26f84c1865c330e4cf61e78a9",
+      "held_back": 0,
+      "next": 24,
+      "prev_head": "5eaea3a7bbd6e5832555d4c6b6caf52bfe01d459ceba455b1bcd565214e57041",
+      "v": 1
+    },
+    {
+      "as_of": 1793789255,
+      "card_hash": "58f1a9c194db0347282b39ecf66bbaf2f032de4cb6a9c411b22c6bd14d926791",
+      "delay_secs": 0,
+      "entries": [
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Close Long",
+            "fills": 90,
+            "hour": 498083,
+            "pnl_bps": 52,
+            "size_bps": 21300
+          },
+          "seq": 24
+        },
+        {
+          "record": {
+            "coin": "ETH",
+            "dir": "Open Long",
+            "fills": 6,
+            "hour": 498114,
+            "pnl_bps": 0,
+            "size_bps": 6839
+          },
+          "seq": 25
+        },
+        {
+          "record": {
+            "coin": "ETH",
+            "dir": "Open Long",
+            "fills": 3,
+            "hour": 498114,
+            "pnl_bps": 0,
+            "size_bps": 6853
+          },
+          "seq": 26
+        },
+        {
+          "record": {
+            "coin": "SOL",
+            "dir": "Open Long",
+            "fills": 4,
+            "hour": 498114,
+            "pnl_bps": 0,
+            "size_bps": 1248
+          },
+          "seq": 27
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 7,
+            "hour": 498116,
+            "pnl_bps": 36,
+            "size_bps": 8746
+          },
+          "seq": 28
+        },
+        {
+          "record": {
+            "coin": "ETH",
+            "dir": "Open Long",
+            "fills": 8,
+            "hour": 498116,
+            "pnl_bps": 0,
+            "size_bps": 8733
+          },
+          "seq": 29
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 5,
+            "hour": 498116,
+            "pnl_bps": 7,
+            "size_bps": 2139
+          },
+          "seq": 30
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 2,
+            "hour": 498116,
+            "pnl_bps": 5,
+            "size_bps": 1731
+          },
+          "seq": 31
+        },
+        {
+          "record": {
+            "coin": "XRP",
+            "dir": "Close Long",
+            "fills": 7,
+            "hour": 498116,
+            "pnl_bps": 77,
+            "size_bps": 1974
+          },
+          "seq": 32
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 11,
+            "hour": 498116,
+            "pnl_bps": 13,
+            "size_bps": 3896
+          },
+          "seq": 33
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 54,
+            "hour": 498116,
+            "pnl_bps": 0,
+            "size_bps": 11936
+          },
+          "seq": 34
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Close Long",
+            "fills": 14,
+            "hour": 498140,
+            "pnl_bps": -154,
+            "size_bps": 2143
+          },
+          "seq": 35
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Close Long",
+            "fills": 15,
+            "hour": 498140,
+            "pnl_bps": -610,
+            "size_bps": 8576
+          },
+          "seq": 36
+        },
+        {
+          "record": {
+            "coin": "SOL",
+            "dir": "Close Long",
+            "fills": 26,
+            "hour": 498140,
+            "pnl_bps": -426,
+            "size_bps": 6005
+          },
+          "seq": 37
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 16,
+            "hour": 498140,
+            "pnl_bps": 0,
+            "size_bps": 5862
+          },
+          "seq": 38
+        },
+        {
+          "record": {
+            "coin": "BTC",
+            "dir": "Close Long",
+            "fills": 9,
+            "hour": 498145,
+            "pnl_bps": -909,
+            "size_bps": 16556
+          },
+          "seq": 39
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Close Long",
+            "fills": 28,
+            "hour": 498145,
+            "pnl_bps": -107,
+            "size_bps": 9040
+          },
+          "seq": 40
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 20,
+            "hour": 498217,
+            "pnl_bps": 0,
+            "size_bps": 4813
+          },
+          "seq": 41
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 22,
+            "hour": 498220,
+            "pnl_bps": 0,
+            "size_bps": 3948
+          },
+          "seq": 42
+        },
+        {
+          "record": {
+            "coin": "BNB",
+            "dir": "Open Long",
+            "fills": 7,
+            "hour": 498274,
+            "pnl_bps": 0,
+            "size_bps": 1330
+          },
+          "seq": 43
+        }
+      ],
+      "follower": "follower.testnet",
+      "from": 24,
+      "head": "00ba5e97cb6e760f6de9f51999c14c3f557a8f283863f428860e8d12b5ba716e",
+      "held_back": 0,
+      "next": 44,
+      "prev_head": "b080fb888c3bbcef14a61ce458d36b88a00e15b26f84c1865c330e4cf61e78a9",
+      "v": 1
+    }
+  ]
+}

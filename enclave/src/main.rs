@@ -7,6 +7,9 @@
 //!          "follower_x25519_pub": "<hex>", "delay_secs": 0}
 //!                                               → {"status":"ok","ciphertext":"<base64>","shown":k,"total":n}
 //!         (the registry sends this only for a follower holding a live grant; src/reveal.rs)
+//! HTTPS:  {"op": "reveal", "card_id": N, "auth": {NEP-413 signed message}}  → same as reveal
+//!         {"op": "feed", "card_id": N, "since": cursor, "auth": {…}}       → {"status":"ok","ciphertext":…,"head":…,"next":n}
+//!         (the follower signs `proveit-follow-v1|card_hash|x25519_pub|expires_at`; src/auth.rs)
 //! door:   inside OutLayer, both ops run only on-chain and only when the caller is the
 //!         registry compiled in as PROVEIT_REGISTRY (src/door.rs)
 //! env:    PROVEIT_SECRET   {"venue":"hyperliquid","proof":{...OwnershipProof}}: an encrypted
@@ -19,7 +22,9 @@
 //!   fixtures       local wasmtime: data from PROVEIT_FIXTURE_DIR, the public test key
 //!   demo-fixture   testnet smoke test: the `winner` fixture compiled in, the TEE's keys
 
+use proveit_enclave::door::{self, Door};
 use proveit_enclave::error::{Code, Error, Result};
+use proveit_enclave::nep413::SignedMessage;
 use proveit_enclave::platform::Platform;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -38,8 +43,37 @@ static OUTLAYER_MANIFEST: [u8; include_bytes!("../manifest.json").len()] = *incl
 #[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
 enum Request {
     Pubkey,
-    Issue { window_days: u32 },
-    Reveal { card_hash: String, follower: String, follower_x25519_pub: String, delay_secs: u64 },
+    Issue {
+        window_days: u32,
+        #[serde(default)]
+        kind: Option<String>,
+    },
+    /// On-chain from the registry: the first four fields. Over HTTPS: `card_id` and `auth`.
+    Reveal {
+        card_hash: Option<String>,
+        follower: Option<String>,
+        follower_x25519_pub: Option<String>,
+        delay_secs: Option<u64>,
+        card_id: Option<u64>,
+        auth: Option<SignedMessage>,
+    },
+    Feed {
+        card_id: u64,
+        #[serde(default)]
+        since: u64,
+        auth: SignedMessage,
+    },
+}
+
+impl Request {
+    fn op(&self) -> &'static str {
+        match self {
+            Request::Pubkey => "pubkey",
+            Request::Issue { .. } => "issue",
+            Request::Reveal { .. } => "reveal",
+            Request::Feed { .. } => "feed",
+        }
+    }
 }
 
 fn main() {
@@ -53,29 +87,62 @@ fn run() -> Result<Value> {
     io::stdin().read_to_string(&mut raw).map_err(|e| Error::new(Code::BadInput, e.to_string()))?;
     let request: Request = serde_json::from_str(&raw).map_err(|e| Error::new(Code::BadInput, format!("bad input: {e}")))?;
     let platform = build::platform();
-    build::check_door()?;
+    let door = build::door()?;
+    door::allowed(request.op(), door)?;
     match request {
         Request::Pubkey => Ok(json!({ "status": "ok", "pubkey": hex::encode(platform.card_public_key()?) })),
-        Request::Issue { window_days } => {
-            let signed = build::issue(&platform, window_days)?;
+        Request::Issue { window_days, kind } => {
+            let signed = build::issue(&platform, window_days, kind.as_deref().unwrap_or("trader"))?;
             Ok(json!({ "status": "ok", "card": signed.card, "sig": signed.sig }))
         }
-        Request::Reveal { card_hash, follower, follower_x25519_pub, delay_secs } => {
-            reveal(&platform, &card_hash, &follower, &follower_x25519_pub, delay_secs)
+        Request::Reveal { card_hash: Some(h), follower: Some(f), follower_x25519_pub: Some(k), delay_secs: Some(d), card_id: None, auth: None } if door == Door::Registry => {
+            reveal(&platform, &h, &f, &k, d)
+        }
+        Request::Reveal { card_id: Some(id), auth: Some(a), card_hash: None, follower: None, follower_x25519_pub: None, delay_secs: None } if door == Door::Https => {
+            let sealed = proveit_enclave::reveal::seal_for_follower(&platform, &build::near()?, build::REGISTRY, id, &a, now_secs())?;
+            Ok(sealed_json(sealed))
+        }
+        Request::Reveal { .. } => Err(Error::new(Code::BadInput, "reveal takes card_hash/follower/follower_x25519_pub/delay_secs on-chain, or card_id/auth over HTTPS")),
+        Request::Feed { card_id, since, auth } => {
+            use base64::Engine;
+            let f = proveit_enclave::feed::feed_for(&platform, &build::feed_source()?, &build::near()?, build::REGISTRY, card_id, since, &auth, now_secs())?;
+            Ok(json!({
+                "status": "ok",
+                "ciphertext": base64::engine::general_purpose::STANDARD.encode(f.ciphertext),
+                "head": f.head,
+                "next": f.next,
+            }))
         }
     }
 }
 
-/// Show the follower the card's orders older than the delay, encrypted to their key.
-fn reveal(platform: &impl Platform, card_hash: &str, follower: &str, follower_pub: &str, delay_secs: u64) -> Result<Value> {
+fn sealed_json(sealed: proveit_enclave::reveal::Sealed) -> Value {
     use base64::Engine;
-    let sealed = proveit_enclave::reveal::seal_for(platform, card_hash, follower, follower_pub, delay_secs, now_secs())?;
-    Ok(json!({
+    json!({
         "status": "ok",
         "ciphertext": base64::engine::general_purpose::STANDARD.encode(sealed.ciphertext),
         "shown": sealed.shown,
         "total": sealed.total,
-    }))
+    })
+}
+
+/// Show the follower the card's orders older than the delay, encrypted to their key.
+fn reveal(platform: &impl Platform, card_hash: &str, follower: &str, follower_pub: &str, delay_secs: u64) -> Result<Value> {
+    Ok(sealed_json(proveit_enclave::reveal::seal_for(platform, card_hash, follower, follower_pub, delay_secs, now_secs())?))
+}
+
+/// Builds with no network (local fixtures, host test builds): the feed and HTTPS reveals
+/// need NEAR RPC and are refused.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+struct Offline;
+
+impl proveit_enclave::near::Near for Offline {
+    fn view(&self, _: &str, _: &str, _: &Value) -> Result<Value> {
+        Err(Error::new(Code::Upstream, "this build has no network; HTTPS reveals and the feed run inside OutLayer"))
+    }
+    fn access_key(&self, _: &str, _: &str) -> Result<Option<bool>> {
+        Err(Error::new(Code::Upstream, "this build has no network"))
+    }
 }
 
 fn env(name: &str) -> Option<String> {
@@ -115,15 +182,29 @@ mod build {
     }
 
     /// Local runs have no registry; nothing here is accepted on-chain.
-    pub fn check_door() -> Result<()> {
-        Ok(())
+    pub const REGISTRY: &str = "fixture-registry.testnet";
+
+    pub fn door() -> Result<Door> {
+        Ok(match env("OUTLAYER_EXECUTION_TYPE").as_deref() {
+            Some("HTTPS") => Door::Https,
+            _ => Door::Registry,
+        })
     }
 
-    pub fn issue(platform: &TestPlatform, window_days: u32) -> Result<SignedCard> {
+    pub fn near() -> Result<Offline> {
+        Ok(Offline)
+    }
+
+    pub fn feed_source() -> Result<FixtureSource> {
+        let dir = env("PROVEIT_FIXTURE_DIR").ok_or_else(|| Error::new(Code::BadInput, "PROVEIT_FIXTURE_DIR is not set"))?;
+        Ok(FixtureSource { dir: dir.into() })
+    }
+
+    pub fn issue(platform: &TestPlatform, window_days: u32, kind: &str) -> Result<SignedCard> {
         let dir = env("PROVEIT_FIXTURE_DIR").ok_or_else(|| Error::new(Code::BadInput, "PROVEIT_FIXTURE_DIR is not set"))?;
         let source = FixtureSource { dir: dir.into() };
         let issuer = env("NEAR_SENDER_ID").unwrap_or_else(|| "fixture".into());
-        pipeline::issue(
+        pipeline::issue_as(
             &source,
             platform,
             &IssueParams {
@@ -135,6 +216,7 @@ mod build {
                 outlayer_request_id: None,
                 mode: "fixture",
             },
+            kind,
         )
     }
 }
@@ -162,12 +244,53 @@ mod host {
     /// The registry contract allowed to issue cards (src/door.rs). Set by enclave/build.sh.
     pub const REGISTRY: &str = env!("PROVEIT_REGISTRY");
 
-    pub fn check_door() -> Result<()> {
-        proveit_enclave::door::check_registry_door(
+    pub fn door() -> Result<proveit_enclave::door::Door> {
+        proveit_enclave::door::classify(
             super::env("OUTLAYER_EXECUTION_TYPE").as_deref(),
             super::env("NEAR_PREDECESSOR_ID").as_deref(),
             REGISTRY,
         )
+    }
+
+    /// HTTPS POST over WASI, for NEAR RPC (and Hyperliquid in the live build).
+    pub struct WasiHttp;
+
+    impl proveit_enclave::near::Http for WasiHttp {
+        fn post(&self, url: &str, body: &serde_json::Value) -> Result<Vec<u8>> {
+            let payload = body.to_string();
+            let response = wasi_http_client::Client::new()
+                .post(url)
+                .header("Content-Type", "application/json")
+                .body(payload.as_bytes())
+                .connect_timeout(std::time::Duration::from_secs(10))
+                .send()
+                .map_err(|e| Error::new(Code::Upstream, format!("{url}: {e}")))?;
+            let status = response.status();
+            let bytes = response.body().map_err(|e| Error::new(Code::Upstream, e.to_string()))?;
+            if !(200..300).contains(&status) {
+                return Err(Error::new(Code::Upstream, format!("{url} answered HTTP {status}")));
+            }
+            Ok(bytes)
+        }
+    }
+
+    /// A plain HTTPS GET (the public leaderboard, ~40 MB).
+    pub fn get(url: &str) -> Result<Vec<u8>> {
+        let response = wasi_http_client::Client::new()
+            .get(url)
+            .connect_timeout(std::time::Duration::from_secs(15))
+            .send()
+            .map_err(|e| Error::new(Code::Upstream, format!("{url}: {e}")))?;
+        let status = response.status();
+        let bytes = response.body().map_err(|e| Error::new(Code::Upstream, e.to_string()))?;
+        if !(200..300).contains(&status) {
+            return Err(Error::new(Code::Upstream, format!("{url} answered HTTP {status}")));
+        }
+        Ok(bytes)
+    }
+
+    pub fn near() -> Result<proveit_enclave::near::Rpc<WasiHttp>> {
+        Ok(proveit_enclave::near::Rpc { url: proveit_enclave::near::rpc_url(REGISTRY).to_string(), http: WasiHttp })
     }
 
     /// Must match the paths declared in manifest.json.
@@ -212,6 +335,28 @@ mod host {
             Ok(if value.is_empty() { None } else { Some(value) })
         }
 
+        fn cell_get(&self, key: &str) -> Result<Option<Vec<u8>>> {
+            let (value, error) = storage::get(key);
+            if !error.is_empty() {
+                return Err(host_err("storage", error));
+            }
+            Ok(if value.is_empty() { None } else { Some(value) })
+        }
+
+        fn cell_swap(&self, key: &str, expected: Option<&[u8]>, new: &[u8]) -> Result<bool> {
+            let (done, error) = match expected {
+                None => storage::set_if_absent(key, new),
+                Some(old) => {
+                    let (done, _current, error) = storage::set_if_equals(key, old, new);
+                    (done, error)
+                }
+            };
+            if !error.is_empty() {
+                return Err(host_err("storage", error));
+            }
+            Ok(done)
+        }
+
         fn random_32(&self) -> Result<[u8; 32]> {
             let bytes = wasi::random::random::get_random_bytes(32);
             bytes.try_into().map_err(|_| Error::new(Code::Upstream, "random source gave the wrong length"))
@@ -226,14 +371,19 @@ mod build {
     use proveit_enclave::hl::{Fill, Portfolio, Source};
     use proveit_enclave::pipeline::{self, IssueParams};
 
-    pub use super::host::check_door;
     pub use super::host::HostPlatform as Platform;
+    pub use super::host::{door, near, REGISTRY};
+
+    /// The recorded account never trades again, so its feed stays empty: honest for a demo.
+    pub fn feed_source() -> Result<Embedded> {
+        Ok(Embedded)
+    }
 
     pub fn platform() -> Platform {
         super::host::HostPlatform
     }
 
-    struct Embedded;
+    pub struct Embedded;
 
     impl Source for Embedded {
         fn portfolio(&self, _: &str) -> Result<Portfolio> {
@@ -244,11 +394,16 @@ mod build {
                 .map_err(|e| Error::new(Code::NoData, e.to_string()))?;
             Ok(all.into_iter().filter(|f| f.time >= start && f.time <= end).collect())
         }
+        /// The recorded account's data is old, but the privacy guard checks the card against
+        /// today's leaderboard, the one an observer would use.
+        fn leaderboard(&self) -> Result<proveit_enclave::kanon::Board> {
+            proveit_enclave::kanon::Board::parse_live(&super::host::get(proveit_enclave::kanon::LEADERBOARD_URL)?)
+        }
     }
 
-    pub fn issue(platform: &Platform, window_days: u32) -> Result<SignedCard> {
+    pub fn issue(platform: &Platform, window_days: u32, kind: &str) -> Result<SignedCard> {
         let issuer = issuer()?;
-        pipeline::issue(
+        pipeline::issue_as(
             &Embedded,
             platform,
             &IssueParams {
@@ -260,6 +415,7 @@ mod build {
                 outlayer_request_id: env("NEAR_REQUEST_ID"),
                 mode: "fixture",
             },
+            kind,
         )
     }
 }
@@ -274,16 +430,24 @@ mod build {
     use std::time::Duration;
     use wasi_http_client::Client as Http;
 
-    pub use super::host::check_door;
     pub use super::host::HostPlatform as Platform;
+    pub use super::host::{door, near, REGISTRY};
+
+    pub fn feed_source() -> Result<Client<Wasi>> {
+        Ok(Client { transport: Wasi })
+    }
 
     pub fn platform() -> Platform {
         super::host::HostPlatform
     }
 
-    struct Wasi;
+    pub struct Wasi;
 
     impl Transport for Wasi {
+        fn get(&self, url: &str) -> Result<Vec<u8>> {
+            super::host::get(url)
+        }
+
         fn post(&self, body: &Value) -> Result<Vec<u8>> {
             let payload = body.to_string();
             let response = Http::new()
@@ -309,7 +473,7 @@ mod build {
         proof: OwnershipProof,
     }
 
-    pub fn issue(platform: &Platform, window_days: u32) -> Result<SignedCard> {
+    pub fn issue(platform: &Platform, window_days: u32, kind: &str) -> Result<SignedCard> {
         let raw = env("PROVEIT_SECRET").ok_or_else(|| Error::new(Code::BadInput, "PROVEIT_SECRET is not set"))?;
         let secret: Secret = serde_json::from_str(&raw).map_err(|e| Error::new(Code::BadInput, format!("PROVEIT_SECRET: {e}")))?;
         if secret.venue != pipeline::VENUE {
@@ -319,7 +483,7 @@ mod build {
         let now = now_secs();
         ownership::verify(&secret.proof, &issuer, now)?;
         let address = secret.proof.account.to_lowercase();
-        pipeline::issue(
+        pipeline::issue_as(
             &Client { transport: Wasi },
             platform,
             &IssueParams {
@@ -331,6 +495,7 @@ mod build {
                 outlayer_request_id: env("NEAR_REQUEST_ID"),
                 mode: "live",
             },
+            kind,
         )
     }
 }
@@ -363,6 +528,12 @@ mod build {
         fn random_32(&self) -> Result<[u8; 32]> {
             Err(unavailable())
         }
+        fn cell_get(&self, _: &str) -> Result<Option<Vec<u8>>> {
+            Err(unavailable())
+        }
+        fn cell_swap(&self, _: &str, _: Option<&[u8]>, _: &[u8]) -> Result<bool> {
+            Err(unavailable())
+        }
     }
 
     fn unavailable() -> Error {
@@ -373,11 +544,21 @@ mod build {
         Unavailable
     }
 
-    pub fn check_door() -> Result<()> {
+    pub const REGISTRY: &str = "";
+
+    pub fn door() -> Result<Door> {
         Err(unavailable())
     }
 
-    pub fn issue(_: &Unavailable, _: u32) -> Result<SignedCard> {
+    pub fn near() -> Result<Offline> {
+        Ok(Offline)
+    }
+
+    pub fn feed_source() -> Result<proveit_enclave::hl::FixtureSource> {
+        Err(unavailable())
+    }
+
+    pub fn issue(_: &Unavailable, _: u32, _: &str) -> Result<SignedCard> {
         let _ = (issuer, now_secs);
         Err(unavailable())
     }

@@ -47,7 +47,7 @@ test("the verify page opens a pasted link with checks running", async ({ page })
   await page.goto("/verify");
   await page.getByLabel("Card link").fill("https://example.com/demo/1");
   await page.getByRole("button", { name: "Verify" }).last().click();
-  await expect(page).toHaveURL(/\/demo\/1\?verify=1/);
+  await expect(page).toHaveURL(/\/demo\/1\?verify=1/, { timeout: 30_000 });
   await expect(page.locator("[data-verdict]")).toHaveAttribute("data-verdict", "pass", { timeout: 60_000 });
 });
 

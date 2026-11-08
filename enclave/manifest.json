@@ -1,7 +1,1 @@
-{
-  "display": { "name": "Prove-It enclave", "author": "proveit" },
-  "operations": ["pubkey", "issue", "reveal"],
-  "capabilities": { "network": ["api.hyperliquid.xyz"] },
-  "signing_keys": [{ "path": "cards", "type": "ed25519", "caller": "predecessor" }],
-  "encryption_keys": [{ "path": "commit", "caller": "predecessor" }]
-}
+{"display": {"name": "Prove-It enclave", "author": "proveit"}, "operations": ["pubkey", "issue", "reveal", "feed"], "capabilities": {"network": ["api.hyperliquid.xyz", "stats-data.hyperliquid.xyz", "rpc.mainnet.fastnear.com", "rpc.testnet.fastnear.com"]}, "signing_keys": [{"path": "cards", "type": "ed25519", "caller": "predecessor"}], "encryption_keys": [{"path": "commit", "caller": "predecessor"}]}

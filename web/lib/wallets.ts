@@ -9,9 +9,13 @@ import { config } from "./config";
 import type { Tx } from "./near";
 import { typedData } from "./ownership";
 
+/** NEP-413 signMessage result, in the shape the enclave reads (src/nep413.rs). */
+export type SignedMessage = { account_id: string; public_key: string; signature: string; message: string; nonce: string; recipient: string };
+
 export type NearSession = {
   accountId: string;
   signAndSendTransactions(txs: Tx[]): Promise<unknown[]>;
+  signMessage(message: string, recipient: string): Promise<SignedMessage>;
   disconnect(): Promise<void>;
 };
 
@@ -33,6 +37,22 @@ export async function connectNear(): Promise<NearSession> {
         (window.__proveitSent ??= []).push(txs);
         return txs.map(() => ({ receipts_outcome: [], transaction: { hash: window.__proveitE2eTxHash ?? "e2e-not-sent" } }));
       },
+      async signMessage(message, recipient) {
+        // A PUBLIC test key (seed 32×0x01): only for Playwright against recorded answers.
+        const { ed25519 } = await import("@noble/curves/ed25519");
+        const { nep413Hash, base58Encode } = await import("@proveit/verify/feed");
+        const seed = new Uint8Array(32).fill(1);
+        const nonce = crypto.getRandomValues(new Uint8Array(32));
+        const sig = ed25519.sign(nep413Hash(message, nonce, recipient), seed);
+        return {
+          account_id: window.__proveitE2eAccount ?? "e2e-trader.testnet",
+          public_key: `ed25519:${base58Encode(ed25519.getPublicKey(seed))}`,
+          signature: toB64(sig),
+          message,
+          nonce: toB64(nonce),
+          recipient,
+        };
+      },
       async disconnect() {},
     };
   }
@@ -45,8 +65,20 @@ export async function connectNear(): Promise<NearSession> {
     accountId: accounts[0].accountId,
     signAndSendTransactions: (txs) =>
       wallet.signAndSendTransactions({ network: config.network, signerId: accounts[0].accountId, transactions: txs }),
+    async signMessage(message, recipient) {
+      const nonce = crypto.getRandomValues(new Uint8Array(32));
+      const signed = await wallet.signMessage({ message, recipient, nonce } as never);
+      const s = signed as unknown as { accountId: string; publicKey: string; signature: string };
+      return { account_id: s.accountId, public_key: s.publicKey, signature: s.signature, message, nonce: toB64(nonce), recipient };
+    },
     disconnect: () => connector.disconnect(wallet),
   };
+}
+
+function toB64(b: Uint8Array): string {
+  let s = "";
+  for (const x of b) s += String.fromCharCode(x);
+  return btoa(s);
 }
 
 export async function connectEvm(): Promise<`0x${string}`> {

@@ -29,6 +29,7 @@ import {
   type TokenMeta,
 } from "@/lib/keys";
 import { view } from "@/lib/near";
+import { uiState, type OneClickToken, type Quote, type UiState } from "@/lib/oneclick";
 import { connectNear, type NearSession } from "@/lib/wallets";
 
 declare global {
@@ -182,6 +183,21 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
           <button className={button} onClick={onBuy} disabled={busy || offer.seats_left === 0}>
             {offer.seats_left === 0 ? "Sold out" : `Buy a key · ${formatAmount(offer.offer.price, decimals)} ${symbol}`}
           </button>
+          {offer.seats_left > 0 && (
+            <CrossChainPay
+              registry={registry}
+              cardId={cardId}
+              buyer={near.accountId}
+              onPaid={async () => {
+                for (let i = 0; i < 15; i++) {
+                  const g = await getGrant(registry, cardId, near.accountId);
+                  const w = await isWaiting(registry, cardId, near.accountId);
+                  if (g || w) return refresh(near.accountId);
+                  await sleep(3000);
+                }
+              }}
+            />
+          )}
         </div>
       )}
 
@@ -199,9 +215,14 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
           <p className="mb-3 text-sm">
             Your key is live until <span className="font-mono">{new Date(grant.expires_at * 1000).toUTCString()}</span>, with a {duration(grant.delay_secs)} delay.
           </p>
-          <button className={button} onClick={onReveal} disabled={busy}>
-            Reveal trades
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button className={button} onClick={onReveal} disabled={busy}>
+              Reveal trades
+            </button>
+            <a className="rounded-md border border-line px-4 py-2 text-sm" href={`${typeof window !== "undefined" ? window.location.pathname.replace(/\/unlock$/, "") : ""}/feed`} data-feed-link>
+              Follow new trades live →
+            </a>
+          </div>
         </div>
       )}
 
@@ -391,6 +412,109 @@ function IssuerPanel({
         </ul>
       )}
       {msg && <p className="text-xs text-muted">{msg}</p>}
+    </div>
+  );
+}
+
+/**
+ * Pay from another chain through NEAR Intents 1Click (mainnet only): pick a token, give
+ * your own address on that chain for refunds, send the quoted amount to the deposit
+ * address. 1Click delivers exactly the price in USDC to the registry, which writes the key.
+ */
+function CrossChainPay({ registry, cardId, buyer, onPaid }: { registry: string; cardId: number; buyer: string; onPaid: () => Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [tokens, setTokens] = useState<OneClickToken[]>([]);
+  const [asset, setAsset] = useState("");
+  const [refundTo, setRefundTo] = useState("");
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [state, setState] = useState<UiState | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const mainnet = config.network === "mainnet" && registry === config.registry;
+
+  useEffect(() => {
+    if (!open || !mainnet || tokens.length) return;
+    fetch("/api/oneclick/tokens")
+      .then((r) => r.json())
+      .then((d) => {
+        setTokens(d.tokens ?? []);
+        setAsset(d.tokens?.[0]?.assetId ?? "");
+      })
+      .catch((e) => setErr(String(e)));
+  }, [open, mainnet, tokens.length]);
+
+  useEffect(() => {
+    if (!quote?.depositAddress || state?.final) return;
+    const t = setInterval(async () => {
+      const r = await fetch(`/api/oneclick/status?depositAddress=${encodeURIComponent(quote.depositAddress!)}`).then((r) => r.json()).catch(() => null);
+      if (!r?.status) return;
+      const u = uiState(r.status);
+      setState(u);
+      if (u.status === "SUCCESS") await onPaid();
+    }, 5000);
+    return () => clearInterval(t);
+  }, [quote, state?.final, onPaid]);
+
+  async function getQuote() {
+    setErr(null);
+    const r = await fetch("/api/oneclick/quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cardId, buyer, originAsset: asset, refundTo }) });
+    const d = await r.json();
+    if (!r.ok) return setErr(d.error ?? `HTTP ${r.status}`);
+    setQuote(d.quote);
+    setState(uiState("PENDING_DEPOSIT"));
+  }
+
+  const token = tokens.find((t) => t.assetId === asset);
+  if (!open)
+    return (
+      <button className="ml-2 text-sm underline" onClick={() => setOpen(true)}>
+        Pay from another chain
+      </button>
+    );
+  if (!mainnet) return <p className="mt-3 text-xs text-muted">Paying from another chain (NEAR Intents 1Click) works on mainnet cards; this is a testnet card, so pay with {"t"}USDC above.</p>;
+  return (
+    <div className="mt-4 space-y-3 rounded-md border border-dashed border-line p-3 text-sm" data-crosschain>
+      {!quote ? (
+        <>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="space-y-1">
+              <span className="text-xs text-muted">Pay with</span>
+              <select value={asset} onChange={(e) => setAsset(e.target.value)} className="w-full rounded border border-line bg-bg px-2 py-1" aria-label="Pay with">
+                {tokens.map((t) => (
+                  <option key={t.assetId} value={t.assetId}>
+                    {t.symbol} on {t.blockchain}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1">
+              <span className="text-xs text-muted">Your address on {token?.blockchain ?? "that chain"} (for refunds)</span>
+              <input value={refundTo} onChange={(e) => setRefundTo(e.target.value.trim())} className="w-full rounded border border-line bg-bg px-2 py-1 font-mono" aria-label="Refund address" />
+            </label>
+          </div>
+          <button className={button} onClick={getQuote} disabled={!asset || !refundTo}>
+            Get a quote
+          </button>
+        </>
+      ) : (
+        <div className="space-y-2">
+          <p>
+            Send exactly <span className="font-semibold">{quote.amountInFormatted} {token?.symbol}</span> on {token?.blockchain} to
+          </p>
+          <p className="break-all rounded bg-bg p-2 font-mono text-xs" data-deposit-address>
+            {quote.depositAddress}
+          </p>
+          <button className="text-xs underline" onClick={() => navigator.clipboard.writeText(quote.depositAddress ?? "")}>
+            Copy address
+          </button>
+          {quote.deadline && <p className="text-xs text-muted">Before {new Date(quote.deadline).toUTCString()}; after that, or if anything fails, it is refunded to your address.</p>}
+          {state && (
+            <p className={state.tone === "ok" ? "text-accent" : state.tone === "bad" ? "text-bad" : "text-muted"} data-oneclick-status={state.status}>
+              {state.message}
+            </p>
+          )}
+        </div>
+      )}
+      {err && <p className="text-bad">{err}</p>}
     </div>
   );
 }

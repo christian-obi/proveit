@@ -10,3 +10,14 @@ export const volume = (band: string) => {
   const units = ["", "", "", "$1K+", "$10K+", "$100K+", "$1M+", "$10M+", "$100M+", "$1B+"];
   return units[exp] ?? `10^${exp}+`;
 };
+
+/** The published return: exact on old cards, a k-anonymous bucket on new ones (enclave/src/kanon.rs). */
+export function returnLabel(s: { return_bps: number; return_precision_bps?: number }): string {
+  const p = s.return_precision_bps;
+  if (!p) return pct(s.return_bps, true);
+  const lo = s.return_bps, hi = s.return_bps + p;
+  const d = p < 100 ? 1 : 0;
+  const f = (bps: number) => (bps / 100).toFixed(d);
+  const sign = lo >= 0 ? "+" : "";
+  return `${sign}${f(lo)}–${f(hi)}%`;
+}

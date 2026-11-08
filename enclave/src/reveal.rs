@@ -131,6 +131,20 @@ pub fn seal_for(platform: &impl Platform, card_hash: &str, follower: &str, follo
     Ok(Sealed { ciphertext, shown: shown.records.len(), total: shown.total })
 }
 
+/// `reveal` over HTTPS: the follower proves who they are (src/auth.rs) and the key's delay
+/// comes from the registry, not the request.
+pub fn seal_for_follower(
+    platform: &impl Platform,
+    near: &impl crate::near::Near,
+    registry: &str,
+    card_id: u64,
+    auth_msg: &crate::nep413::SignedMessage,
+    now_secs: u64,
+) -> Result<Sealed> {
+    let f = crate::auth::authorize(near, registry, card_id, auth_msg, now_secs)?;
+    seal_for(platform, &f.card_hash, &f.account, &f.x25519_pub, f.delay_secs, now_secs)
+}
+
 /// The follower's check: rebuild the root from what was shown. `Ok(k)` = k of `total`
 /// records proven to be the card's first k committed orders.
 pub fn check(r: &Revealed) -> Result<usize> {

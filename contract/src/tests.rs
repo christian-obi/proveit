@@ -73,7 +73,7 @@ fn registry(accept_fixture_cards: bool) -> Registry {
 fn issue(r: &mut Registry, trader: &str, window_days: u32, result: PromiseResult) -> RequestOutcome {
     ctx(trader, NearToken::from_millinear(70), vec![], issued_at());
     let seq = r.get_config().requests;
-    let _ = r.request_card(window_days, Some("s1".into()));
+    let _ = r.request_card(window_days, Some("s1".into()), None);
     ctx(REGISTRY, NearToken::from_near(0), vec![result], issued_at() + 60);
     r.on_result(seq)
 }
@@ -259,7 +259,7 @@ fn only_the_owner_approves_versions() {
 fn a_small_deposit_is_refused() {
     let mut r = registry(false);
     ctx(TRADER, NearToken::from_millinear(60), vec![], issued_at());
-    let _ = r.request_card(30, None);
+    let _ = r.request_card(30, None, None);
 }
 
 #[test]
@@ -269,7 +269,7 @@ fn no_cards_without_an_active_version() {
     ctx(OWNER, NearToken::from_near(0), vec![], issued_at());
     r.retire_version(VERSION.into());
     ctx(TRADER, NearToken::from_millinear(70), vec![], issued_at());
-    let _ = r.request_card(30, None);
+    let _ = r.request_card(30, None, None);
 }
 
 #[test]
@@ -277,7 +277,7 @@ fn no_cards_without_an_active_version() {
 fn odd_windows_are_refused() {
     let mut r = registry(false);
     ctx(TRADER, NearToken::from_millinear(70), vec![], issued_at());
-    let _ = r.request_card(45, None);
+    let _ = r.request_card(45, None, None);
 }
 
 #[test]
@@ -370,7 +370,52 @@ fn profile_indices() {
     ctx("anyone.testnet", NearToken::from_near(0), vec![], issued_at());
     assert_eq!(r.get_cards_by_issuer(TRADER.parse().unwrap(), None, None).len(), 2);
     let first_commitment = vector()["card"]["commitment"].as_str().unwrap().to_string();
-    assert_eq!(r.get_cards_by_commitment(first_commitment, None, None).len(), 1);
+    assert_eq!(r.get_cards_by_commitment(first_commitment.clone(), None, None).len(), 1);
+
+    // T9.2: a third card from the first account → 3 by issuer, grouped 2 + 1 by commitment.
+    let mut third = card(TRADER, "live", 3, 30);
+    third["issued_at"] = json!(issued_at() + 60);
+    issue(&mut r, TRADER, 30, ok(&third));
+    ctx("anyone.testnet", NearToken::from_near(0), vec![], issued_at());
+    let all = r.get_cards_by_issuer(TRADER.parse().unwrap(), None, None);
+    assert_eq!(all.iter().map(|c| c.id).collect::<Vec<_>>(), vec![0, 1, 2]);
+    let first = r.get_cards_by_commitment(first_commitment, None, None);
+    assert_eq!(first.iter().map(|c| c.id).collect::<Vec<_>>(), vec![0, 2]);
+    assert_eq!(r.get_cards_by_commitment("ab".repeat(32), None, None).iter().map(|c| c.id).collect::<Vec<_>>(), vec![1]);
+    assert!(r.get_cards_by_issuer("nobody.testnet".parse().unwrap(), None, None).is_empty());
+}
+
+#[test]
+fn agent_cards() {
+    let mut r = registry(false);
+    // The registry asks the enclave for the kind the issuer chose…
+    ctx(TRADER, NearToken::from_millinear(70), vec![], issued_at());
+    let _ = r.request_card(30, Some("s1".into()), Some("agent".into()));
+    let input: Value = get_created_receipts()
+        .into_iter()
+        .flat_map(|r| r.actions)
+        .find_map(|a| match a {
+            MockAction::FunctionCallWeight { method_name, args, .. } if method_name == b"request_execution" => {
+                Some(serde_json::from_str(serde_json::from_slice::<Value>(&args).unwrap()["input_data"].as_str().unwrap()).unwrap())
+            }
+            _ => None,
+        })
+        .unwrap();
+    assert_eq!(input, json!({ "op": "issue", "window_days": 30, "kind": "agent" }));
+    // …and records the agent card the enclave signs.
+    let mut c = card(TRADER, "live", 1, 30);
+    c["kind"] = json!("agent");
+    ctx(REGISTRY, NearToken::from_near(0), vec![ok(&c)], issued_at() + 60);
+    assert_eq!(code(&r.on_result(1)), "ISSUED");
+    // Anything else is refused, both asked for and signed.
+    ctx(TRADER, NearToken::from_millinear(70), vec![], issued_at());
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _ = r.request_card(30, None, Some("whale".into()));
+    }))
+    .is_err());
+    let mut odd = card(TRADER, "live", 2, 30);
+    odd["kind"] = json!("whale");
+    assert_eq!(code(&issue(&mut r, TRADER, 30, ok(&odd))), "BAD_CARD");
 }
 
 #[path = "keys_tests.rs"]

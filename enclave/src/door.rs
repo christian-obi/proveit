@@ -24,3 +24,39 @@ pub fn check_registry_door(execution_type: Option<&str>, predecessor: Option<&st
     }
     Ok(())
 }
+
+/// Which door a run came through. On-chain, only the registry is let in (it has checked
+/// the caller itself: the trader for `issue`, a key holder for `reveal`). Over HTTPS
+/// anyone can knock, so only `reveal` and `feed` are served there, and only to a follower
+/// who proves who they are and holds a key (src/auth.rs).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Door {
+    Registry,
+    Https,
+}
+
+pub fn classify(execution_type: Option<&str>, predecessor: Option<&str>, registry: &str) -> Result<Door> {
+    match execution_type {
+        Some("HTTPS") => Ok(Door::Https),
+        _ => check_registry_door(execution_type, predecessor, registry).map(|_| Door::Registry),
+    }
+}
+
+/// Ops allowed through each door.
+pub fn allowed(op: &str, door: Door) -> Result<()> {
+    let ok = match door {
+        Door::Registry => matches!(op, "pubkey" | "issue" | "reveal"),
+        Door::Https => matches!(op, "reveal" | "feed"),
+    };
+    if ok {
+        Ok(())
+    } else {
+        Err(Error::new(
+            Code::BadInput,
+            match door {
+                Door::Https => format!("`{op}` runs only on-chain, through the registry contract"),
+                Door::Registry => format!("`{op}` runs only over HTTPS, signed by the follower"),
+            },
+        ))
+    }
+}

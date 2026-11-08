@@ -63,9 +63,16 @@ const seed = createHash("sha256").update("proveit-test-card-key-v1").digest();
 const key = createPrivateKey({ key: Buffer.concat([Buffer.from("302e020100300506032b657004220420", "hex"), seed]), format: "der", type: "pkcs8" });
 const pubkey = createPublicKey(key).export({ format: "der", type: "spki" }).subarray(-32).toString("hex");
 
-function liveWorld(): World {
+function liveWorld(privacy?: Record<string, number> | null): World {
   const vector = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "test-vectors", "card-sig.json"), "utf8"));
-  const card = { ...vector.card, mode: "live", issued_at: NOW - 3600, outlayer_request_id: "42", window: { ...vector.card.window, days: 30 } };
+  const card = {
+    ...vector.card,
+    mode: "live",
+    issued_at: NOW - 3600,
+    outlayer_request_id: "42",
+    window: { ...vector.card.window, days: 30 },
+    stats: { ...vector.card.stats, ...(privacy === null ? {} : (privacy ?? { return_precision_bps: 100, k_anon: 93, k_min: 25 })) },
+  };
   const sig = sign(null, Buffer.from(signingMessage(card)), key).toString("hex");
   const record: CardRecord = {
     id: 0, card_hash: cardHash(card), card_json: canonical(card), sig, pubkey, issuer: card.issuer, commitment: card.commitment,
@@ -136,6 +143,16 @@ test("a stale card: amber, but not a failure", async () => {
   const r = await run(liveWorld(), undefined, NOW + 30 * 86_400);
   assert.equal(statuses(r).freshness, "warn");
   assert.equal(r.ok, true);
+});
+
+test("privacy: a return shared by fewer than k_min accounts fails; a live card from before the guard warns", async () => {
+  const thin = await run(liveWorld({ return_precision_bps: 10, k_anon: 3, k_min: 25 }));
+  assert.equal(statuses(thin).freshness, "fail");
+  assert.match(thin.checks[4].detail, /only 3 leaderboard accounts/);
+  const old = await run(liveWorld(null));
+  assert.equal(statuses(old).freshness, "warn");
+  assert.match(old.checks[4].detail, /before the privacy guard/);
+  assert.match((await run(liveWorld())).checks[4].detail, /1 of ≥ 93/);
 });
 
 test("a missing attestation is a warning, not a pass", async () => {

@@ -4,6 +4,7 @@ use crate::card::{self, Card, CardOrders, CardStats, CardWindow, SignedCard};
 use crate::commit;
 use crate::error::{Code, Error, Result};
 use crate::hl::{Fill, Point, Portfolio, Series, Source};
+use crate::kanon;
 use crate::merkle;
 use crate::orders;
 use crate::platform::Platform;
@@ -80,6 +81,9 @@ pub fn measure(source: &impl Source, address: &str, window_days: u32) -> Result<
             volume_band: stats::volume_band(t.volume),
             active_days: t.active_days,
             flow_turnover_bps: stats::to_bps(r.flow_turnover),
+            return_precision_bps: None,
+            k_anon: None,
+            k_min: None,
         },
         series,
         fills,
@@ -96,8 +100,18 @@ pub struct IssueParams<'a> {
     pub mode: &'a str,
 }
 
+/// Card kinds: a person's account, or one traded by an AI agent (the issuer's label).
+pub const KINDS: [&str; 2] = ["trader", "agent"];
+
 /// Measure, commit to every order, store what a later reveal needs, and sign.
 pub fn issue(source: &impl Source, platform: &impl Platform, p: &IssueParams) -> Result<SignedCard> {
+    issue_as(source, platform, p, "trader")
+}
+
+pub fn issue_as(source: &impl Source, platform: &impl Platform, p: &IssueParams, kind: &str) -> Result<SignedCard> {
+    if !KINDS.contains(&kind) {
+        return Err(Error::new(Code::BadInput, format!("kind must be trader or agent, not {kind}")));
+    }
     let m = measure(source, p.address, p.window_days)?;
     let timed = orders::timed_records(&m.fills, &m.series.account_value);
     let (records, last_fill_ms): (Vec<_>, Vec<_>) = timed.into_iter().unzip();
@@ -108,15 +122,24 @@ pub fn issue(source: &impl Source, platform: &impl Platform, p: &IssueParams) ->
     let salts = orders::salts(last_salt, records.len());
     let root = merkle::root(&orders::leaves(&records, &salts)?);
 
+    // Publish the return only as precisely as the leaderboard allows (src/kanon.rs).
+    let board = source.leaderboard()?;
+    let anon = kanon::coarsen(m.stats.return_bps, board.for_window(p.window_days), kanon::K_MIN)?;
+    let mut stats = m.stats.clone();
+    stats.return_bps = anon.return_bps;
+    stats.return_precision_bps = Some(anon.precision_bps);
+    stats.k_anon = Some(anon.k);
+    stats.k_min = Some(kanon::K_MIN);
+
     let card = Card {
         v: 1,
         venue: VENUE.into(),
-        kind: "trader".into(),
+        kind: kind.into(),
         scope: "account".into(),
         issuer: p.issuer.into(),
         commitment: commit::commitment(platform, VENUE, p.address)?,
         window: m.window,
-        stats: m.stats,
+        stats,
         orders: CardOrders { root: hex::encode(root), count: records.len() as u32 },
         issued_at: p.issued_at,
         nonce: p.nonce,

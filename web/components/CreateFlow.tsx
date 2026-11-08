@@ -50,6 +50,7 @@ export default function CreateFlow() {
   const [near, setNear] = useState<NearSession | null>(null);
   const [evm, setEvm] = useState<`0x${string}` | null>(null);
   const [windowDays, setWindowDays] = useState<number>(30);
+  const [agent, setAgent] = useState(false);
   const [keyPath, setKeyPath] = useState<"direct" | "relay" | null>(null);
   const [phase, setPhase] = useState<Phase>({ step: "idle" });
 
@@ -79,7 +80,7 @@ export default function CreateFlow() {
       let registry: string;
       if (mode === "demo") {
         registry = config.demoRegistry;
-        txs = demoCardTransactions(windowDays);
+        txs = demoCardTransactions(windowDays, agent ? "agent" : "trader");
       } else {
         if (!evm) return;
         registry = config.registry;
@@ -95,7 +96,7 @@ export default function CreateFlow() {
         setKeyPath(key.path);
         const encrypted = encryptForKeystore(key.pubkey, JSON.stringify({ PROVEIT_SECRET: secretJson(proof) }));
         const storageDeposit = await storageCost(config.enclaveProject, near.accountId, profile, encrypted);
-        txs = liveCardTransactions({ proof, keystorePubkey: key.pubkey, storageDeposit, windowDays, encrypted }).txs;
+        txs = liveCardTransactions({ proof, keystorePubkey: key.pubkey, storageDeposit, windowDays, encrypted, kind: agent ? "agent" : "trader" }).txs;
       }
 
       setPhase({ step: "working", label: mode === "demo" ? "Approve the request in your NEAR wallet…" : "Approve the two transactions in your NEAR wallet…" });
@@ -177,6 +178,10 @@ export default function CreateFlow() {
             </button>
           ))}
         </div>
+        <label className="mb-3 flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={agent} onChange={(e) => setAgent(e.target.checked)} disabled={busy} /> This account is traded by an AI agent (the card says
+          so, for agents and allocators looking for verified bots)
+        </label>
         <p className="mb-3 text-xs text-muted">
           Return, max drawdown and trade count are always shown. The account needs 20+ trades in the window and must have held capital
           for (almost) all of it. You attach 0.07 NEAR: 0.02 pays for storing the card (refunded if it&apos;s refused) and OutLayer refunds

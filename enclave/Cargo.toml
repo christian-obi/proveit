@@ -15,7 +15,7 @@ path = "src/main.rs"
 [features]
 # A deterministic, PUBLIC test key in place of the enclave's signing and MAC keys.
 # Tests and local runs only: no build that ships enables it.
-test-keys = ["dep:ed25519-dalek", "dep:hmac"]
+test-keys = ["dep:hmac"]
 # Local runs under plain wasmtime: data from PROVEIT_FIXTURE_DIR, test keys, no ownership
 # check. Its cards say "mode": "fixture".
 fixtures = ["test-keys"]
@@ -36,7 +36,9 @@ x25519-dalek = { version = "2", default-features = false, features = ["static_se
 chacha20poly1305 = { version = "0.10", default-features = false, features = ["alloc"] }
 hkdf = "0.12"
 base64 = "0.22"
-ed25519-dalek = { version = "2", default-features = false, features = ["std"], optional = true }
+# NEP-413 signatures from followers (src/nep413.rs).
+ed25519-dalek = { version = "2", default-features = false, features = ["std"] }
+bs58 = "0.5"
 hmac = { version = "0.12", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

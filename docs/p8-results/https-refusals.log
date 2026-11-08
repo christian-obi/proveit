@@ -1,0 +1,6 @@
+== feed, claiming to be proveit-follower.testnet with someone else's key
+enclave refused: NEAR_ACCOUNT_MISMATCH that key is not a full-access key of proveit-follower.testnet
+== feed for card 1, where this follower holds no key
+enclave refused: NO_GRANT follower.proveit-realist.testnet holds no live viewing key for card #1
+== issue over HTTPS
+completed {'code': 'BAD_INPUT', 'message': '`issue` runs only on-chain, through the registry contract', 'status': 'err'}

@@ -1,0 +1,11 @@
+    Finished `release` profile [optimized] target(s) in 1m 23s
+27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a  dist/proveit-enclave.wasm  (registry proveit.near)
+    Finished `release` profile [optimized] target(s) in 1m 19s
+653e74f1177ecde9741463ed38d2d18b782fe34fa8f8886cf54f2383532e13e4  dist/proveit-enclave-demo-fixture.wasm  (registry proveit-demo-registry.testnet)
+    Finished `release` profile [optimized] target(s) in 1m 14s
+c41621799f1ce39217fc0e6748c3545f26636ea9c8d13f3592a729b55080a49d  dist/proveit-enclave.wasm  (registry proveit-registry.testnet)
+# Reproducible builds (enclave/build.sh, linux/amd64). CI rebuilds each line and compares.
+# After changing enclave code, rebuild and update.  Format: <variant> <registry> <sha256>
+live proveit-registry.testnet c41621799f1ce39217fc0e6748c3545f26636ea9c8d13f3592a729b55080a49d
+demo-fixture proveit-demo-registry.testnet 653e74f1177ecde9741463ed38d2d18b782fe34fa8f8886cf54f2383532e13e4
+live proveit.near 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a

@@ -17,6 +17,10 @@ pub enum Code {
     Upstream,
     /// No reveal data for this card (unknown, or issued before reveals existed).
     CardNotFound,
+    /// The follower holds no live viewing key for this card.
+    NoGrant,
+    /// Even the widest return bucket is shared by too few leaderboard accounts.
+    PrivacyRisk,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

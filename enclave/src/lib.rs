@@ -5,14 +5,19 @@
 //! [`platform::Platform`]; the wasm binary (`src/main.rs`) supplies the WASI HTTP
 //! client and the OutLayer host functions.
 
+pub mod auth;
 pub mod canonical;
 pub mod card;
 pub mod commit;
 pub mod door;
 pub mod ecies;
 pub mod error;
+pub mod feed;
 pub mod hl;
+pub mod kanon;
 pub mod merkle;
+pub mod near;
+pub mod nep413;
 pub mod orders;
 pub mod ownership;
 pub mod pipeline;

@@ -155,3 +155,50 @@ Totals: enclave `cargo test` all pass (8 new reveal tests), contract 42 (16 new)
 - **The ciphertext is a return value.** `on_result` returns it to the follower's transaction and keeps only its sha256 in state; nothing readable is logged.
 
 **P7 status:** 8 of 9; T7.6 on mainnet with real USDC after the mainnet deploy.
+
+## P8 — M3: 1Click cross-chain unlock and the live feed
+
+Testnet, 8 Nov: enclave builds `23b7d873…` (live) and `0ad3295a…` (demo) approved on both registries; mainnet build `e5618816…`. The enclave now has an HTTPS door for `reveal` and `feed`, guarded by a NEP-413 follower signature, an on-chain full-access-key check and an on-chain grant check, all made by the enclave itself. Logs: `docs/p8-results/`.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T8.1 | 1Click status state machine | ✔ | `web/test/oneclick.test.ts`: the UI's statuses equal the spec's enum (`PENDING_DEPOSIT`, `INCOMPLETE_DEPOSIT`, `PROCESSING`, `SUCCESS`, `REFUNDED`, `FAILED`, extracted from the live OpenAPI spec); only SUCCESS/REFUNDED/FAILED are final; an unknown status keeps waiting |
+| T8.2 | quote request snapshot | ✔ | `EXACT_OUTPUT` of the key's price in native USDC to the registry, `customRecipientMsg` = `{"card_id","buyer"}` (what `ft_on_transfer` parses), `refundTo` the follower's origin address, deadline +30 min; a real dry quote accepted this shape ($1.00 out for $1.01–1.02 in from Base). **Deviation:** `appFees` is empty, because the registry already takes its 1% fee on-chain and the cross-chain path must not charge twice |
+| T8.3 | no 1Click or OutLayer key in the client bundle | ✔ | `grep -rE "ONECLICK\|OUTLAYER_PAYMENT_KEY\|X-Payment-Key" web/.next/static` → 0 files |
+| T8.4 | live $1 USDC from Base | ☐ | needs mainnet (`proveit.near`: 1Click refuses recipients that don't exist yet) and a 1Click partner API key (`ONECLICK_API_KEY` on Railway): non-dry quotes fail without one |
+| T8.5 | live underpaid deposit → REFUNDED | ☐ | optional; same needs as T8.4 |
+| T8.6 | screen recording of T8.4 | ☐ | yours |
+| T8.7 | `enclave::feed_chain` | ✔ | `enclave/tests/feed.rs`: three polls extend one chain, each page continues from the kept head, a second follower ends at the same head; drop, reorder, edit or a rewritten start fail. Same checks in TypeScript against `test-vectors/feed.json` (`packages/verify/src/feed.test.ts`). Also: the delay holds back recent orders; a concurrent extension isn't lost (compare-and-swap) |
+| T8.8 | `enclave::feed_auth` | ✔ | bad or expired signature, a message valid for more than a day, another app's message, a key that isn't the account's, a function-call key, another card, no grant, an expired grant → each refused **before any stored data is read** (counted). **Live over HTTPS:** wrong account → `NEAR_ACCOUNT_MISMATCH`, no key for card #1 → `NO_GRANT`, `issue` over HTTPS → refused |
+| T8.9 | live feed shows a new trade (delay 0) | ☐ | needs the Hyperliquid account trading after its card. The path is live: `feed` over HTTPS for demo card #2 answered (0 entries: the recorded account never trades again), chain intact |
+| T8.10 | no-leak for the feed | ✔ | `web/e2e/feed.spec.ts`: the page decrypts and chain-checks the feed; every request to the app's server carries only the card, a cursor and the signed message, with no address, trade, record field or secret. A forged page (a trade dropped) shows as broken, not as trades |
+
+**Live over HTTPS (testnet):** `follower.proveit-realist.testnet` (its own key, NEP-413-signed by `scripts/follow.ts`) bought a key on demo card #2 (`HHdfMj2M…`); `reveal` over HTTPS → **91/91 Merkle-verified**, `feed` → chain intact; about $0.001 per call, 2.5–3 s in the TEE.
+
+**Not done in P8:**
+- The **Copy** button for NEAR Intents swaps waits for the Intents venue (P9). Perps trades show as signals with a link to trade the coin on Hyperliquid, sized as the same share of the follower's equity.
+- The deposit address isn't shown as a QR code; it has a copy button.
+- **Railway needs `OUTLAYER_PAYMENT_KEY`** (an OutLayer payment key limited to this owner's projects) before the deployed relay can serve the feed, and `ONECLICK_API_KEY` for cross-chain quotes.
+
+**P8 status:** T8.1–T8.3, T8.7, T8.8, T8.10 done; T8.4–T8.6 and T8.9 need mainnet, a 1Click key and the Hyperliquid account.
+
+## P9 — Explore, privacy depth, profile, agent guard
+
+Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) approved; mainnet build `27e7f6c4…`; registry code redeployed to both testnet registries (no state change; old cards still `VALID`). Live: https://proveit-production-d47c.up.railway.app/explore. Logs: `docs/p9-results/`, `docs/agent-guard-demo.log`.
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| T9.1 | `kanon::coarsens_until_k` | ✔ | `enclave/tests/kanon.rs`: an outlier's bucket widens 0.1% → 1% → 5% → 25% until ≥ 25 share it; an unhideable return is refused (`PRIVACY_RISK`); proptest over the recorded leaderboard: the bucket always contains the return and holds ≥ `k_min`; the live format parses and keeps ROI only; issued cards carry `return_precision_bps`, `k_anon`, `k_min`. **Live in the TEE:** demo cards #3 and #4 fetched today's leaderboard and publish +14–15%, **1 of ≥ 98** |
+| T9.2 | profile indices | ✔ | `contract/src/tests.rs::profile_indices`: 3 cards from 2 commitments → `get_cards_by_issuer` = [0, 1, 2], by commitment [0, 2] and [1]. Unit test, not sandbox |
+| T9.3 | refresh | ✔ | `refresh_supersedes_and_needs_the_same_account` (P3): `supersedes` linked, old card `SUPERSEDED`, another account's card can't refresh it |
+| T9.4 | `pnpm agent-guard` green / tampered | ✔ | `docs/agent-guard-demo.log` on demo card #3: verified card within policy → FOLLOW, exit 0; same card with the return edited to +90% → REFUSE (signature, record, attestation), exit 1; default policy → REFUSE (demo card, drawdown 62.83% > 30%), exit 1. Policy unit tests in `packages/verify/src/guard.test.ts` |
+| T9.5 | `/api/verify?card=…` | ✔ | `web/e2e/p9.spec.ts` and live on Railway: the five checks as JSON, the same statuses as the CLI; `guard=1` adds the verdict; CORS open; unknown card 404, unknown registry 400 |
+| T9.6 | `/explore` | ✔ | `web/test/explore.test.ts`: revoked, replaced and retired-build cards hidden, stale ones kept and badged, each sort order, seats left from `get_offer`; `e2e/p9.spec.ts` against testnet |
+| T9.7 | `intents::golden_*` | — | Intents venue not built: 1Click history access (T0.9) not granted |
+| T9.8 | live Intents card | — | same |
+
+**Also:** `kind: "agent"` cards (the issuer's label, signed in; `request_card(…, kind)`, create-flow checkbox, "AI agent" badge; demo card #4 is one); profile pages `/p/<account>` group cards by commitment so a hidden extra account shows; check 5 is now "Freshness and privacy" and fails a card with `k_anon < k_min`; the landing page features card #3.
+
+**Not built:** the NEAR Intents venue (needs T0.9) and an inception-to-date window.
+
+**P9 status:** T9.1–T9.6 done; T9.7–T9.8 not applicable without Intents history access.

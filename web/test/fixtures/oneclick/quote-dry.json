@@ -1,0 +1,73 @@
+{
+  "note": "Recorded from https://1click.chaindefuser.com on 8 Nov 2026 (no API key). recipient is intents.near because proveit.near does not exist until the mainnet deploy; 1Click refuses unknown recipients.",
+  "request": {
+    "dry": true,
+    "swapType": "EXACT_OUTPUT",
+    "slippageTolerance": 100,
+    "originAsset": "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+    "depositType": "ORIGIN_CHAIN",
+    "destinationAsset": "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "amount": "1000000",
+    "refundTo": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "refundType": "ORIGIN_CHAIN",
+    "recipient": "intents.near",
+    "recipientType": "DESTINATION_CHAIN",
+    "deadline": "2026-11-08T09:50:31.000Z",
+    "customRecipientMsg": "{\"card_id\": 0, \"buyer\": \"follower.near\"}",
+    "appFees": [
+      {
+        "recipient": "proveit.near",
+        "fee": 100
+      }
+    ],
+    "referral": "proveit"
+  },
+  "response": {
+    "quote": {
+      "amountIn": "1020326",
+      "amountInFormatted": "1.020326",
+      "amountInUsd": "1.019883178516",
+      "minAmountIn": "1010122",
+      "amountOut": "1000000",
+      "amountOutFormatted": "1.0",
+      "amountOutUsd": "0.999566000000",
+      "minAmountOut": "1000000",
+      "timeEstimate": 35,
+      "refundFee": "2400",
+      "withdrawFee": "0"
+    },
+    "quoteRequest": {
+      "dry": true,
+      "depositMode": "SIMPLE",
+      "swapType": "EXACT_OUTPUT",
+      "slippageTolerance": 100,
+      "originAsset": "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+      "depositType": "ORIGIN_CHAIN",
+      "destinationAsset": "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+      "amount": "1000000",
+      "refundTo": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "refundType": "ORIGIN_CHAIN",
+      "recipient": "intents.near",
+      "customRecipientMsg": "{\"card_id\": 0, \"buyer\": \"follower.near\"}",
+      "recipientType": "DESTINATION_CHAIN",
+      "deadline": "2026-11-08T09:50:31.000Z",
+      "confidentiality": "public",
+      "referral": "proveit",
+      "quoteWaitingTimeMs": 0,
+      "appFees": [
+        {
+          "recipient": "proveit.near",
+          "fee": 50
+        },
+        {
+          "recipient": "5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd",
+          "fee": 50
+        }
+      ],
+      "insured": false
+    },
+    "signature": "ed25519:2mUYpHpyVkLCKxXEVUabcJhuWocuhDLMXVPCq6EPAMKuXcntVyxxRkrRmMNj2mdSaAcYqM7H1zheLo7Uqn9vjJoX",
+    "timestamp": "2026-11-08T09:21:17.751Z",
+    "correlationId": "7805f32b-4eb8-41c6-be02-952aa21f7187"
+  }
+}

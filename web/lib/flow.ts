@@ -20,6 +20,7 @@ export function liveCardTransactions(opts: {
   storageDeposit: string;
   windowDays: number;
   encrypted?: string;
+  kind?: "trader" | "agent";
 }): { txs: Tx[]; encrypted: string; profile: string } {
   const profile = profileFor(opts.proof.nonce);
   // The secret value is the JSON the enclave parses; the stored blob is {"PROVEIT_SECRET": value}.
@@ -29,12 +30,12 @@ export function liveCardTransactions(opts: {
     encrypted,
     txs: [
       storeSecretsTx(config.enclaveProject, opts.proof.nearAccount, profile, encrypted, opts.storageDeposit),
-      requestCardTx(config.registry, opts.windowDays, profile),
+      requestCardTx(config.registry, opts.windowDays, profile, opts.kind),
     ],
   };
 }
 
 /** A demo card: the demo registry's enclave uses a recorded public account; no secret, no EVM wallet. */
-export function demoCardTransactions(windowDays: number): Tx[] {
-  return [requestCardTx(config.demoRegistry, windowDays, null)];
+export function demoCardTransactions(windowDays: number, kind: "trader" | "agent" = "trader"): Tx[] {
+  return [requestCardTx(config.demoRegistry, windowDays, null, kind)];
 }

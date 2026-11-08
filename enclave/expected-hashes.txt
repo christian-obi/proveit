@@ -1,5 +1,5 @@
 # Reproducible builds (enclave/build.sh, linux/amd64). CI rebuilds each line and compares.
 # After changing enclave code, rebuild and update.  Format: <variant> <registry> <sha256>
-live proveit-registry.testnet b77de55e1b2ef724922a27cab913c925e0de7652d54665b8049a0e11e0a2f809
-demo-fixture proveit-demo-registry.testnet 9688f1bd630a2051b8aef8db87e108bf45528396ba08875705745fe882234d1c
-live proveit.near ada3c50439ea8e66da9db6239af019e0beda14de9e9795549a4f7b22ad171ddb
+live proveit-registry.testnet c41621799f1ce39217fc0e6748c3545f26636ea9c8d13f3592a729b55080a49d
+demo-fixture proveit-demo-registry.testnet 653e74f1177ecde9741463ed38d2d18b782fe34fa8f8886cf54f2383532e13e4
+live proveit.near 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a

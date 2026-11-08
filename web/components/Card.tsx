@@ -1,7 +1,7 @@
 // The card: the shareable picture of a trader's verified numbers. Pure render, so the card
 // page, the landing page and tamper mode all show the same thing.
 
-import { date, pct, volume, windowLabel } from "@/lib/format";
+import { date, pct, returnLabel, volume, windowLabel } from "@/lib/format";
 
 export type CardData = {
   window: { days: number; start: number; end: number; samples: number };
@@ -14,6 +14,9 @@ export type CardData = {
     volume_band: string;
     active_days: number;
     flow_turnover_bps: number;
+    return_precision_bps?: number;
+    k_anon?: number;
+    k_min?: number;
   };
   issuer: string;
   issued_at: number;
@@ -42,12 +45,18 @@ export default function Card({ card, id, edited }: { card: CardData; id?: number
         <span className="flex gap-1.5">
           {card.mode !== "live" && <span className="rounded bg-warn/15 px-1.5 py-0.5 text-warn">demo card</span>}
           {card.window.days === 1 && <span className="rounded bg-warn/15 px-1.5 py-0.5 text-warn">1-day test</span>}
+          {(card as { kind?: string }).kind === "agent" && <span className="rounded bg-accent/15 px-1.5 py-0.5 text-accent">AI agent</span>}
           {edited && <span className="rounded bg-bad/15 px-1.5 py-0.5 text-bad">edited</span>}
         </span>
       </div>
       <div className="px-5 py-5">
         <p className="text-xs uppercase tracking-wide text-muted">Return, time-weighted</p>
-        <p className={`text-5xl font-semibold tabular-nums tracking-tight ${up ? "text-accent" : "text-bad"}`}>{pct(s.return_bps, true)}</p>
+        <p className={`text-5xl font-semibold tabular-nums tracking-tight ${up ? "text-accent" : "text-bad"}`}>{returnLabel(s)}</p>
+        {s.k_anon !== undefined && (
+          <p className="mt-1 text-xs text-muted" data-kanon>
+            Rounded so the wallet can&apos;t be found: 1 of ≥ {s.k_anon} accounts on Hyperliquid&apos;s public leaderboard with this return
+          </p>
+        )}
         <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
           {rows.map(([k, v]) => (
             <div key={k}>

@@ -68,6 +68,14 @@ pub struct CardStats {
     pub active_days: u32,
     /// Deposits and withdrawals in the window as a share of average capital, in bps.
     pub flow_turnover_bps: i64,
+    /// Set on issued cards by the k-anonymity guard (src/kanon.rs): `return_bps` is then the
+    /// lower edge of a bucket this wide, shared by at least `k_anon` leaderboard accounts.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub return_precision_bps: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub k_anon: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub k_min: Option<u32>,
 }
 
 /// The Merkle commitment to every order in the window (src/orders.rs, src/merkle.rs).

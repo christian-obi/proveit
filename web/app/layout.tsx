@@ -19,6 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Prove-It
             </Link>
             <span className="flex gap-4 text-sm text-muted">
+              <Link href="/explore" className="hover:text-fg">
+                Explore
+              </Link>
               <Link href="/verify" className="hover:text-fg">
                 Verify
               </Link>

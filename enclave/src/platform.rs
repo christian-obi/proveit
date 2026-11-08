@@ -19,6 +19,12 @@ pub trait Platform {
     fn load(&self, key: &str) -> Result<Option<Vec<u8>>>;
     /// 32 fresh random bytes (encryption only; nothing signed depends on them).
     fn random_32(&self) -> Result<[u8; 32]>;
+    /// The run's own encrypted storage cell (over HTTPS: the payment key owner's, i.e.
+    /// the app's relay), which unlike worker storage has compare-and-swap.
+    fn cell_get(&self, key: &str) -> Result<Option<Vec<u8>>>;
+    /// Write `new` only if the cell holds `expected` (`None` = nothing yet). `Ok(false)` if
+    /// another run got there first.
+    fn cell_swap(&self, key: &str, expected: Option<&[u8]>, new: &[u8]) -> Result<bool>;
 }
 
 /// A deterministic, PUBLIC key pair and MAC key. Anyone can sign as it, so nothing
@@ -42,6 +48,7 @@ pub mod test {
         pub stored: RefCell<Vec<(String, Vec<u8>)>>,
         /// Deterministic "randomness": sha256 of a counter.
         pub draws: RefCell<u64>,
+        pub cell: RefCell<std::collections::BTreeMap<String, Vec<u8>>>,
     }
 
     impl TestPlatform {
@@ -73,6 +80,19 @@ pub mod test {
 
         fn load(&self, key: &str) -> Result<Option<Vec<u8>>> {
             Ok(self.stored.borrow().iter().rev().find(|(k, _)| k == key).map(|(_, v)| v.clone()))
+        }
+
+        fn cell_get(&self, key: &str) -> Result<Option<Vec<u8>>> {
+            Ok(self.cell.borrow().get(key).cloned())
+        }
+
+        fn cell_swap(&self, key: &str, expected: Option<&[u8]>, new: &[u8]) -> Result<bool> {
+            let mut cell = self.cell.borrow_mut();
+            if cell.get(key).map(|v| v.as_slice()) != expected {
+                return Ok(false);
+            }
+            cell.insert(key.to_string(), new.to_vec());
+            Ok(true)
         }
 
         fn random_32(&self) -> Result<[u8; 32]> {

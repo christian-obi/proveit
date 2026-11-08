@@ -30,6 +30,7 @@ const MAX_OUTPUT: usize = 16 * 1024;
 /// at most a few thousand orders.
 const MAX_REVEAL_OUTPUT: usize = 1024 * 1024;
 const DEFAULT_FEE_BPS: u16 = 100;
+const KINDS: [&str; 2] = ["trader", "agent"];
 const MAX_PAGE: u32 = 100;
 const DEFAULT_STALE_AFTER_SECS: u64 = 14 * 24 * 60 * 60;
 /// Kept by the registry to pay for storing the card; refunded if the card is refused.
@@ -321,10 +322,14 @@ impl Registry {
     /// Issue a card from the trader's stored, encrypted OutLayer secret (`secrets_profile`).
     /// Attach at least 0.07 NEAR: 0.02 pays for storing the card (refunded if it's refused),
     /// the rest goes to OutLayer, which refunds whatever the run doesn't use.
+    /// `kind`: "trader" (default) or "agent", for an account traded by an AI agent. It is the
+    /// issuer's own label, signed into the card like everything else.
     #[payable]
-    pub fn request_card(&mut self, window_days: u32, secrets_profile: Option<String>) -> Promise {
+    pub fn request_card(&mut self, window_days: u32, secrets_profile: Option<String>, kind: Option<String>) -> Promise {
         require!(WINDOWS.contains(&window_days), "window_days must be 1, 7, 30, 90 or 180");
-        let input = json!({ "op": "issue", "window_days": window_days }).to_string();
+        let kind = kind.unwrap_or_else(|| "trader".into());
+        require!(KINDS.contains(&kind.as_str()), "kind must be trader or agent");
+        let input = json!({ "op": "issue", "window_days": window_days, "kind": kind }).to_string();
         self.start(PendingKind::Card { window_days, supersedes: None }, input, secrets_profile, STORAGE_FEE)
     }
 
@@ -334,7 +339,8 @@ impl Registry {
         let old = self.cards.get(&card_id).unwrap_or_else(|| env::panic_str("unknown card")).clone();
         require!(old.issuer == env::predecessor_account_id(), "only the card's issuer can refresh it");
         require!(old.superseded_by.is_none() && !old.revoked, "card is already superseded or revoked");
-        let input = json!({ "op": "issue", "window_days": old.window_days }).to_string();
+        let kind = serde_json::from_str::<Value>(&old.card_json).ok().and_then(|c| c["kind"].as_str().map(String::from)).unwrap_or_else(|| "trader".into());
+        let input = json!({ "op": "issue", "window_days": old.window_days, "kind": kind }).to_string();
         self.start(PendingKind::Card { window_days: old.window_days, supersedes: Some(card_id) }, input, secrets_profile, STORAGE_FEE)
     }
 
@@ -455,7 +461,7 @@ impl Registry {
         if !card::signature_ok(&canonical, &sig, &pubkey) {
             return fail("BAD_SIGNATURE", "the card's signature does not verify under the enclave key");
         }
-        if parsed.v != 1 || parsed.venue != "hyperliquid" || parsed.kind != "trader" || parsed.scope != "account" {
+        if parsed.v != 1 || parsed.venue != "hyperliquid" || !KINDS.contains(&parsed.kind.as_str()) || parsed.scope != "account" {
             return fail("BAD_CARD", "unsupported card version, venue, kind or scope");
         }
         if parsed.window.days != window_days {

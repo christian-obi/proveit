@@ -1,0 +1,6 @@
+Transaction ID: GkLy91Z27WbC4GXjFXCg6fE2Bbp7LQEjpEuEXYfe35Qo
+trader: request 7 → {"Issued":{"card_id":3,"card_hash":"e982e697ae570b64d55c5cc3b4c5686220da04af73ac8375ee2b429f739089dd"}}
+Transaction ID: F72GCCUgtCSuLnAmYFAyHYnxUBWYcLB447KXmkfaaNxt
+agent: request 8 → {"Issued":{"card_id":4,"card_hash":"ba8810519ea013d78862176697ffbc3e7b0f7db9cd40d9215b09d25013241e23"}}
+3 trader {'return_bps': 1400, 'return_precision_bps': 100, 'k_anon': 98, 'k_min': 25, 'max_dd_bps': 6283, 'trades': 42}
+4 agent {'return_bps': 1400, 'return_precision_bps': 100, 'k_anon': 98, 'k_min': 25, 'max_dd_bps': 6283, 'trades': 42}

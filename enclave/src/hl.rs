@@ -90,6 +90,10 @@ pub struct Fill {
 /// Sends one JSON body to the info endpoint and returns the raw response.
 pub trait Transport {
     fn post(&self, body: &Value) -> Result<Vec<u8>>;
+    /// A plain GET (the leaderboard lives on another host than the info endpoint).
+    fn get(&self, url: &str) -> Result<Vec<u8>> {
+        Err(Error::new(Code::Upstream, format!("GET {url} is not available here")))
+    }
 }
 
 /// Where account data comes from: the live API, or recorded fixtures.
@@ -97,6 +101,8 @@ pub trait Source {
     fn portfolio(&self, address: &str) -> Result<Portfolio>;
     /// Every fill with `start_ms <= time <= end_ms`, oldest first, no duplicates.
     fn fills_between(&self, address: &str, start_ms: u64, end_ms: u64) -> Result<Vec<Fill>>;
+    /// Every leaderboard account's ROI per window, for the k-anonymity guard.
+    fn leaderboard(&self) -> Result<crate::kanon::Board>;
 }
 
 pub struct Client<T: Transport> {
@@ -104,6 +110,10 @@ pub struct Client<T: Transport> {
 }
 
 impl<T: Transport> Source for Client<T> {
+    fn leaderboard(&self) -> Result<crate::kanon::Board> {
+        crate::kanon::Board::parse_live(&self.transport.get(crate::kanon::LEADERBOARD_URL)?)
+    }
+
     fn portfolio(&self, address: &str) -> Result<Portfolio> {
         Portfolio::parse(&self.transport.post(&json!({ "type": "portfolio", "user": address }))?)
     }
@@ -159,6 +169,13 @@ impl FixtureSource {
 }
 
 impl Source for FixtureSource {
+    /// `fixtures/leaderboard.json`, next to the account fixtures.
+    fn leaderboard(&self) -> Result<crate::kanon::Board> {
+        let path = self.dir.parent().map(|p| p.join("leaderboard.json")).ok_or_else(|| Error::new(Code::NoData, "no fixture directory"))?;
+        let bytes = std::fs::read(&path).map_err(|e| Error::new(Code::NoData, format!("{}: {e}", path.display())))?;
+        crate::kanon::Board::parse_compact(&bytes)
+    }
+
     fn portfolio(&self, _address: &str) -> Result<Portfolio> {
         Portfolio::parse(&self.read("portfolio.json")?)
     }

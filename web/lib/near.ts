@@ -67,9 +67,10 @@ export function storeSecretsTx(projectId: string, owner: string, profile: string
   };
 }
 
-export function requestCardTx(registry: string, windowDays: number, profile: string | null): Tx {
+export function requestCardTx(registry: string, windowDays: number, profile: string | null, kind: "trader" | "agent" = "trader"): Tx {
   const args: Record<string, unknown> = { window_days: windowDays };
   if (profile) args.secrets_profile = profile;
+  if (kind === "agent") args.kind = "agent";
   return {
     receiverId: registry,
     actions: [{ type: "FunctionCall", params: { methodName: "request_card", args, gas: MAX_GAS, deposit: REQUEST_DEPOSIT_YOCTO } }],

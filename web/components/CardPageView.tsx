@@ -6,17 +6,18 @@ import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 import Card from "@/components/Card";
 import VerifyPanel from "@/components/VerifyPanel";
+import FeedFlow from "@/components/FeedFlow";
 import UnlockFlow from "@/components/UnlockFlow";
 import { cardPath, loadCard } from "@/lib/cards";
 import { getOffer, tokenMeta } from "@/lib/keys";
-import { pct, windowLabel } from "@/lib/format";
+import { pct, returnLabel, windowLabel } from "@/lib/format";
 
 export async function cardMetadata(id: string, registry: string): Promise<Metadata> {
   const loaded = await loadCard(id, registry);
   if (!loaded) return { title: "Card not found · Prove-It" };
   const s = loaded.card.stats;
   const demo = loaded.card.mode !== "live" ? " (demo)" : "";
-  const title = `${pct(s.return_bps, true)} in ${windowLabel(loaded.card.window.days)}${demo} · Prove-It`;
+  const title = `${returnLabel(s)} in ${windowLabel(loaded.card.window.days)}${demo} · Prove-It`;
   const description = `Max drawdown ${pct(s.max_dd_bps)}, ${s.trades} trades, verified by a TEE and recorded on NEAR. The wallet stays private.`;
   return { title, description, openGraph: { title, description }, twitter: { card: "summary_large_image", title, description } };
 }
@@ -50,7 +51,11 @@ export async function CardPageView({ id, registry, autoRun }: { id: string; regi
       <VerifyPanel registry={registry} cardId={record.id} cardJson={record.card_json} autoRun={autoRun} />
       <UnlockLink id={record.id} registry={registry} />
       <p className="text-xs text-muted">
-        Registry <span className="font-mono">{registry}</span> · enclave build <span className="font-mono">{record.version.slice(0, 12)}…</span>
+        Issued by{" "}
+        <Link className="font-mono underline" href={`/p/${record.issuer}`}>
+          {record.issuer}
+        </Link>{" "}
+        · registry <span className="font-mono">{registry}</span> · enclave build <span className="font-mono">{record.version.slice(0, 12)}…</span>
         {record.revoked && <span className="text-bad"> · revoked by the issuer</span>}
         {record.superseded_by !== null && (
           <>
@@ -97,6 +102,29 @@ export async function UnlockPageView({ id, registry }: { id: string; registry: s
   );
 }
 
+/** /c/<id>/feed and /demo/<id>/feed: a key holder's live feed of new trades. */
+export async function FeedPageView({ id, registry }: { id: string; registry: string }) {
+  const loaded = await loadCard(id, registry);
+  if (!loaded) notFound();
+  const { record, card } = loaded;
+  return (
+    <section className="space-y-6">
+      <Card card={card} id={record.id} />
+      <div>
+        <h1 className="text-lg font-semibold">Live feed</h1>
+        <p className="text-sm text-muted">
+          The trader&apos;s orders after this card, one hash chain for every follower, encrypted to this browser by the enclave. Coarsened like the card: hour, side, size and
+          PnL as a share of the account.
+        </p>
+      </div>
+      <FeedFlow registry={registry} cardId={record.id} cardHash={record.card_hash} />
+      <Link className="text-sm underline" href={`${cardPath(record.id, registry)}/unlock`}>
+        Your viewing key
+      </Link>
+    </section>
+  );
+}
+
 export const ogSize = { width: 1200, height: 630 };
 
 export async function cardImage(id: string, registry: string) {
@@ -117,7 +145,7 @@ export async function cardImage(id: string, registry: string) {
         {s ? (
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 30, color: "#8d96a3" }}>Return, time-weighted</span>
-            <span style={{ fontSize: 160, fontWeight: 700, color: up ? "#2fbf8f" : "#f97066", lineHeight: 1 }}>{pct(s.return_bps, true)}</span>
+            <span style={{ fontSize: 160, fontWeight: 700, color: up ? "#2fbf8f" : "#f97066", lineHeight: 1 }}>{returnLabel(s)}</span>
             <div style={{ display: "flex", gap: 56, marginTop: 32, fontSize: 34 }}>
               <span>Max drawdown {pct(-s.max_dd_bps)}</span>
               <span>Win rate {pct(s.win_rate_bps)}</span>
@@ -129,7 +157,7 @@ export async function cardImage(id: string, registry: string) {
         )}
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26, color: "#8d96a3" }}>
           <span>Screenshots can be faked. This card can&apos;t.</span>
-          <span>The wallet stays private.</span>
+          <span>{s?.k_anon ? `The wallet stays private: 1 of ≥ ${s.k_anon} accounts.` : "The wallet stays private."}</span>
         </div>
       </div>
     ),

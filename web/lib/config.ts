@@ -10,6 +10,7 @@ export const config = {
   registry: env("NEXT_PUBLIC_REGISTRY", "proveit-registry.testnet"),
   demoRegistry: env("NEXT_PUBLIC_DEMO_REGISTRY", "proveit-demo-registry.testnet"),
   enclaveProject: env("NEXT_PUBLIC_ENCLAVE_PROJECT", "proveit-realist.testnet/enclave"),
+  demoEnclaveProject: env("NEXT_PUBLIC_DEMO_ENCLAVE_PROJECT", "proveit-realist.testnet/enclave-demo"),
   outlayerApi: env("NEXT_PUBLIC_OUTLAYER_API", "https://testnet-api.outlayer.ai"),
   outlayerContract: env("NEXT_PUBLIC_OUTLAYER_CONTRACT", "outlayer.testnet"),
   /** Comma-separated; on a rate limit the next endpoint is tried. */

@@ -7,7 +7,8 @@
 //   3 code         the enclave build that made it is approved and not retired
 //   4 attestation  OutLayer's TEE attestation for the run names that build, the registry's
 //                  project and the issuer, and its output hash equals this card + signature
-//   5 freshness    issued recently enough; demo ("fixture") and 1-day cards are flagged
+//   5 freshness    issued recently enough; demo ("fixture") and 1-day cards are flagged;
+//                  privacy: the published return is shared by ≥ k_min leaderboard accounts
 
 import { canonical } from "./canonical.ts";
 import { cardHash, enclaveOutput, sha256Hex, verifyCardSignature } from "./card.ts";
@@ -57,7 +58,7 @@ const LABELS: Record<CheckId, string> = {
   record: "On-chain record",
   code: "Enclave code",
   attestation: "TEE attestation",
-  freshness: "Freshness",
+  freshness: "Freshness and privacy",
 };
 
 function b64(s: string): string {
@@ -222,6 +223,16 @@ export async function verifyCard(
   if (card.window?.days === 1) {
     fresh = "warn";
     notes.push("a 1-day card, meant for testing");
+  }
+  const k = card.stats?.k_anon, kMin = card.stats?.k_min;
+  if (typeof k === "number" && typeof kMin === "number") {
+    if (k < kMin) {
+      fresh = "fail";
+      notes.push(`only ${k} leaderboard accounts share this return (minimum ${kMin}): it could point at the wallet`);
+    } else notes.push(`return shared by ≥ ${k} leaderboard accounts (1 of ≥ ${k})`);
+  } else if (card.mode === "live") {
+    if (fresh === "pass") fresh = "warn";
+    notes.push("issued before the privacy guard: the exact return could be matched on the leaderboard");
   }
   add("freshness", fresh, notes.join("; "));
 

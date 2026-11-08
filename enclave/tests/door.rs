@@ -27,3 +27,29 @@ fn another_contract_or_a_direct_call_is_refused() {
 fn a_missing_execution_type_is_refused() {
     assert!(check_registry_door(None, Some(REGISTRY), REGISTRY).is_err());
 }
+
+// ---- P8: the HTTPS door (T7.9's HTTPS half, T8.8's first gate) --------------------------
+
+use proveit_enclave::door::{allowed, classify, Door};
+
+#[test]
+fn https_lets_in_only_reveal_and_feed() {
+    assert_eq!(classify(Some("HTTPS"), None, REGISTRY).unwrap(), Door::Https);
+    for op in ["issue", "pubkey"] {
+        assert!(allowed(op, Door::Https).is_err(), "{op} over HTTPS");
+    }
+    for op in ["reveal", "feed"] {
+        allowed(op, Door::Https).unwrap();
+    }
+}
+
+#[test]
+fn on_chain_only_the_registry_and_never_the_feed() {
+    assert_eq!(classify(Some("NEAR"), Some(REGISTRY), REGISTRY).unwrap(), Door::Registry);
+    assert!(classify(Some("NEAR"), Some("attacker.testnet"), REGISTRY).is_err());
+    assert!(classify(None, Some(REGISTRY), REGISTRY).is_err());
+    for op in ["pubkey", "issue", "reveal"] {
+        allowed(op, Door::Registry).unwrap();
+    }
+    assert!(allowed("feed", Door::Registry).is_err());
+}

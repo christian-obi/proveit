@@ -1,0 +1,40 @@
+# agent-guard demo, 2026-11-08T10:28Z, card https://proveit-production-d47c.up.railway.app/demo/3
+
+## 1. A verified card, policy: demo cards allowed (it's testnet), max drawdown 70%
+agent-guard: card #3 on proveit-demo-registry.testnet
+policy: ≥ 20 trades, max drawdown ≤ 70%, window ≥ 7 days, demo cards allowed
+  ✔ Enclave signature
+  ✔ On-chain record
+  ✔ Enclave code
+  ✔ TEE attestation
+  ! Freshness and privacy
+FOLLOW: every check passed and the card meets the policy
+exit 0
+
+## 2. The same card, handed to the agent with the return edited to +90%
+agent-guard: card #3 on proveit-demo-registry.testnet (handed over with edits: return_bps=9000)
+policy: ≥ 20 trades, max drawdown ≤ 70%, window ≥ 7 days, demo cards allowed
+  ✘ Enclave signature
+  ✘ On-chain record
+  ✔ Enclave code
+  ✘ TEE attestation
+  ! Freshness and privacy
+REFUSE:
+  - Enclave signature failed: signature mismatch: these numbers are not what the enclave signed
+  - On-chain record failed: the registry holds a different card under #3: this one was edited
+  - TEE attestation failed: the TEE run produced different output than this card
+exit 1
+
+## 3. The real card against the default policy (max drawdown 30%, live cards only)
+agent-guard: card #3 on proveit-demo-registry.testnet
+policy: ≥ 20 trades, max drawdown ≤ 30%, window ≥ 7 days
+  ✔ Enclave signature
+  ✔ On-chain record
+  ✔ Enclave code
+  ✔ TEE attestation
+  ! Freshness and privacy
+REFUSE:
+  - a demo card, not the trader's own account
+  - Freshness and privacy: issued today; a demo card from a recorded public account, not the issuer's own; return shared by ≥ 98 leaderboard accounts (1 of ≥ 98)
+  - max drawdown 62.83%, policy allows ≤ 30.00%
+exit 1

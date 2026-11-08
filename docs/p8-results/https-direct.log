@@ -1,0 +1,8 @@
+== reveal
+OutLayer: HTTP 200, status completed, cost 1023 µUSD, 2755 ms
+answered in 8182 ms; attestation https://testnet-api.outlayer.ai/attestations/by-call/ea1849f1-a328-4e7d-8791-4d924cb13bc6
+PASS: 91/91 Merkle-verified over HTTPS · all 91 committed orders, Merkle-verified
+== feed
+OutLayer: HTTP 200, status completed, cost 1079 µUSD, 2576 ms
+answered in 4760 ms; attestation https://testnet-api.outlayer.ai/attestations/by-call/65aef07e-74c9-4204-989e-d898a4e500b4
+PASS: feed from #0: 0 entries, 0 held back, head 859184d6f2a4…, next 0 · chain intact

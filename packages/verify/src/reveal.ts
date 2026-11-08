@@ -48,6 +48,11 @@ function fromBase64(s: string): Uint8Array {
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 }
 
+/** Decrypt anything the enclave sealed to the follower (a reveal or a feed page). */
+export function openSealed<T>(secret: Uint8Array, ciphertextBase64: string): T {
+  return openReveal(secret, ciphertextBase64) as unknown as T;
+}
+
 /** Decrypt the enclave's reveal with the follower's secret. Throws if it isn't for this key. */
 export function openReveal(secret: Uint8Array, ciphertextBase64: string): Revealed {
   const blob = fromBase64(ciphertextBase64);
@@ -90,4 +95,16 @@ export function checkReveal(r: Revealed, card: { orders: { root: string; count: 
     total: r.total,
     detail: shown === r.total ? `all ${shown} committed orders, Merkle-verified` : `the first ${shown} of ${r.total} committed orders, Merkle-verified; the rest are newer than the key's delay`,
   };
+}
+
+/** The enclave's sealing, for tests that stand in for the enclave (never used to protect data). */
+export function sealTo(recipientPubHex: string, plaintext: string): string {
+  const eph = x25519.utils.randomPrivateKey();
+  const key = hkdf(sha256, x25519.getSharedSecret(eph, unhex(recipientPubHex)), undefined, INFO, 32);
+  const nonce = crypto.getRandomValues(new Uint8Array(12));
+  const sealed = chacha20poly1305(key, nonce).encrypt(utf8(plaintext));
+  const blob = concat(new Uint8Array([0x01]), x25519.getPublicKey(eph), nonce, sealed);
+  let s = "";
+  for (const b of blob) s += String.fromCharCode(b);
+  return btoa(s);
 }

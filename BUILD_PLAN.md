@@ -319,19 +319,21 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 
 | Phase | Name | Target date | Depends on | Status |
 |---|---|---|---|---|
-| P0 | Setup and risk spikes | Tue 3 Nov | — | ☐ |
-| P1 | Enclave core: ownership, data, stats | Wed 4 Nov | P0 | ☐ |
-| P2 | Enclave card: commit, Merkle, signing, OutLayer testnet | Thu 5 Nov (AM) | P1 | ☐ |
-| P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ☐ |
-| P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ☐ |
-| P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ☐ |
-| P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/6 (T6.5, T6.6 yours) |
-| P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 (T7.6 on mainnet) |
-| P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ☐ |
-| P9 | Explore, Intents venue, privacy depth, agent guard | Wed 11 Nov | P6 (Intents venue: S7) | ☐ |
+| P0 | Setup and risk spikes | Tue 3 Nov | — | ◐ 7/9 built (T0.8, T0.9 wait on outside access) |
+| P1 | Enclave core: ownership, data, stats | Wed 4 Nov | P0 | ✔ 10/10 |
+| P2 | Enclave card: commit, Merkle, signing, OutLayer testnet | Thu 5 Nov (AM) | P1 | ✔ 8/8 |
+| P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ◐ 6/7 built (T3.6: Hyperliquid account) |
+| P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ◐ built, 0/6 (mainnet account + Hyperliquid account) |
+| P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ◐ 4/6 built (T5.5, T5.6: your wallets) |
+| P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/6 built (T6.5, T6.6: social previews, hallway test) |
+| P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 built (T7.6: mainnet) |
+| P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 6/10 built (T8.4–T8.6, T8.9: mainnet, 1Click key, Hyperliquid account) |
+| P9 | Explore, Intents venue, privacy depth, agent guard | Wed 11 Nov | P6 (Intents venue: S7) | ✔ 6/6 required (T9.7–T9.8 need Intents access, T0.9) |
 | P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ☐ |
 | P11 | Demo, launch, submit | Fri 13 – Sat 14 Nov | P10 | ☐ |
 | PS | Stretch goals (optional) | only after P10 | P10 | ☐ |
+
+**Key:** ✔ every exit test passed · ◐ built, with the remaining tests waiting on something only you can provide (they're listed in `docs/PHASES.md`) · ☐ not started.
 
 **Parallel lanes for a team:** after P2, one person takes P3→P4 (contract), another starts P5 against the testnet contract, and a third prepares P8's 1Click client against recorded responses. Solo: go in order.
 
@@ -562,11 +564,12 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** a follower pays from another chain in any supported token, then follows and copies the trader's new trades.
 
 **Tasks**
-- [ ] Enclave `feed` op + per-card hash chain (§4.1); `/api/reveal` on Railway; `/c/[id]/feed` polls every 60 s, decrypts in the browser, shows new trades with a toast.
-- [ ] **Copy** button on Intents swaps: a 1Click quote for the same asset pair, sized as the same % of the follower's balance, sent from the follower's own wallet. Perps trades show as signals with a link to trade on near.com.
-- [ ] `web/lib/oneclick.ts` + `/api/oneclick/*` routes on Railway (JWT server-side); quote with `appFees` and `customRecipientMsg`; deposit address + QR; status polling.
-- [ ] Recorded 1Click responses in `web/test/fixtures/oneclick/`.
-- [ ] If `customRecipientMsg` fails: fallback B (`worker` service on Railway + `grant`).
+- [x] Enclave `feed` op + per-card hash chain (`enclave/src/feed.rs`, kept in the relay's storage cell with compare-and-swap; orders join once settled for 2 min); HTTPS door for `reveal`/`feed` with NEP-413 (`nep413.rs`) and on-chain key + grant checks (`auth.rs`, `near.rs`); `/api/reveal` on Railway (pins the registry's approved version); `/c/[id]/feed` polls every 60 s, decrypts and chain-checks in the browser, toast on new trades.
+- [ ] **Copy** button on Intents swaps: waits for the Intents venue (P9). Perps trades show as signals with a link to trade on Hyperliquid, sized as the same % of equity.
+- [x] `web/lib/oneclick.ts` + `/api/oneclick/{quote,status,tokens}` (API key server-side, `X-API-Key`; price read from the registry, never from the browser); `customRecipientMsg`; deposit address with copy (no QR yet); status polling; "Pay from another chain" on the unlock page (mainnet cards). `appFees` left empty: the registry's on-chain fee is the only fee.
+- [x] Recorded 1Click responses in `web/test/fixtures/oneclick/` (status enum from the spec, a real dry quote, the token list).
+- [ ] If `customRecipientMsg` fails at T8.4: fallback B (`worker` service on Railway + `grant`).
+- [x] Railway builds from a Dockerfile (Railpack fetched its tools from GitHub releases, and a release outage failed every deploy).
 
 **Exit tests**
 
@@ -591,11 +594,11 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 **Goal:** discovery, the NEAR Intents venue, and the features that answer the hard judge questions.
 
 **Tasks**
-- [ ] `/explore`: verified cards ranked by return, drawdown, trade count and age; key price, delay and seats left.
-- [ ] **NEAR Intents venue** (only if T0.9 got access): 1Click sign-in in `/create`, refresh token encrypted to the enclave, `hl.rs` sibling `intents.rs`, stats per §4.1, golden tests on the S7 fixtures.
-- [ ] `kanon.rs` (or the S4 snapshot fallback); the card shows "1 of ≥ K".
-- [ ] `/p/[account]` profile; refresh + supersede; stale badge; inception-to-date window.
-- [ ] `kind: "agent"` cards; `bin/agent-guard.ts`; `/api/verify` route on Railway.
+- [x] `/explore`: verified cards ranked by return, drawdown, trade count and age (live before demo; revoked, replaced and retired-build cards hidden; stale badged); key price, delay and seats left from `get_offer`.
+- [ ] **NEAR Intents venue**: not built. It needs 1Click `/v0/account/history` access (T0.9), which hasn't been granted.
+- [x] `kanon.rs` with the **live** leaderboard (no snapshot needed: both builds fetch it inside the TEE): buckets 0.1% → 1% → 5% → 25% → 100% until ≥ 25 accounts share it, else `PRIVACY_RISK`; the card publishes `return_bps` (bucket edge), `return_precision_bps`, `k_anon`, `k_min` inside `stats` (no contract change); the card shows the range and "1 of ≥ K"; check 5 becomes "Freshness and privacy" and fails on `k_anon < k_min`. Recorded fixture `enclave/fixtures/leaderboard.json` (ROI only, no addresses).
+- [x] `/p/[account]` profile (cards grouped by commitment, so hidden extra accounts show); refresh + supersede and the stale badge already existed. Inception-to-date window: not built (the 180-day window covers the demo).
+- [x] `kind: "agent"` cards (issuer's label, signed in; `request_card(…, kind)`, create-flow checkbox, "AI agent" badge); `bin/agent-guard.ts` (`pnpm agent-guard`, policy: trades, drawdown, window, demo/warnings); `/api/verify?card=…[&guard=1]` on Railway (CORS open).
 
 **Exit tests**
 
