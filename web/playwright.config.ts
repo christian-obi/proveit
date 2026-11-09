@@ -9,7 +9,7 @@ export default defineConfig({
   webServer: {
     command: "pnpm exec next dev -p 3000",
     url: "http://localhost:3000/healthz",
-    env: { NEXT_PUBLIC_E2E: "1" },
+    env: { NEXT_PUBLIC_E2E: "1", REACTIONS_PATH: "test-results/reactions.json" },
     reuseExistingServer: false,
     timeout: 120_000,
   },

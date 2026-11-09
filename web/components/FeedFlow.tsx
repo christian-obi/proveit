@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { checkPage, followerMessage, RECIPIENT, type FeedEntry, type FeedPage } from "@proveit/verify/feed";
 import { followerKey, openSealed } from "@proveit/verify/reveal";
 import { unhex } from "@proveit/verify/bytes";
-import { config } from "@/lib/config";
+import { config, networkFor } from "@/lib/config";
 import { explain } from "@/lib/errors";
 import { connectNear, type NearSession, type SignedMessage } from "@/lib/wallets";
 
@@ -40,7 +40,7 @@ export default function FeedFlow({ registry, cardId, cardHash }: { registry: str
     try {
       setError(null);
       setStatus("Connecting…");
-      const near = await connectNear();
+      const near = await connectNear(networkFor(registry).network);
       const key =
         config.e2e && window.__proveitFollowerSecret
           ? { secret: unhex(window.__proveitFollowerSecret), pub: "" }

@@ -38,4 +38,24 @@ export function isKnownRegistry(r: string): boolean {
   return r === config.registry || r === config.demoRegistry;
 }
 
-export const endpoints = { rpc: config.nearRpc, outlayerApi: config.outlayerApi };
+const TESTNET = {
+  network: "testnet" as Network,
+  rpc: ["https://rpc.testnet.fastnear.com", "https://rpc.testnet.near.org", "https://test.rpc.fastnear.com"],
+  outlayerApi: "https://testnet-api.outlayer.ai",
+};
+
+/**
+ * Where an account lives. The demo registry stays on testnet after the site moves to mainnet,
+ * so everything that touches a registry or token asks here instead of using config directly.
+ */
+export function networkFor(account: string) {
+  if (config.network === "mainnet" && account.endsWith(".testnet")) return TESTNET;
+  return { network: config.network, rpc: config.nearRpc, outlayerApi: config.outlayerApi };
+}
+
+export const endpointsFor = (registry: string) => {
+  const { rpc, outlayerApi } = networkFor(registry);
+  return { rpc, outlayerApi };
+};
+
+export const endpoints = endpointsFor(config.registry);

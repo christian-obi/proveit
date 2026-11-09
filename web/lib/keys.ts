@@ -3,7 +3,7 @@
 // trades to it, so neither this app's server nor the chain ever sees them in the clear.
 
 import { rpc } from "@proveit/verify/checks";
-import { config, MAX_GAS } from "./config";
+import { config, MAX_GAS, networkFor } from "./config";
 import { view, type RequestOutcome, type Tx } from "./near";
 
 export type Offer = {
@@ -78,11 +78,11 @@ type TxResult = { status?: { SuccessValue?: string; Failure?: unknown }; final_e
  * The reveal arrives as the final return value of the follower's own transaction
  * (request_reveal → OutLayer → on_result), never in contract state. Poll until it's there.
  */
-export async function waitForReveal(hash: string, sender: string, onTick?: (s: number) => void): Promise<RequestOutcome> {
+export async function waitForReveal(registry: string, hash: string, sender: string, onTick?: (s: number) => void): Promise<RequestOutcome> {
   const started = Date.now();
   for (;;) {
     try {
-      const r = await rpc<TxResult>(config.nearRpc, "tx", { tx_hash: hash, sender_account_id: sender, wait_until: "FINAL" });
+      const r = await rpc<TxResult>(networkFor(registry).rpc, "tx", { tx_hash: hash, sender_account_id: sender, wait_until: "FINAL" });
       if (r.status?.Failure) throw new Error(`the transaction failed: ${JSON.stringify(r.status.Failure)}`);
       if (r.status?.SuccessValue) return JSON.parse(atob(r.status.SuccessValue));
     } catch (e) {

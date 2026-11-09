@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { docsHtml } from "@/lib/docs";
+import DocsPage from "@/components/DocsPage";
 
 export const dynamic = "force-static";
 
@@ -9,13 +9,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/docs", types: { "text/markdown": "/docs.md" } },
 };
 
-export default function DocsPage() {
-  return (
-    <>
-      <p className="mb-6 text-sm text-muted">
-        For AI agents: <a className="underline" href="/docs.md">this page as Markdown</a> · <a className="underline" href="/llms.txt">llms.txt</a>
-      </p>
-      <article className="docs" dangerouslySetInnerHTML={{ __html: docsHtml() }} />
-    </>
-  );
+export default function Page() {
+  return <DocsPage slug="" />;
 }

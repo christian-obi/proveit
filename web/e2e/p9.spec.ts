@@ -39,3 +39,21 @@ test("T9.5: /api/verify returns the five checks, matching what the CLI shows", a
   expect((await request.get("/api/verify?card=999999&registry=proveit-demo-registry.testnet")).status()).toBe(404);
   expect((await request.get("/api/verify?card=1&registry=evil.testnet")).status()).toBe(400);
 });
+
+test("reactions: a click shows at once, is saved, and doesn't change the order", async ({ page, request }) => {
+  await page.goto("/explore");
+  const row = page.locator('[data-card-row="proveit-demo-registry.testnet:2"]');
+  await expect(row).toBeVisible({ timeout: 60_000 });
+  const count = row.locator('[data-kind="fire"] [data-count]');
+  const before = Number(await count.textContent());
+  await row.locator('[data-kind="near"]').waitFor();
+  const order = await page.locator("[data-card-row]").evaluateAll((els) => els.map((e) => e.getAttribute("data-card-row")));
+  await row.locator('[data-kind="fire"]').click();
+  await expect(count).toHaveText(String(before + 1));
+  await expect
+    .poll(async () => (await (await request.get("/api/reactions?card=proveit-demo-registry.testnet:2")).json()).counts.fire)
+    .toBe(before + 1);
+  expect(await page.locator("[data-card-row]").evaluateAll((els) => els.map((e) => e.getAttribute("data-card-row")))).toEqual(order);
+  expect((await request.post("/api/reactions", { data: { card: "proveit-demo-registry.testnet:999999", kind: "fire", n: 1 } })).status()).toBe(404);
+  expect((await request.post("/api/reactions", { data: { card: "proveit-demo-registry.testnet:2", kind: "rocket", n: 1 } })).status()).toBe(400);
+});

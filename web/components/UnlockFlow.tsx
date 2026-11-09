@@ -11,7 +11,7 @@
 import { useEffect, useState } from "react";
 import { checkReveal, followerKey, openReveal, type Revealed, type RevealCheck } from "@proveit/verify/reveal";
 import { unhex } from "@proveit/verify/bytes";
-import { config } from "@/lib/config";
+import { config, networkFor } from "@/lib/config";
 import { explain } from "@/lib/errors";
 import {
   buyTx,
@@ -88,7 +88,7 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
   async function onConnect() {
     try {
       setPhase({ step: "working", label: "Connecting…" });
-      const s = await connectNear();
+      const s = await connectNear(networkFor(registry).network);
       setNear(s);
       await refresh(s.accountId);
       setPhase({ step: "idle" });
@@ -135,7 +135,7 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
       const [outcome] = await near.signAndSendTransactions([revealTx(registry, cardId, key.pub)]);
       const hash = txHash(outcome);
       if (!hash) throw new Error("the wallet didn't return the transaction hash");
-      const result = await waitForReveal(hash, near.accountId, (s) => setPhase({ step: "waiting", label: "The enclave is encrypting the trades to this browser", seconds: s }));
+      const result = await waitForReveal(registry, hash, near.accountId, (s) => setPhase({ step: "waiting", label: "The enclave is encrypting the trades to this browser", seconds: s }));
       if ("Refused" in (result as object)) {
         const r = (result as { Refused: { code: string; message: string } }).Refused;
         throw new Error(explain(r.code, r.message));

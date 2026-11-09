@@ -1,11 +1,11 @@
 // NEAR reads over RPC, and the transactions the create flow sends.
 
 import { view as rpcView } from "@proveit/verify/checks";
-import { config, MAX_GAS, REQUEST_DEPOSIT_YOCTO } from "./config";
+import { config, networkFor, MAX_GAS, REQUEST_DEPOSIT_YOCTO } from "./config";
 
 /** A view call over the configured RPC endpoints, falling through on rate limits. */
 export function view<T>(contract: string, method: string, args: object = {}): Promise<T> {
-  return rpcView<T>(config.nearRpc, contract, method, args);
+  return rpcView<T>(networkFor(contract).rpc, contract, method, args);
 }
 
 export type RequestOutcome =

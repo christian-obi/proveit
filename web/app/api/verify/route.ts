@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import { verifyCard } from "@proveit/verify/checks";
 import { DEFAULT_POLICY, judge } from "@proveit/verify/guard";
-import { config, endpoints, isKnownRegistry } from "@/lib/config";
+import { config, endpointsFor, isKnownRegistry } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   else return NextResponse.json({ error: "card must be a card id or a card URL" }, { status: 400 });
   if (!isKnownRegistry(registry)) return NextResponse.json({ error: `unknown registry ${registry}` }, { status: 400 });
 
-  const report = await verifyCard({ registry, cardId: id }, endpoints);
+  const report = await verifyCard({ registry, cardId: id }, endpointsFor(registry));
   const body: Record<string, unknown> = {
     registry,
     card_id: id,

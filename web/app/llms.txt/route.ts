@@ -1,5 +1,5 @@
 import { config } from "@/lib/config";
-import { markdownResponse } from "@/lib/docs";
+import { docsIndex, markdownResponse } from "@/lib/docs";
 
 export const dynamic = "force-static";
 
@@ -13,11 +13,15 @@ export const GET = () =>
 
 ## Docs
 
-- [Full documentation](${site}/docs.md): how cards are made, card fields, the five checks, API, CLI, viewing keys, limits and deployments
+- [Full documentation](${site}/docs.md): every page below joined into one Markdown file
+${docsIndex()
+  .map((p) => `- [${p.title}](${site}${p.markdownHref}): ${p.description}`)
+  .join("\n")}
 
 ## API
 
 - [Verify a card](${site}/api/verify?card=3&registry=proveit-demo-registry.testnet&guard=1): JSON result of the five checks with an agent-guard verdict. Read guard.follow, and treat false as a refusal
+- [Live board](${site}/api/board): JSON of every verified card, its key offer and the latest NEAR block
 
 ## Optional
 

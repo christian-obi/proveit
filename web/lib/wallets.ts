@@ -5,7 +5,7 @@
 // transactions on window.__proveitSent instead of sending them.
 
 import { createWalletClient, custom, type EIP1193Provider } from "viem";
-import { config } from "./config";
+import { config, type Network } from "./config";
 import type { Tx } from "./near";
 import { typedData } from "./ownership";
 
@@ -29,7 +29,7 @@ declare global {
   }
 }
 
-export async function connectNear(): Promise<NearSession> {
+export async function connectNear(network: Network = config.network): Promise<NearSession> {
   if (config.e2e) {
     return {
       accountId: window.__proveitE2eAccount ?? "e2e-trader.testnet",
@@ -57,14 +57,14 @@ export async function connectNear(): Promise<NearSession> {
     };
   }
   const { NearConnector } = await import("@hot-labs/near-connect");
-  const connector = new NearConnector({ network: config.network, footerBranding: null });
+  const connector = new NearConnector({ network, footerBranding: null });
   const wallet = await connector.connect();
   const accounts = await wallet.getAccounts();
   if (!accounts.length) throw new Error("the wallet returned no account");
   return {
     accountId: accounts[0].accountId,
     signAndSendTransactions: (txs) =>
-      wallet.signAndSendTransactions({ network: config.network, signerId: accounts[0].accountId, transactions: txs }),
+      wallet.signAndSendTransactions({ network, signerId: accounts[0].accountId, transactions: txs }),
     async signMessage(message, recipient) {
       const nonce = crypto.getRandomValues(new Uint8Array(32));
       const signed = await wallet.signMessage({ message, recipient, nonce } as never);

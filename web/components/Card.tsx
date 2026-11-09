@@ -1,6 +1,8 @@
 // The card: the shareable picture of a trader's verified numbers. Pure render, so the card
 // page, the landing page and tamper mode all show the same thing.
 
+import CardPicture from "@/components/CardPicture";
+import Reactions from "@/components/Reactions";
 import { date, pct, returnLabel, volume, windowLabel } from "@/lib/format";
 
 export type CardData = {
@@ -24,7 +26,7 @@ export type CardData = {
   venue: string;
 };
 
-export default function Card({ card, id, edited }: { card: CardData; id?: number; edited?: boolean }) {
+export default function Card({ card, id, edited, seed, reactionKey }: { card: CardData; id?: number; edited?: boolean; seed?: string; reactionKey?: string }) {
   const s = card.stats;
   const up = s.return_bps >= 0;
   const rows: [string, string][] = [
@@ -36,7 +38,7 @@ export default function Card({ card, id, edited }: { card: CardData; id?: number
     ["Volume", volume(s.volume_band)],
   ];
   return (
-    <article className={`overflow-hidden rounded-xl border bg-panel ${edited ? "border-bad" : "border-line"}`}>
+    <article className={`reactive overflow-hidden rounded-xl border bg-panel ${edited ? "border-bad" : "border-line"}`}>
       <div className="flex items-center justify-between border-b border-line px-5 py-3 text-xs text-muted">
         <span>
           Prove-It · Hyperliquid · {windowLabel(card.window.days)}
@@ -50,8 +52,13 @@ export default function Card({ card, id, edited }: { card: CardData; id?: number
         </span>
       </div>
       <div className="px-5 py-5">
+        {seed && (
+          <div className="float-right ml-4">
+            <CardPicture seed={seed} returnBps={s.return_bps} label={`${card.window.days}d`} size={96} />
+          </div>
+        )}
         <p className="text-xs uppercase tracking-wide text-muted">Return, time-weighted</p>
-        <p className={`text-5xl font-semibold tabular-nums tracking-tight ${up ? "text-accent" : "text-bad"}`}>{returnLabel(s)}</p>
+        <p className={`font-mono text-5xl font-semibold tabular-nums tracking-tight ${up ? "glow-up text-accent" : "glow-down text-bad"}`}>{returnLabel(s)}</p>
         {s.k_anon !== undefined && (
           <p className="mt-1 text-xs text-muted" data-kanon>
             Rounded so the wallet can&apos;t be found: 1 of ≥ {s.k_anon} accounts on Hyperliquid&apos;s public leaderboard with this return
@@ -72,6 +79,11 @@ export default function Card({ card, id, edited }: { card: CardData; id?: number
           </p>
         )}
       </div>
+      {reactionKey && (
+        <div className="px-5 pb-12">
+          <Reactions cardKey={reactionKey} />
+        </div>
+      )}
       <div className="flex flex-wrap justify-between gap-2 border-t border-line px-5 py-3 text-xs text-muted">
         <span>
           Issued by <span className="font-mono">{card.issuer}</span>

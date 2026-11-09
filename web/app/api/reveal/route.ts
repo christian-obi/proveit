@@ -8,7 +8,7 @@
 // and each answer has a TEE attestation).
 
 import { NextResponse } from "next/server";
-import { config, isKnownRegistry } from "@/lib/config";
+import { config, isKnownRegistry, networkFor } from "@/lib/config";
 import { view } from "@/lib/near";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +32,9 @@ export async function POST(req: Request) {
   if (!auth || typeof auth !== "object" || !AUTH_FIELDS.every((k) => typeof auth[k] === "string")) {
     return NextResponse.json({ error: "auth must be a NEP-413 signed message" }, { status: 400 });
   }
-  const key = process.env.OUTLAYER_PAYMENT_KEY;
+  // After the move to mainnet the demo registry still runs on testnet OutLayer, with its own key.
+  const { network, outlayerApi } = networkFor(registry);
+  const key = network !== config.network ? process.env.OUTLAYER_TESTNET_PAYMENT_KEY : process.env.OUTLAYER_PAYMENT_KEY;
   if (!key) return NextResponse.json({ error: "the relay has no OutLayer payment key configured" }, { status: 503 });
 
   // Rebuild the input from the checked fields only, so nothing else can be smuggled in.
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
   // Run exactly the build the registry approved, so the attestation names it.
   const { active_version } = await view<{ active_version: string | null }>(registry, "get_config");
   if (!active_version) return NextResponse.json({ error: "the registry has no active enclave version" }, { status: 503 });
-  const res = await fetch(`${config.outlayerApi}/call/${project}`, {
+  const res = await fetch(`${outlayerApi}/call/${project}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Payment-Key": key, "X-Compute-Limit": "100000" },
     body: JSON.stringify({ input, version_key: active_version, resource_limits: { max_instructions: 30_000_000_000, max_memory_mb: 256, max_execution_seconds: 60 } }),
@@ -53,6 +55,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: data.error ?? data.message ?? `OutLayer answered HTTP ${res.status}` }, { status: 502 });
   }
   const output = typeof data.output === "string" ? JSON.parse(data.output) : data.output;
-  const attestation = data.attestation_url ? new URL(data.attestation_url, config.outlayerApi).toString() : null;
+  const attestation = data.attestation_url ? new URL(data.attestation_url, outlayerApi).toString() : null;
   return NextResponse.json({ output, attestation, call_id: data.call_id });
 }

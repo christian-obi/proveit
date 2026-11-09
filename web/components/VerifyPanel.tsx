@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { verifyCard, type Cache, type Check, type Report } from "@proveit/verify/checks";
 import Card, { type CardData } from "@/components/Card";
-import { endpoints } from "@/lib/config";
+import { endpointsFor } from "@/lib/config";
 
 const ICON: Record<Check["status"], string> = { pass: "✓", fail: "✕", warn: "!" };
 const TONE: Record<Check["status"], string> = { pass: "text-accent", fail: "text-bad", warn: "text-warn" };
@@ -48,7 +48,7 @@ export default function VerifyPanel({ registry, cardId, cardJson, autoRun = fals
     setRunning(true);
     setError(null);
     try {
-      const r = await verifyCard({ registry, cardId, cardJson: edited ? JSON.stringify(edited) : undefined }, endpoints, fetch, cache.current);
+      const r = await verifyCard({ registry, cardId, cardJson: edited ? JSON.stringify(edited) : undefined }, endpointsFor(registry), fetch, cache.current);
       if (id === latest.current) setReport(r);
     } catch (e) {
       if (id === latest.current) setError(e instanceof Error ? e.message : String(e));
@@ -111,8 +111,8 @@ export default function VerifyPanel({ registry, cardId, cardJson, autoRun = fals
         {report && (
           <>
             <ul className="mt-4 space-y-2">
-              {report.checks.map((c) => (
-                <li key={c.id} className="flex gap-3 text-sm" data-check={c.id} data-status={c.status}>
+              {report.checks.map((c, i) => (
+                <li key={`${c.id}:${c.status}`} className="check-in flex gap-3 text-sm" style={{ "--i": i } as React.CSSProperties} data-check={c.id} data-status={c.status}>
                   <span className={`w-4 shrink-0 font-bold ${TONE[c.status]}`}>{ICON[c.status]}</span>
                   <span>
                     <span className="font-medium">{c.label}</span>

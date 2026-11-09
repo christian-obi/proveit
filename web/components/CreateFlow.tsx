@@ -8,9 +8,9 @@
 //   5. wait for the enclave's answer through the registry
 // "Demo data" skips 2–3: the demo registry's enclave uses a recorded public account.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cardPath } from "@/lib/cards";
-import { config, WINDOWS } from "@/lib/config";
+import { config, WINDOWS, networkFor } from "@/lib/config";
 import { encryptForKeystore } from "@/lib/ecies";
 import { explain } from "@/lib/errors";
 import { demoCardTransactions, liveCardTransactions, profileFor } from "@/lib/flow";
@@ -57,9 +57,14 @@ export default function CreateFlow() {
   const busy = phase.step === "working" || phase.step === "waiting";
   const fail = (e: unknown) => setPhase({ step: "error", message: e instanceof Error ? e.message : String(e) });
 
+  // On a mainnet site, demo cards still go to testnet, so a change of mode needs the other wallet.
+  useEffect(() => {
+    if (config.network === "mainnet") setNear(null);
+  }, [mode]);
+
   async function onConnectNear() {
     try {
-      setNear(await connectNear());
+      setNear(await connectNear(mode === "demo" ? networkFor(config.demoRegistry).network : config.network));
     } catch (e) {
       fail(e);
     }
@@ -127,7 +132,7 @@ export default function CreateFlow() {
       </div>
       {mode === "demo" && (
         <p className="text-sm text-muted">
-          Demo cards come from a recorded public Hyperliquid account, are signed by the real enclave on {config.network}, and are marked
+          Demo cards come from a recorded public Hyperliquid account, are signed by the real enclave on {networkFor(config.demoRegistry).network}, and are marked
           &quot;fixture&quot; so they&apos;re never mistaken for a live card.
         </p>
       )}

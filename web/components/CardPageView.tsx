@@ -47,7 +47,7 @@ export async function CardPageView({ id, registry, autoRun }: { id: string; regi
   const { record, card } = loaded;
   return (
     <section className="space-y-6">
-      <Card card={card} id={record.id} />
+      <Card card={card} id={record.id} seed={record.card_hash} reactionKey={`${registry}:${record.id}`} />
       <VerifyPanel registry={registry} cardId={record.id} cardJson={record.card_json} autoRun={autoRun} />
       <UnlockLink id={record.id} registry={registry} />
       <p className="text-xs text-muted">
@@ -79,7 +79,7 @@ export async function UnlockPageView({ id, registry }: { id: string; registry: s
   const token = offer?.token ? await tokenMeta(offer.token).catch(() => null) : null;
   return (
     <section className="space-y-6">
-      <Card card={card} id={record.id} />
+      <Card card={card} id={record.id} seed={record.card_hash} reactionKey={`${registry}:${record.id}`} />
       <div>
         <h1 className="text-lg font-semibold">Viewing key</h1>
         <p className="text-sm text-muted">
@@ -109,7 +109,7 @@ export async function FeedPageView({ id, registry }: { id: string; registry: str
   const { record, card } = loaded;
   return (
     <section className="space-y-6">
-      <Card card={card} id={record.id} />
+      <Card card={card} id={record.id} seed={record.card_hash} reactionKey={`${registry}:${record.id}`} />
       <div>
         <h1 className="text-lg font-semibold">Live feed</h1>
         <p className="text-sm text-muted">
