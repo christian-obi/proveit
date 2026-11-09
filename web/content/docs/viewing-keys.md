@@ -13,3 +13,4 @@ A trader can sell followers access to their trades. The trader sets the price, d
 - **Encryption.** Answers are encrypted to the follower inside the enclave, so the relay can't read them.
 - **Live feed.** Each card has one hash chain. A follower keeps the latest head and checks that each page continues from it, which exposes dropped or rewritten trades. New orders join after a 2-minute settling period.
 - **Access.** Feed requests carry a NEP-413 signature. The enclave checks the signature, the full-access key and a live grant before reading any data.
+- **Copying.** A key holder can [copy new trades from a browser tab](copy-from-tab.md).

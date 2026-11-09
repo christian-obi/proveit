@@ -4,7 +4,7 @@
 
 Screenshots of PnL can be faked. Prove-It cards can't, and they don't give away the wallet.
 
-> Built at NEAR HACKATHON (Nov 2026). Everything below runs **live on NEAR testnet and OutLayer testnet** today; the mainnet deploy is scripted and pending (see [Status](#status)).
+> Built at NEAR HACKATHON (Nov 2026). The website runs on **NEAR testnet and OutLayer testnet** today. The registry and enclave are **deployed on NEAR mainnet**, and the first mainnet card is pending (see [Status](#status)).
 
 ## Try it in 60 seconds, no wallet
 
@@ -100,16 +100,16 @@ Each prints a sha256; compare it with [enclave/expected-hashes.txt](enclave/expe
 
 | Build | Registry | sha256 |
 |---|---|---|
-| live | `proveit-registry.testnet` | `c41621799f1ce39217fc0e6748c3545f26636ea9c8d13f3592a729b55080a49d` |
-| demo-fixture | `proveit-demo-registry.testnet` | `653e74f1177ecde9741463ed38d2d18b782fe34fa8f8886cf54f2383532e13e4` |
-| live (mainnet) | `proveit.near` | `27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a` |
+| live | `proveit-registry.testnet` | `8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375` |
+| demo-fixture | `proveit-demo-registry.testnet` | `d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef` |
+| live (mainnet) | `proveit.near` | `7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b` |
 
 ## Deployments
 
 | | Testnet (live now) | Mainnet |
 |---|---|---|
-| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (pending) |
-| OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | pending |
+| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (deployed; no cards yet) |
+| OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | `realist1036.near/enclave` |
 | Demo cards | [#3](https://proveit-production-d47c.up.railway.app/demo/3) (trader), [#4](https://proveit-production-d47c.up.railway.app/demo/4) (AI agent) | pending |
 | Attestation (card #3) | https://testnet-api.outlayer.ai/attestations/by-request/13345 | |
 | Web app | https://proveit-production-d47c.up.railway.app | |
@@ -138,7 +138,11 @@ Per-phase exit tests and live evidence: [docs/PHASES.md](docs/PHASES.md). The pl
 
 | Done (testnet, live) | Pending |
 |---|---|
-| issuance in the TEE, registry, verification + tamper mode, privacy guard, viewing keys with USDC, reveals, live feed over HTTPS, explore, profiles, agent guard, `/api/verify` | the mainnet deploy and first mainnet card (P4); a live 1Click payment from another chain (needs mainnet); a card from the team's own Hyperliquid account; the NEAR Intents venue (needs 1Click history access) |
+| issuance in the TEE, registry, verification + tamper mode, privacy guard, viewing keys with USDC, reveals, live feed over HTTPS, explore, profiles, agent guard, `/api/verify`, copy from a tab (simulated and signature-tested; no live order yet) | the first mainnet card (P4); a live 1Click payment from another chain (needs mainnet); a card from the team's own Hyperliquid account; the NEAR Intents venue (needs 1Click history access) |
+
+## Roadmap
+
+Confidential perps support is planned for after the hackathon. It isn't built. See [the roadmap](web/content/docs/roadmap.md).
 
 ## Repository
 

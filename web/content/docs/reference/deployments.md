@@ -6,9 +6,9 @@ description: "Contract accounts, enclave projects and networks in use."
 
 | Item | Testnet | Mainnet |
 |---|---|---|
-| Live registry | `proveit-registry.testnet` | `proveit.near` (pending) |
+| Live registry | `proveit-registry.testnet` | `proveit.near` (deployed; no cards yet) |
 | Demo registry | `proveit-demo-registry.testnet` | None |
-| OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | Pending |
+| OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | `realist1036.near/enclave` |
 
 Enclave build hashes, which anyone can reproduce with `enclave/build.sh`:
 

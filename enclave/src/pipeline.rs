@@ -44,7 +44,7 @@ pub fn first_funded_ms(portfolio: &Portfolio) -> Result<u64> {
         .iter()
         .find(|p| p.v >= MIN_CAPITAL)
         .map(|p| p.t)
-        .ok_or_else(|| Error::new(Code::NoData, "the account has never held at least $100"))
+        .ok_or_else(|| Error::new(Code::NoData, "the account has never held at least $10"))
 }
 
 /// Statistics for one account and window, with everything a card is built from.

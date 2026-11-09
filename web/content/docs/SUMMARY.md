@@ -14,6 +14,7 @@
 * [Reading a card](reading-a-card.md)
 * [The five checks](the-five-checks.md)
 * [Viewing keys and the live feed](viewing-keys.md)
+* [Copy from a tab](copy-from-tab.md)
 * [What is proven and what isn't](proven-and-not.md)
 
 ## Reference
@@ -23,3 +24,7 @@
 * [On-chain views](reference/on-chain-views.md)
 * [Errors](reference/errors.md)
 * [Deployments](reference/deployments.md)
+
+## Project
+
+* [Roadmap](roadmap.md)

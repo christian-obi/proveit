@@ -18,7 +18,7 @@ use rust_decimal::{Decimal, RoundingStrategy};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Below this many dollars of capital a period's return is not computed.
-pub const MIN_CAPITAL: Decimal = Decimal::from_parts(100, 0, 0, false, 0);
+pub const MIN_CAPITAL: Decimal = Decimal::from_parts(10, 0, 0, false, 0);
 pub const MS_PER_DAY: u64 = 86_400_000;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -47,7 +47,7 @@ pub fn returns(series: &Series) -> Result<ReturnStats> {
     let first = av
         .iter()
         .position(|p| p.v >= MIN_CAPITAL)
-        .ok_or_else(|| Error::new(Code::WindowTooShort, "the account never held at least $100 in this window"))?;
+        .ok_or_else(|| Error::new(Code::WindowTooShort, "the account never held at least $10 in this window"))?;
 
     let one = Decimal::ONE;
     let mut index = one;

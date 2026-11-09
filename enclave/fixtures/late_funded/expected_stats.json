@@ -1,4 +1,4 @@
 {
   "status": "err",
-  "code": "WINDOW_TOO_SHORT"
+  "code": "TOO_FEW_TRADES"
 }

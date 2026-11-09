@@ -7,10 +7,11 @@ export default defineConfig({
   timeout: 120_000,
   use: { baseURL: "http://localhost:3000" },
   webServer: {
-    command: "pnpm exec next dev -p 3000",
+    // A production build: the dev server reloads pages mid-test, and this is what ships.
+    command: "pnpm exec next build && pnpm exec next start -p 3000",
     url: "http://localhost:3000/healthz",
     env: { NEXT_PUBLIC_E2E: "1", REACTIONS_PATH: "test-results/reactions.json" },
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: 300_000,
   },
 });

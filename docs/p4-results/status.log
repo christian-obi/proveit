@@ -15,3 +15,20 @@
 ✔ enclave key set
 ✔ fixture cards refused
 ✔ viewing keys paid in native USDC, 1% fee
+{
+    "owner": "realist1036.near",
+    "outlayer": "outlayer.near",
+    "project_id": "realist1036.near/enclave",
+    "active_version": "7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b",
+    "card_pubkey": "629a88f497600363bcc2755c42140bcedd7cb3052954ba6d7e069075afea3a4e",
+    "accept_fixture_cards": false,
+    "stale_after_secs": 1209600,
+    "cards": 0,
+    "requests": 1,
+    "usdc": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "fee_bps": 100
+}
+✔ active version = reproducible build hash
+✔ enclave key set
+✔ fixture cards refused
+✔ viewing keys paid in native USDC, 1% fee

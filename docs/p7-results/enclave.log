@@ -169,3 +169,60 @@ proveit-realist.testnet/s1-hello-hl 0ac564c377   wasm:https://test.fastfs.io/pr.
 proveit-realist.testnet/s2-enclave  9b3a2bf781   wasm:https://test.fastfs.io/pr... p00000000000000fc
 proveit-realist.testnet/enclave     c41621799f   wasm:https://test.fastfs.io/pr... p00000000000000ff
 proveit-realist.testnet/enclave-demo 653e74f117   wasm:https://test.fastfs.io/pr... p0000000000000100
+Uploading to FastFS...
+  File: /Users/realist/projects/proveit/enclave/dist/proveit-enclave.wasm
+  Size: 765911 bytes
+  SHA256: 8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375
+  Sender: proveit-realist.testnet
+  Receiver: outlayer.testnet
+
+  Uploading... tx: Fua8pDLvsogz3k6PfqGf5LNPMhj1vYESXsgtpNeo4vAJ
+
+Upload complete!
+
+FastFS URL: https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375.wasm
+
+Run directly:
+  outlayer run --wasm https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375.wasm '{}' 
+
+Or deploy as project version:
+  outlayer deploy <name> --wasm-url https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375.wasm
+waiting for FastFS to serve 8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375...
+Deploying proveit-realist.testnet/enclave...
+  Source: WasmUrl (https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375.wasm)
+  Adding version 8db6b1722e86......
+  Project deployed
+
+Run with: outlayer run proveit-realist.testnet/enclave '{"command": "hello"}'
+Uploading to FastFS...
+  File: /Users/realist/projects/proveit/enclave/dist/proveit-enclave-demo-fixture.wasm
+  Size: 1506834 bytes
+  SHA256: d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef
+  Sender: proveit-realist.testnet
+  Receiver: outlayer.testnet
+  Chunks: 2 x 1024KB max
+
+  Uploading chunk 1/2... tx: AyHUt2GZxZudSPEEZTAcXZ12ooXJ6tAtf9yEFpNh2ssE
+  Uploading chunk 2/2... tx: 8ynHx6JWgSiwVLZRav6KXRciFt5ygwqDN7fpTLvei6Nu
+
+Upload complete!
+
+FastFS URL: https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef.wasm
+
+Run directly:
+  outlayer run --wasm https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef.wasm '{}' 
+
+Or deploy as project version:
+  outlayer deploy <name> --wasm-url https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef.wasm
+waiting for FastFS to serve d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef...
+Deploying proveit-realist.testnet/enclave-demo...
+  Source: WasmUrl (https://test.fastfs.io/proveit-realist.testnet/outlayer.testnet/d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef.wasm)
+  Adding version d0e03b6e0b5c......
+  Project deployed
+
+Run with: outlayer run proveit-realist.testnet/enclave-demo '{"command": "hello"}'
+PROJECT                             VERSION      SOURCE                         UUID      
+proveit-realist.testnet/s1-hello-hl 0ac564c377   wasm:https://test.fastfs.io/pr... p00000000000000f9
+proveit-realist.testnet/s2-enclave  9b3a2bf781   wasm:https://test.fastfs.io/pr... p00000000000000fc
+proveit-realist.testnet/enclave     8db6b1722e   wasm:https://test.fastfs.io/pr... p00000000000000ff
+proveit-realist.testnet/enclave-demo d0e03b6e0b   wasm:https://test.fastfs.io/pr... p0000000000000100

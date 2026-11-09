@@ -4,3 +4,6 @@ recorded: live proveit.near 16f515c2a8abf41de9ed66537e748ea18f37550c96eb221b62bc
     Finished `release` profile [optimized] target(s) in 1m 15s
 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a  dist/proveit-enclave.wasm  (registry proveit.near)
 recorded: live proveit.near 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a
+    Finished `release` profile [optimized] target(s) in 1m 33s
+7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b  dist/proveit-enclave.wasm  (registry proveit.near)
+recorded: live proveit.near 7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b

@@ -45,6 +45,9 @@ function Step({ n, title, done, children }: { n: number; title: string; done?: b
 const button = "rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg disabled:opacity-40";
 const ghost = "rounded-md border border-line px-3 py-1.5 text-sm text-muted hover:text-fg";
 
+/** The recorded demo account only has enough trades for this window. */
+const DEMO_WINDOW = 30;
+
 export default function CreateFlow() {
   const [mode, setMode] = useState<Mode>("live");
   const [near, setNear] = useState<NearSession | null>(null);
@@ -125,7 +128,10 @@ export default function CreateFlow() {
     <div className="space-y-4">
       <div className="flex gap-2 text-sm">
         {(["live", "demo"] as const).map((m) => (
-          <button key={m} onClick={() => setMode(m)} disabled={busy} className={`rounded-md border px-3 py-1.5 ${mode === m ? "border-accent text-fg" : "border-line text-muted"}`}>
+          <button key={m} onClick={() => {
+              setMode(m);
+              if (m === "demo") setWindowDays(DEMO_WINDOW);
+            }} disabled={busy} className={`rounded-md border px-3 py-1.5 ${mode === m ? "border-accent text-fg" : "border-line text-muted"}`}>
             {m === "live" ? "My Hyperliquid account" : "Demo data (no Hyperliquid account needed)"}
           </button>
         ))}
@@ -171,7 +177,7 @@ export default function CreateFlow() {
 
       <Step n={mode === "live" ? 3 : 2} title="Choose a window and create the card">
         <div className="mb-3 flex flex-wrap gap-2">
-          {WINDOWS.map((w) => (
+          {WINDOWS.filter((w) => mode === "live" || w.days === DEMO_WINDOW).map((w) => (
             <button
               key={w.days}
               onClick={() => setWindowDays(w.days)}

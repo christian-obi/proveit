@@ -34,3 +34,14 @@ Each threat, what stops it, and the test that shows it. Test IDs are in `docs/PH
 | Failed runs refund | ✔ | `a_failed_outlayer_call_refunds_everything`, `a_refused_card_refunds_the_storage_fee`; a failed payout is owed again (`t7_5_withdraw_pays_out_and_a_failed_payout_is_owed_again`) |
 | `ft_on_transfer` checks the sender is the USDC contract | ✔ | `t7_5_wrong_token_is_refused` |
 | The relayer key is function-call only | n/a | fallback B (a relayer) isn't used; 1Click delivers to the registry directly |
+
+## Copy from a tab
+
+| Threat | Mitigation | Test |
+|---|---|---|
+| The trading key is stolen | It's created per session, kept only in tab memory, expires after 30 days and can't withdraw. It can still place bad trades until then | TC.3 |
+| The app's server learns who is copying | The browser talks to Hyperliquid directly | TC.4 |
+| A trade is copied twice | A fixed client order ID per trade, plus a record in the browser | TC.2, TC.3 |
+| A huge trade drains a small follower | The follower's per-trade, leverage and slippage limits always apply | TC.2 |
+| A demo card triggers real orders | Real-money copying is disabled on demo cards | TC.3 |
+| Followers' timing reveals the trader's wallet | Not solved. Documented as a limit | — |

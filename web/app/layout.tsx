@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(config.siteUrl),
   title: "Prove-It",
   description: "Verifiable private trading track records on NEAR. Screenshots can be faked; Prove-It cards can't.",
+  openGraph: { title: "Prove-It", description: "Verifiable private trading track records on NEAR. Screenshots can be faked; Prove-It cards can't.", siteName: "Prove-It" },
+  twitter: { card: "summary_large_image" },
 };
 
 // Runs before first paint so a saved motion level never flashes.

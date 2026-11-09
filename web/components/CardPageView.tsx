@@ -3,7 +3,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ImageResponse } from "next/og";
 import Card from "@/components/Card";
 import VerifyPanel from "@/components/VerifyPanel";
 import FeedFlow from "@/components/FeedFlow";
@@ -117,7 +116,7 @@ export async function FeedPageView({ id, registry }: { id: string; registry: str
           PnL as a share of the account.
         </p>
       </div>
-      <FeedFlow registry={registry} cardId={record.id} cardHash={record.card_hash} />
+      <FeedFlow registry={registry} cardId={record.id} cardHash={record.card_hash} isLive={card.mode === "live"} />
       <Link className="text-sm underline" href={`${cardPath(record.id, registry)}/unlock`}>
         Your viewing key
       </Link>
@@ -127,40 +126,4 @@ export async function FeedPageView({ id, registry }: { id: string; registry: str
 
 export const ogSize = { width: 1200, height: 630 };
 
-export async function cardImage(id: string, registry: string) {
-  const loaded = await loadCard(id, registry);
-  const s = loaded?.card.stats;
-  const up = (s?.return_bps ?? 0) >= 0;
-  const demo = loaded && loaded.card.mode !== "live";
-  return new ImageResponse(
-    (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#0b0d11", color: "#e8ebef", padding: 64, fontFamily: "sans-serif" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 28, color: "#8d96a3" }}>
-          <span>
-            Prove-It · Hyperliquid{loaded ? ` · ${windowLabel(loaded.card.window.days)}` : ""}
-            {demo ? " · demo card" : ""}
-          </span>
-          <span style={{ color: "#2fbf8f" }}>Verified by a TEE · recorded on NEAR</span>
-        </div>
-        {s ? (
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 30, color: "#8d96a3" }}>Return, time-weighted</span>
-            <span style={{ fontSize: 160, fontWeight: 700, color: up ? "#2fbf8f" : "#f97066", lineHeight: 1 }}>{returnLabel(s)}</span>
-            <div style={{ display: "flex", gap: 56, marginTop: 32, fontSize: 34 }}>
-              <span>Max drawdown {pct(-s.max_dd_bps)}</span>
-              <span>Win rate {pct(s.win_rate_bps)}</span>
-              <span>{s.trades} trades</span>
-            </div>
-          </div>
-        ) : (
-          <span style={{ fontSize: 64 }}>Card not found</span>
-        )}
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26, color: "#8d96a3" }}>
-          <span>Screenshots can be faked. This card can&apos;t.</span>
-          <span>{s?.k_anon ? `The wallet stays private: 1 of ≥ ${s.k_anon} accounts.` : "The wallet stays private."}</span>
-        </div>
-      </div>
-    ),
-    ogSize,
-  );
-}
+export { cardImage } from "@/components/ShareCard";

@@ -150,23 +150,23 @@ fn mdd_of_a_known_path() {
 fn measurement_starts_at_first_funded_sample() {
     let mut s = synth(10_000.0, &[(0.1, 0.0); 3]);
     s.account_value[0].v = Decimal::ZERO;
-    s.account_value[1].v = d(50.0);
+    s.account_value[1].v = d(5.0);
     let r = stats::returns(&s).unwrap();
     assert_eq!(r.start_ms, s.account_value[2].t);
 }
 
 #[test]
 fn periods_below_min_capital_are_skipped() {
-    // $10,000 → withdraw down to $50 → +100% on $50 → deposit back. The +100% on dust
+    // $10,000 → withdraw down to $5 → +100% on $5 → deposit back. The +100% on dust
     // must not count: TWR stays at the 0% earned on real capital.
-    let s = synth(10_000.0, &[(0.0, -9_950.0)]);
+    let s = synth(10_000.0, &[(0.0, -9_995.0)]);
     let mut av: Vec<Point> = s.account_value.clone();
     let mut pnl: Vec<Point> = s.pnl.clone();
     let t = av.last().unwrap().t;
-    av.push(Point { t: t + MS_PER_DAY, v: d(50.0) });
+    av.push(Point { t: t + MS_PER_DAY, v: d(5.0) });
     pnl.push(Point { t: t + MS_PER_DAY, v: d(0.0) });
-    av.push(Point { t: t + 2 * MS_PER_DAY, v: d(100.0) });
-    pnl.push(Point { t: t + 2 * MS_PER_DAY, v: d(50.0) });
+    av.push(Point { t: t + 2 * MS_PER_DAY, v: d(10.0) });
+    pnl.push(Point { t: t + 2 * MS_PER_DAY, v: d(5.0) });
     let r = stats::returns(&Series { account_value: av, pnl }).unwrap();
     assert_eq!(stats::to_bps(r.twr), 0);
     assert!(r.skipped_periods >= 1);

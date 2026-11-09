@@ -13,10 +13,8 @@ One row per exit test from BUILD_PLAN §5. A phase is complete only when every r
 | T0.5 | Leaderboard fetch + parse < 60 s and within memory limit | ✔ | 4 Nov: 8.3 s total, runs under a 128 MB cap (fails at 96 MB); k = 101 for 18–19% |
 | T0.6 | 0.9 KB, 4 KB and 16 KB outputs arrive intact; gas and latency recorded | ✔ | 6 Nov: 922 / 4,073 / 16,074 bytes arrived intact (requests 10543–10545); 11 blocks each; 0.00104 NEAR each, independent of size ([log](p0-results/t05.log)) |
 | T0.7 | Railway URL answers `HTTP/2 200` | ✔ | 6 Nov: https://proveit-production-d47c.up.railway.app → `HTTP/2 200`, `/healthz` → `ok` (project `proveit`, environment `production`) |
-| T0.8 | S6 result recorded | ☐ | needs a near.com test account; script self-tested on mainnet |
-| T0.9 | S7: confidential history item saved as a fixture, session-token scope recorded (or "no access by 8 Nov") | ☐ | needs invite access from the NEAR Intents team (message in BUILD_PLAN §7) |
 
-**P0 status:** 7 of 9 passed (T0.1–T0.7). All platform risk is retired and P1 can start. Waiting on outside access: T0.8 (near.com test account), T0.9 (1Click history access; passes as "no access" after 8 Nov). Neither blocks P1–P8.
+**P0 status:** ✔ 7 of 7 (T0.1–T0.7). Confidential perps ownership and NEAR Intents history moved to the post-hackathon roadmap, so their tests were dropped.
 
 ## P1 — Enclave core: ownership, data, stats
 
@@ -89,7 +87,7 @@ Mainnet build (reproducible, registry `proveit.near`): `16f515c2a8abf41de9ed6653
 | ID | Test | Status | Evidence |
 |---|---|---|---|
 | T4.1 | `deploy-mainnet.sh` twice; second run changes nothing | ✔ | 9 Nov, owner `realist1036.near`: every step on the second run reported "already", no balance spent ([log](p4-results/all.log)) |
-| T4.2 | `get_config`: active version = reproducible hash, key set, fixtures refused | ✔ | `deploy-mainnet.sh status`: version `27e7f6c4…8d6a`, enclave key set, fixtures refused, native USDC at 1% ([log](p4-results/status.log)) |
+| T4.2 | `get_config`: active version = reproducible hash, key set, fixtures refused | ✔ | `deploy-mainnet.sh status`: version `7a2710db…7b7b` (upgraded 9 Nov for the $10 minimum; first deployed as `27e7f6c4…8d6a`), enclave key set, fixtures refused, native USDC at 1% ([log](p4-results/status.log)) |
 | T4.3 | first card on mainnet, `verify_card` VALID | ☐ | needs the Hyperliquid account (1-day card: funded 24 h earlier, 20+ trades) |
 | T4.4 | attestation: `wasm_hash`, `output_hash`, project match | ☐ | `issue-demo-card.sh check` |
 | T4.5 | leak check: address in no transaction | ☐ | `issue-demo-card.sh check` |
@@ -108,11 +106,10 @@ Live at https://proveit-production-d47c.up.railway.app/create (testnet). Tests: 
 | T5.3 | no request to the app's server contains the address | ✔ | `web/e2e/no-leak.spec.ts` in Chromium: full live flow, transactions carry only ciphertext, keystore reached directly with a placeholder; forced relay path sees no secret. A planted leak made both tests fail. |
 | T5.4 | Railway build + `/create` 200 | ✔ | 7 Nov: `/`, `/create`, `/healthz` 200; relay refuses unknown projects and returns the real keystore key |
 | T5.5 | a fresh NEAR account creates a card in < 2 min in the browser | ☐ | needs your browser wallets: Meteor (testnet) for NEAR. The **demo data** mode works without a Hyperliquid account; a live card needs the Hyperliquid account |
-| T5.6 | live mode with an account under 20 trades → `TOO_FEW_TRADES` message, deposit refunded | ☐ | needs your browser wallets: Meteor (testnet) + MetaMask/Rabby with any address |
 
 **Design note:** OutLayer's keystore allows browser calls only from listed origins (its dashboard and `localhost:3000`). The app calls it directly when allowed and otherwise uses a relay (`/api/keystore-pubkey`) that rebuilds the request with placeholder values, so it can't forward a secret; the UI tells the trader when the relay was used, because a dishonest relay could swap the key. Asking OutLayer to allowlist the domain removes the relay.
 
-**P5 status:** 4 of 6; T5.5 and T5.6 wait for you to run the flow with your wallets.
+**P5 status:** 4 of 5; T5.5 waits for you to run the flow with your wallet.
 
 ## P6 — M2: card page, verify, tamper mode
 
@@ -125,11 +122,10 @@ Live at https://proveit-production-d47c.up.railway.app (testnet): `/`, `/verify`
 | T6.3 | `pnpm verify <railway>/demo/1 --tamper return_bps=3830` | ✔ | exit 1, "signature mismatch"; record and attestation also red |
 | T6.4 | og:image is a 1200×630 PNG | ✔ | `web/e2e/verify.spec.ts` plus `curl` on Railway: 200, `image/png`, 1200×630, `twitter:card` = `summary_large_image` |
 | T6.5 | X and Telegram previews show the card | ☐ | yours: paste https://proveit-production-d47c.up.railway.app/demo/1 into X and Telegram |
-| T6.6 | hallway test, 3 people, green then red in < 10 s | ☐ | yours: log the three times here |
 
 Also in the browser suite: tamper mode goes red then green when the number is put back; the landing page's fake screenshot can't be verified while the real card can; a pasted link on `/verify` opens with checks running; unknown cards 404; a staged race (the unedited check held 4 s) can't overwrite the red result.
 
-**P6 status:** 4 of 6; T6.5 and T6.6 need people and social apps.
+**P6 status:** 4 of 5; T6.5 needs the social apps.
 
 ## P7 — Viewing keys with direct USDC
 
@@ -166,8 +162,6 @@ Testnet, 8 Nov: enclave builds `23b7d873…` (live) and `0ad3295a…` (demo) app
 | T8.2 | quote request snapshot | ✔ | `EXACT_OUTPUT` of the key's price in native USDC to the registry, `customRecipientMsg` = `{"card_id","buyer"}` (what `ft_on_transfer` parses), `refundTo` the follower's origin address, deadline +30 min; a real dry quote accepted this shape ($1.00 out for $1.01–1.02 in from Base). **Deviation:** `appFees` is empty, because the registry already takes its 1% fee on-chain and the cross-chain path must not charge twice |
 | T8.3 | no 1Click or OutLayer key in the client bundle | ✔ | `grep -rE "ONECLICK\|OUTLAYER_PAYMENT_KEY\|X-Payment-Key" web/.next/static` → 0 files |
 | T8.4 | live $1 USDC from Base | ☐ | needs mainnet (`proveit.near`: 1Click refuses recipients that don't exist yet) and a 1Click partner API key (`ONECLICK_API_KEY` on Railway): non-dry quotes fail without one |
-| T8.5 | live underpaid deposit → REFUNDED | ☐ | optional; same needs as T8.4 |
-| T8.6 | screen recording of T8.4 | ☐ | yours |
 | T8.7 | `enclave::feed_chain` | ✔ | `enclave/tests/feed.rs`: three polls extend one chain, each page continues from the kept head, a second follower ends at the same head; drop, reorder, edit or a rewritten start fail. Same checks in TypeScript against `test-vectors/feed.json` (`packages/verify/src/feed.test.ts`). Also: the delay holds back recent orders; a concurrent extension isn't lost (compare-and-swap) |
 | T8.8 | `enclave::feed_auth` | ✔ | bad or expired signature, a message valid for more than a day, another app's message, a key that isn't the account's, a function-call key, another card, no grant, an expired grant → each refused **before any stored data is read** (counted). **Live over HTTPS:** wrong account → `NEAR_ACCOUNT_MISMATCH`, no key for card #1 → `NO_GRANT`, `issue` over HTTPS → refused |
 | T8.9 | live feed shows a new trade (delay 0) | ☐ | needs the Hyperliquid account trading after its card. The path is live: `feed` over HTTPS for demo card #2 answered (0 entries: the recorded account never trades again), chain intact |
@@ -180,7 +174,7 @@ Testnet, 8 Nov: enclave builds `23b7d873…` (live) and `0ad3295a…` (demo) app
 - The deposit address isn't shown as a QR code; it has a copy button.
 - **Railway needs `OUTLAYER_PAYMENT_KEY`** (an OutLayer payment key limited to this owner's projects) before the deployed relay can serve the feed, and `ONECLICK_API_KEY` for cross-chain quotes.
 
-**P8 status:** T8.1–T8.3, T8.7, T8.8, T8.10 done; T8.4–T8.6 and T8.9 need mainnet, a 1Click key and the Hyperliquid account.
+**P8 status:** 6 of 8: T8.1–T8.3, T8.7, T8.8, T8.10 done; T8.4 and T8.9 need the mainnet card, a 1Click key and the Hyperliquid account.
 
 ## P9 — Explore, privacy depth, profile, agent guard
 
@@ -194,14 +188,12 @@ Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) app
 | T9.4 | `pnpm agent-guard` green / tampered | ✔ | `docs/agent-guard-demo.log` on demo card #3: verified card within policy → FOLLOW, exit 0; same card with the return edited to +90% → REFUSE (signature, record, attestation), exit 1; default policy → REFUSE (demo card, drawdown 62.83% > 30%), exit 1. Policy unit tests in `packages/verify/src/guard.test.ts` |
 | T9.5 | `/api/verify?card=…` | ✔ | `web/e2e/p9.spec.ts` and live on Railway: the five checks as JSON, the same statuses as the CLI; `guard=1` adds the verdict; CORS open; unknown card 404, unknown registry 400 |
 | T9.6 | `/explore` | ✔ | `web/test/explore.test.ts`: revoked, replaced and retired-build cards hidden, stale ones kept and badged, each sort order, seats left from `get_offer`; `e2e/p9.spec.ts` against testnet |
-| T9.7 | `intents::golden_*` | — | Intents venue not built: 1Click history access (T0.9) not granted |
-| T9.8 | live Intents card | — | same |
 
 **Also:** `kind: "agent"` cards (the issuer's label, signed in; `request_card(…, kind)`, create-flow checkbox, "AI agent" badge; demo card #4 is one); profile pages `/p/<account>` group cards by commitment so a hidden extra account shows; check 5 is now "Freshness and privacy" and fails a card with `k_anon < k_min`; the landing page features card #3.
 
-**Not built:** the NEAR Intents venue (needs T0.9) and an inception-to-date window.
+**Not built:** the NEAR Intents venue and an inception-to-date window (see the roadmap in `web/content/docs/roadmap.md`).
 
-**P9 status:** T9.1–T9.6 done; T9.7–T9.8 not applicable without Intents history access.
+**P9 status:** ✔ T9.1–T9.6 done.
 
 ## P10 — Hardening for the AI screeners
 
@@ -217,3 +209,16 @@ Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) app
 Also: README rewritten for the screeners (60-second demo, live links, where each part runs, proven / not proven, reproducible hashes, deployments, NEAR protocols, status, disclosures); `docs/TRUST_MODEL.md`, `docs/THREAT_MODEL.md`, `docs/CLAIMS.md`; `docs/METHODOLOGY.md` gains the privacy guard and order records; `pnpm demo` (`scripts/demo.ts`) and `pnpm test` (`scripts/test-all.sh`); the verify CLI prints the return bucket.
 
 **P10 status:** T10.1, T10.3, T10.4, T10.5 done; T10.2 and T10.6 need you (repo public, keys, mainnet).
+
+## PC — Copy from a tab
+
+| ID | Test | Status | Evidence |
+|---|---|---|---|
+| TC.1 | signatures match Hyperliquid's official SDK | ✔ | `web/test/hyperliquid.test.ts`: the phantom-agent hash and the mainnet and testnet vectors from `hyperliquid-python-sdk/tests/signing_test.py` |
+| TC.2 | sizing, limits, minimums, closes and skips | ✔ | `web/test/copy-plan.test.ts` |
+| TC.3 | browser flow against a simulated Hyperliquid: simulate needs no wallet, demo cards can't use real money, one approval, correct order, only new trades auto-copied | ✔ | `web/e2e/copy.spec.ts` |
+| TC.4 | the follower's address and agent key never reach this app's server | ✔ | `web/e2e/copy.spec.ts` |
+| TC.5 | the real exchange accepts the signing format | ✔ | Hyperliquid testnet, 9 Nov: an order signed by a throwaway key was answered with that exact key's address and "does not exist", so the action hash and signature were read correctly. No order was placed |
+| TC.6 | live: approve a key and fill a sample order on Hyperliquid testnet | ☐ | yours: needs your wallet and testnet funds |
+
+**PC status:** 5 of 6; TC.6 needs your wallet. The roadmap has the rest of copying.

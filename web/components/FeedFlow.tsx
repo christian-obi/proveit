@@ -15,8 +15,10 @@ import { unhex } from "@proveit/verify/bytes";
 import { config, networkFor } from "@/lib/config";
 import { explain } from "@/lib/errors";
 import { connectNear, type NearSession, type SignedMessage } from "@/lib/wallets";
+import CopyPanel, { type CopyHandle } from "@/components/CopyPanel";
 
 const POLL_MS = 60_000;
+const AUTO_POLL_MS = 30_000;
 const VALID_SECS = 12 * 3600;
 const button = "rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg disabled:opacity-40";
 const bps = (n: number, signed = false) => `${signed && n > 0 ? "+" : ""}${(n / 100).toFixed(2)}%`;
@@ -25,7 +27,7 @@ const hourLabel = (h: number) => new Date(h * 3_600_000).toISOString().slice(0, 
 type Session = { near: NearSession; secret: Uint8Array; auth: SignedMessage; expires: number };
 type Row = FeedEntry & { fresh: boolean };
 
-export default function FeedFlow({ registry, cardId, cardHash }: { registry: string; cardId: number; cardHash: string }) {
+export default function FeedFlow({ registry, cardId, cardHash, isLive = false }: { registry: string; cardId: number; cardHash: string; isLive?: boolean }) {
   const [session, setSession] = useState<Session | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [status, setStatus] = useState<string>("");
@@ -35,6 +37,8 @@ export default function FeedFlow({ registry, cardId, cardHash }: { registry: str
   const [attestation, setAttestation] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const cursor = useRef<{ next: number; head: string | null }>({ next: 0, head: null });
+  const copier = useRef<CopyHandle>(null);
+  const firstPage = useRef(true);
 
   async function start() {
     try {
@@ -82,20 +86,23 @@ export default function FeedFlow({ registry, cardId, cardHash }: { registry: str
         cursor.current = { next: page.next, head: page.head };
         setHeldBack(page.held_back);
         setAttestation(data.attestation);
+        // The first page is history; only what arrives after it can be auto-copied.
+        if (!firstPage.current) copier.current?.incoming(page.entries);
+        firstPage.current = false;
         if (page.entries.length) {
           setRows((old) => [...page.entries.map((e) => ({ ...e, fresh: old.length > 0 })).reverse(), ...old.map((r) => ({ ...r, fresh: false }))]);
           setToast(`${page.entries.length} new trade${page.entries.length > 1 ? "s" : ""}`);
           setTimeout(() => setToast(null), 6000);
         }
         setError(null);
-        setStatus(`Up to date · ${new Date().toLocaleTimeString()} · next check in 60 s`);
+        setStatus(`Up to date · ${new Date().toLocaleTimeString()} · checking every ${AUTO_POLL_MS / 1000} s`);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
         setStatus("");
       }
     }
     poll();
-    const t = setInterval(poll, POLL_MS);
+    const t = setInterval(poll, (config.e2e && window.__proveitFeedPollMs) || AUTO_POLL_MS);
     return () => {
       stopped = true;
       clearInterval(t);
@@ -114,6 +121,7 @@ export default function FeedFlow({ registry, cardId, cardHash }: { registry: str
           </button>
         </div>
       )}
+      <CopyPanel cardHash={cardHash} isLive={isLive} handle={copier} />
       {toast && (
         <div className="fixed bottom-4 right-4 rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg shadow-lg" role="status" data-toast>
           {toast}
@@ -145,9 +153,14 @@ export default function FeedFlow({ registry, cardId, cardHash }: { registry: str
                 {r.record.pnl_bps !== 0 && <span className={r.record.pnl_bps > 0 ? "text-accent" : "text-bad"}> · PnL {bps(r.record.pnl_bps, true)}</span>}
               </span>
               {/* Perps trades are signals: the follower places their own, sized to their account. */}
+              <span className="flex gap-2">
+                <button type="button" className="rounded-md bg-accent px-3 py-1 text-xs font-semibold text-accent-fg" onClick={() => copier.current?.copy(r.seq, r.record)}>
+                  Copy
+                </button>
               <a className="rounded-md border border-line px-3 py-1 text-xs hover:text-fg" href={`https://app.hyperliquid.xyz/trade/${encodeURIComponent(r.record.coin)}`} target="_blank" rel="noreferrer">
                 Trade {r.record.coin} ({bps(r.record.size_bps)} of your equity) ↗
               </a>
+              </span>
             </li>
           ))}
         </ul>

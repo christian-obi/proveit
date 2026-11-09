@@ -319,16 +319,17 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 
 | Phase | Name | Target date | Depends on | Status |
 |---|---|---|---|---|
-| P0 | Setup and risk spikes | Tue 3 Nov | — | ◐ 7/9 built (T0.8, T0.9 wait on outside access) |
+| P0 | Setup and risk spikes | Tue 3 Nov | — | ✔ 7/7 (the near.com and Intents checks moved to the roadmap) |
 | P1 | Enclave core: ownership, data, stats | Wed 4 Nov | P0 | ✔ 10/10 |
 | P2 | Enclave card: commit, Merkle, signing, OutLayer testnet | Thu 5 Nov (AM) | P1 | ✔ 8/8 |
 | P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ◐ 6/7 built (T3.6: Hyperliquid account) |
-| P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ◐ built, 0/6 (mainnet account + Hyperliquid account) |
-| P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ◐ 4/6 built (T5.5, T5.6: your wallets) |
-| P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/6 built (T6.5, T6.6: social previews, hallway test) |
+| P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ◐ 2/6: deployed to mainnet (T4.1, T4.2); T4.3–T4.6 need the Hyperliquid account |
+| P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ◐ 4/5 (T5.5: your wallet) |
+| P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/5 (T6.5: social previews) |
 | P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 built (T7.6: mainnet) |
-| P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 6/10 built (T8.4–T8.6, T8.9: mainnet, 1Click key, Hyperliquid account) |
-| P9 | Explore, Intents venue, privacy depth, agent guard | Wed 11 Nov | P6 (Intents venue: S7) | ✔ 6/6 required (T9.7–T9.8 need Intents access, T0.9) |
+| P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 6/8 (T8.4, T8.9: mainnet card, 1Click key, Hyperliquid account) |
+| PC | Copy from a tab | added 9 Nov | P8 | ◐ 5/6 (TC.6: your wallet) |
+| P9 | Explore, privacy depth, agent guard | Wed 11 Nov | P6 | ✔ 6/6 |
 | P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ◐ 4/6 built (T10.2, T10.6: repo public, keys, mainnet) |
 | P11 | Demo, launch, submit | Fri 13 – Sat 14 Nov | P10 | ☐ |
 | PS | Stretch goals (optional) | only after P10 | P10 | ☐ |
@@ -364,11 +365,9 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T0.5 | S4 timing run | time and peak memory recorded in `docs/SPIKES.md`; pass if < 60 s and under `NEAR_MAX_MEMORY_MB`, else switch to the snapshot fallback |
 | T0.6 | S5: return 0.9 KB, 4 KB and 16 KB outputs | all arrive intact in the callback (source says they should); gas and latency recorded for each |
 | T0.7 | `curl -sI https://<app>.up.railway.app` | `HTTP/2 200` |
-| T0.8 | `node spikes/s6-chainsig-match/match.mjs --hl <dedicated addr> --user <near.com account> --predecessor <near.com contract>` | result (match with predecessor + path, or no match) recorded in `docs/SPIKES.md`. Either outcome passes; a match promotes confidential perps from PS to a P1 ownership mode |
 
-| T0.9 | S7: authenticated `GET /v0/account/history` for a test account with one confidential swap | a history item with `depositType` or `recipientType` = `CONFIDENTIAL_INTENTS` and USD amounts is saved as a fixture; the session-token scope check is recorded. **Without access by 8 Nov:** record "no access" (passes; the Intents venue moves to PS) |
 
-**Done when:** T0.1–T0.9 are logged and `docs/SPIKES.md` records the **G0 decision**: S1+S2 green → plan stands. S2 red → `PROTECTED_` ed25519 secret plus pubkey attestation. S3 red → secrets via CLI for the demo. S4 red → leaderboard snapshot hash. S5 red → reveal over HTTPS (`/api/reveal`).
+**Done when:** T0.1–T0.7 are logged and `docs/SPIKES.md` records the **G0 decision**: S1+S2 green → plan stands. S2 red → `PROTECTED_` ed25519 secret plus pubkey attestation. S3 red → secrets via CLI for the demo. S4 red → leaderboard snapshot hash. S5 red → reveal over HTTPS (`/api/reveal`).
 
 ---
 
@@ -502,9 +501,8 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T5.3 | Playwright `e2e/no-leak.spec.ts` (network intercept) | during the create flow, **no request to our own origin** (Railway) contains the Hyperliquid address in its URL, headers or body |
 | T5.4 | Railway build log + `curl -sI <railway-url>/create` | build succeeds; `200` |
 | T5.5 | Live, by hand on desktop Chrome and mobile Safari | a fresh NEAR account creates a mainnet card in < 2 min (timed and logged) |
-| T5.6 | Live error path | an account with < 20 trades shows the `TOO_FEW_TRADES` message, and the deposit is refunded |
 
-**Done when:** T5.1–T5.6 pass and T5.1–T5.3 are in CI.
+**Done when:** T5.1–T5.5 pass and T5.1–T5.3 are in CI.
 
 ---
 
@@ -526,9 +524,8 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T6.3 | `pnpm verify --tamper return_bps=3830 <railway-url>/c/<id>` | exit code 1 and "signature mismatch" |
 | T6.4 | `curl -s <railway-url>/c/<id> \| grep 'og:image'`, then fetch that image | the tag exists; the image is `image/png`, 1200×630 |
 | T6.5 | Paste the card link into X (card validator) and Telegram | the preview shows the card image and title |
-| T6.6 | Hallway test with 3 people who haven't seen it | each one verifies green and makes it red in < 10 s (times logged) |
 
-**Done when:** T6.1–T6.6 pass. **Demo beats 2–4 now work.**
+**Done when:** T6.1–T6.5 pass. **Demo beats 2–4 now work.**
 
 ---
 
@@ -579,14 +576,12 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T8.2 | Snapshot test of the quote request body | contains `appFees`, `customRecipientMsg` with `card_id` + `buyer`, `refundTo` and a deadline |
 | T8.3 | `grep -r "ONECLICK" web/.next/static` after build | no match (the JWT is not in the client bundle) |
 | T8.4 | Live: $1 USDC from **Base** | the grant appears on-chain and the trades unlock; elapsed time logged |
-| T8.5 | Live: a deliberately underpaid deposit (optional, costs a little) | the UI shows REFUNDED, and the funds return to the refund address |
-| T8.6 | Backup | a raw screen recording of T8.4 saved in the team drive |
 | T8.7 | `enclave::feed_chain` | heads chain correctly across 3 polls; a dropped or reordered record breaks the head check in the TS client |
 | T8.8 | `enclave::feed_auth` | a bad NEP-413 signature, an expired grant or another account's grant → refused before any data is read |
 | T8.9 | Live: a key holder's feed shows a new trade the demo account places (delay 0) | the trade appears within 2 polls; the copy quote's pair and size match |
 | T8.10 | Playwright `e2e/no-leak.spec.ts` extended to the feed | no request to Railway contains the trader's address or plaintext trades |
 
-**Done when:** T8.1–T8.4 and T8.6–T8.10 pass. **Full demo works end to end on mainnet.**
+**Done when:** T8.1–T8.4 and T8.7–T8.10 pass. **Full demo works end to end on mainnet.**
 
 ---
 
@@ -595,7 +590,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 
 **Tasks**
 - [x] `/explore`: verified cards ranked by return, drawdown, trade count and age (live before demo; revoked, replaced and retired-build cards hidden; stale badged); key price, delay and seats left from `get_offer`.
-- [ ] **NEAR Intents venue**: not built. It needs 1Click `/v0/account/history` access (T0.9), which hasn't been granted.
+- [ ] **NEAR Intents venue**: not built. Moved to the post-hackathon roadmap.
 - [x] `kanon.rs` with the **live** leaderboard (no snapshot needed: both builds fetch it inside the TEE): buckets 0.1% → 1% → 5% → 25% → 100% until ≥ 25 accounts share it, else `PRIVACY_RISK`; the card publishes `return_bps` (bucket edge), `return_precision_bps`, `k_anon`, `k_min` inside `stats` (no contract change); the card shows the range and "1 of ≥ K"; check 5 becomes "Freshness and privacy" and fails on `k_anon < k_min`. Recorded fixture `enclave/fixtures/leaderboard.json` (ROI only, no addresses).
 - [x] `/p/[account]` profile (cards grouped by commitment, so hidden extra accounts show); refresh + supersede and the stale badge already existed. Inception-to-date window: not built (the 180-day window covers the demo).
 - [x] `kind: "agent"` cards (issuer's label, signed in; `request_card(…, kind)`, create-flow checkbox, "AI agent" badge); `bin/agent-guard.ts` (`pnpm agent-guard`, policy: trades, drawdown, window, demo/warnings); `/api/verify?card=…[&guard=1]` on Railway (CORS open).
@@ -610,10 +605,8 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | T9.4 | `pnpm agent-guard <green-card-url>` / `<tampered-url>` | exit 0 / exit 1 with a reason; log saved to `docs/agent-guard-demo.log` |
 | T9.5 | `curl '<railway-url>/api/verify?card=<id>'` | JSON with the 5 checks, matching the CLI output |
 | T9.6 | `/explore` with 3 cards (one revoked, one stale) | revoked cards are hidden; stale ones are badged; sort orders are correct; seats left match `get_offer` |
-| T9.7 | `intents::golden_*` on the S7 fixtures (if the venue is built) | realized and unrealized PnL, return and drawdown match `expected_stats.json` |
-| T9.8 | Live Intents card (if built) | a card issued from a confidential-trading account verifies green; `leakcheck.py` finds the account ID in no tx |
 
-**Done when:** T9.1–T9.6 pass, plus T9.7–T9.8 if the Intents venue is built.
+**Done when:** T9.1–T9.6 pass.
 
 ---
 
@@ -693,13 +686,9 @@ Cut from the top of this list first: stretch → P9 agent guard → Intents venu
 ---
 
 ## 7. Questions
-**One open question, to send to the NEAR Intents team now** (it gates the Intents venue, S7 / T0.9):
+**One open question, to send to the NEAR Intents team now** (it gates the Intents venue, now on the roadmap):
 
 > "I'm building Prove-It for the hackathon: verified PnL cards and viewing keys for NEAR Intents confidential trading (the social trading idea Illia posted). Could I get invite access to 1Click `/v0/account/history`? And can a 1Click session token do anything beyond reading balances and history?"
-
-**A second ask, to the OutLayer team** (removes the keystore relay, P5):
-
-> "Could you add `https://proveit-production-d47c.up.railway.app` (and later our custom domain) to the CORS allowlist for `POST /secrets/pubkey` on testnet and mainnet? Our web app encrypts traders' secrets in the browser and currently has to fetch the keystore key through a relay."
 
 Everything else is answered, or a test in this plan produces the answer:
 

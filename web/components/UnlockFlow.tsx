@@ -36,6 +36,7 @@ declare global {
   interface Window {
     /** Playwright only: a fixed follower secret, so a recorded reveal can be replayed. */
     __proveitFollowerSecret?: string;
+    __proveitFeedPollMs?: number;
   }
 }
 

@@ -30,17 +30,17 @@ export default function CardPicture({ seed, returnBps, label, size = 72 }: { see
           <stop offset="1" stopColor={`hsl(${hue} 60% 6%)`} />
         </radialGradient>
       </defs>
-      <rect x="3" y="3" width="94" height="94" rx="16" fill={`url(#${id})`} stroke="currentColor" strokeWidth="4" />
+      <rect x="3" y="3" width="94" height="94" rx="16" fill={`url(#${id})`} stroke={frame} strokeWidth="4" />
       <g transform="translate(50 50)">
         {layers.map((l) =>
           Array.from({ length: folds }, (_, i) => <path key={`${l.reach}-${i}`} d={l.d} fill={l.color} opacity="0.9" transform={`rotate(${(360 / folds) * i + l.turn})`} />),
         )}
-        <path d="M0-9 7.8-4.5v9L0 9l-7.8-4.5v-9Z" fill="#0a0d0c" stroke="currentColor" strokeWidth="2" />
+        <path d="M0-9 7.8-4.5v9L0 9l-7.8-4.5v-9Z" fill="#0a0d0c" stroke={frame} strokeWidth="2" />
       </g>
       {label && (
         <>
-          <rect x="62" y="76" width="35" height="21" rx="5" fill="#0a0d0c" stroke="currentColor" strokeWidth="1.5" />
-          <text x="79.5" y="91.5" textAnchor="middle" fontSize="13" fontFamily="monospace" fontWeight="700" fill="currentColor">
+          <rect x="62" y="76" width="35" height="21" rx="5" fill="#0a0d0c" stroke={frame} strokeWidth="1.5" />
+          <text x="79.5" y="91.5" textAnchor="middle" fontSize="13" fontFamily="monospace" fontWeight="700" fill={frame}>
             {label}
           </text>
         </>

@@ -22,8 +22,8 @@ r_i    = (PnL_i − PnL_{i−1}) / base_i
 TWR    = Π (1 + r_i) − 1
 ```
 
-- Measurement starts at the first sample with at least **$100** of account value.
-- A period whose base is under $100 is skipped: a return on dust is meaningless and easy to game.
+- Measurement starts at the first sample with at least **$10** of account value.
+- A period whose base is under $10 is skipped: a return on dust is meaningless and easy to game.
 - Deposits and withdrawals do not count as return. A property test checks this on thousands of random accounts.
 
 **Why not Hyperliquid's leaderboard ROI?** The leaderboard reports `PnL ÷ starting account value`, a dollar-weighted number. It can be inflated by depositing heavily before a lucky trade, and it changes when money moves in or out. Time-weighted return measures the trader's decisions independent of when capital arrived, which is the standard for comparing managers. The two agree when an account has no flows: on accounts with no deposits or withdrawals and a current leaderboard snapshot, they matched within 0.12 and 0.00 percentage points (`scripts/crosscheck.ts`, 6 Nov 2026).
@@ -52,7 +52,7 @@ All numbers are integers: basis points (1 bp = 0.01%) or ×100, rounded half awa
 ## Rules: a card is refused, not issued with a warning
 | Code | Rule |
 |---|---|
-| `ACCOUNT_TOO_NEW` | The account first held $100 after the start of the requested window (from the `allTime` history). |
+| `ACCOUNT_TOO_NEW` | The account first held $10 after the start of the requested window (from the `allTime` history). |
 | `WINDOW_TOO_SHORT` | The account held capital for fewer than N − 1 days of an N-day window, for example after being emptied and refilled. |
 | `TOO_FEW_TRADES` | Fewer than 20 trades in the measured window. |
 | `FILL_CAP_EXCEEDED` | More than 10,000 fills in the window. |

@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Fill, Series } from "./lib/hl.ts";
 
-const MIN_CAPITAL = 100;
+const MIN_CAPITAL = 10;
 const MIN_TRADES = 20;
 const DAY = 86_400_000;
 

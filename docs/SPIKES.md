@@ -58,7 +58,7 @@ These need your own accounts, so they are not automated.
    curl -sI https://<generated>.up.railway.app | head -1      # expect HTTP/2 200
    ```
    Later, connect the GitHub repo in the Railway dashboard (service root directory `web/`) so every push deploys.
-5. **S6** (T0.8), once you have a near.com account: see `spikes/s6-chainsig-match/README.md`.
+5. **S6** is on the post-hackathon roadmap: see `spikes/s6-chainsig-match/README.md`.
 
 ## G0 decision
 Recorded after the live tests. Rules (from BUILD_PLAN §5, P0):
