@@ -3,20 +3,20 @@
 
 export type Network = "mainnet" | "testnet";
 
-const env = (name: string, fallback: string) => process.env[name] || fallback;
-
+// Each value must be read as a literal process.env.NEXT_PUBLIC_X: Next.js doesn't inline
+// dynamic lookups into the browser bundle, which would silently leave wallets on the defaults.
 export const config = {
-  network: env("NEXT_PUBLIC_NETWORK", "testnet") as Network,
-  registry: env("NEXT_PUBLIC_REGISTRY", "proveit-registry.testnet"),
-  demoRegistry: env("NEXT_PUBLIC_DEMO_REGISTRY", "proveit-demo-registry.testnet"),
-  enclaveProject: env("NEXT_PUBLIC_ENCLAVE_PROJECT", "proveit-realist.testnet/enclave"),
-  demoEnclaveProject: env("NEXT_PUBLIC_DEMO_ENCLAVE_PROJECT", "proveit-realist.testnet/enclave-demo"),
-  outlayerApi: env("NEXT_PUBLIC_OUTLAYER_API", "https://testnet-api.outlayer.ai"),
-  outlayerContract: env("NEXT_PUBLIC_OUTLAYER_CONTRACT", "outlayer.testnet"),
+  network: (process.env.NEXT_PUBLIC_NETWORK || "testnet") as Network,
+  registry: process.env.NEXT_PUBLIC_REGISTRY || "proveit-registry.testnet",
+  demoRegistry: process.env.NEXT_PUBLIC_DEMO_REGISTRY || "proveit-demo-registry.testnet",
+  enclaveProject: process.env.NEXT_PUBLIC_ENCLAVE_PROJECT || "proveit-realist.testnet/enclave",
+  demoEnclaveProject: process.env.NEXT_PUBLIC_DEMO_ENCLAVE_PROJECT || "proveit-realist.testnet/enclave-demo",
+  outlayerApi: process.env.NEXT_PUBLIC_OUTLAYER_API || "https://testnet-api.outlayer.ai",
+  outlayerContract: process.env.NEXT_PUBLIC_OUTLAYER_CONTRACT || "outlayer.testnet",
   /** Comma-separated; on a rate limit the next endpoint is tried. */
-  nearRpc: env("NEXT_PUBLIC_NEAR_RPC", "https://rpc.testnet.fastnear.com,https://rpc.testnet.near.org,https://test.rpc.fastnear.com").split(","),
-  explorer: env("NEXT_PUBLIC_EXPLORER", "https://testnet.nearblocks.io"),
-  siteUrl: env("NEXT_PUBLIC_SITE_URL", "https://proveit-production-d47c.up.railway.app"),
+  nearRpc: (process.env.NEXT_PUBLIC_NEAR_RPC || "https://rpc.testnet.fastnear.com,https://rpc.testnet.near.org,https://test.rpc.fastnear.com").split(","),
+  explorer: process.env.NEXT_PUBLIC_EXPLORER || "https://testnet.nearblocks.io",
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://proveit-production-d47c.up.railway.app",
   /** Build-time switch for the Playwright tests' fake wallets. Never set in a deployed build. */
   e2e: process.env.NEXT_PUBLIC_E2E === "1",
 };
