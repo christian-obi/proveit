@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import { verifyCard } from "@proveit/verify/checks";
 import { DEFAULT_POLICY, judge } from "@proveit/verify/guard";
-import { config, endpointsFor, isKnownRegistry } from "@/lib/config";
+import { config, endpointsFor, isKnownRegistry, registryForPath } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +15,10 @@ export async function GET(req: Request) {
   const card = q.get("card") ?? "";
   let registry = q.get("registry") ?? config.registry;
   let id: number;
-  const m = card.match(/\/(c|demo)\/(\d+)/);
+  const m = card.match(/\/(c|t|demo)\/(\d+)/);
   if (m) {
     id = Number(m[2]);
-    if (!q.get("registry")) registry = m[1] === "demo" ? config.demoRegistry : config.registry;
+    if (!q.get("registry")) registry = registryForPath(m[1]);
   } else if (/^\d+$/.test(card)) id = Number(card);
   else return NextResponse.json({ error: "card must be a card id or a card URL" }, { status: 400 });
   if (!isKnownRegistry(registry)) return NextResponse.json({ error: `unknown registry ${registry}` }, { status: 400 });

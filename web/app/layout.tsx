@@ -3,6 +3,7 @@ import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
 import FxToggle from "@/components/FxToggle";
+import NetworkSwitch from "@/components/NetworkSwitch";
 import { config } from "@/lib/config";
 import "./globals.css";
 
@@ -42,12 +43,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <img src="/logo.svg" alt="" width={24} height={24} />
               Prove-It
             </Link>
-            <span className="flex flex-wrap gap-x-5 gap-y-1">
+            <span className="flex flex-wrap items-center gap-x-5 gap-y-2">
               {LINKS.map(([href, label]) => (
                 <Link key={href} href={href} className="nav-link">
                   {label}
                 </Link>
               ))}
+              <NetworkSwitch />
             </span>
           </nav>
         </header>

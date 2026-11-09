@@ -3,7 +3,7 @@
 // the browser) and the partner API key from ONECLICK_API_KEY, which never reaches the client.
 
 import { NextResponse } from "next/server";
-import { config } from "@/lib/config";
+import { NETWORKS } from "@/lib/config";
 import { ONECLICK_API, quoteRequest } from "@/lib/oneclick";
 import { getOffer } from "@/lib/keys";
 
@@ -21,10 +21,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "cardId, buyer, originAsset and refundTo are required" }, { status: 400 });
   }
   if (!/^[a-z0-9._-]{2,64}$/.test(buyer)) return NextResponse.json({ error: "buyer must be a NEAR account" }, { status: 400 });
-  const offer = await getOffer(config.registry, cardId).catch(() => null);
+  const offer = await getOffer(NETWORKS.mainnet.registry, cardId).catch(() => null);
   if (!offer) return NextResponse.json({ error: "this card has no viewing keys for sale" }, { status: 404 });
 
-  const request = quoteRequest({ registry: config.registry, cardId, buyer, price: offer.offer.price, originAsset, refundTo }, new Date(), body.dry === true);
+  const request = quoteRequest({ registry: NETWORKS.mainnet.registry, cardId, buyer, price: offer.offer.price, originAsset, refundTo }, new Date(), body.dry === true);
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (process.env.ONECLICK_API_KEY) headers["X-API-Key"] = process.env.ONECLICK_API_KEY;
   const res = await fetch(`${ONECLICK_API}/v0/quote`, { method: "POST", headers, body: JSON.stringify(request) });

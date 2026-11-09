@@ -1,10 +1,10 @@
 // Verify a Prove-It card from the command line, using only public data.
 //
-//   node packages/verify/bin/verify.ts <card url>      (…/c/<id> live, …/demo/<id> demo)
+//   node packages/verify/bin/verify.ts <card url>      (…/c/<id> mainnet, …/t/<id> testnet, …/demo/<id> demo)
 //   node packages/verify/bin/verify.ts --registry proveit-demo-registry.testnet --card 1
 //   node packages/verify/bin/verify.ts <card url> --tamper return_bps=3830
 //
-// Testnet URLs map to the testnet registries; pass --registry for mainnet. Exit code 0 when no check
+// Card URLs map to their registries. Exit code 0 when no check
 // fails (warnings allowed), 1 when one does, 2 on bad usage.
 
 import { tamper, verifyCard, type Check } from "../src/checks.ts";
@@ -28,10 +28,10 @@ for (let i = 0; i < args.length; i++) {
   else if (a === "--tamper") edits.push(args[++i] ?? usage("--tamper needs field=value"));
   else if (/^https?:\/\//.test(a)) {
     const u = new URL(a);
-    const m = u.pathname.match(/\/(c|demo)\/(\d+)/);
+    const m = u.pathname.match(/\/(c|t|demo)\/(\d+)/);
     if (!m) usage(`not a card URL: ${a}`);
     cardId = Number(m[2]);
-    registry ??= m[1] === "demo" ? "proveit-demo-registry.testnet" : "proveit-registry.testnet";
+    registry ??= m[1] === "demo" ? "proveit-demo-registry.testnet" : m[1] === "t" ? "proveit-registry.testnet" : "proveit.near";
   } else usage(`unexpected argument ${a}`);
 }
 if (!registry || cardId === undefined || Number.isNaN(cardId)) usage();

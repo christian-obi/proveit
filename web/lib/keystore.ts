@@ -9,7 +9,7 @@
 // a dishonest relay could return a key of its own, so the UI tells the trader which path
 // was used. Running the app locally, or OutLayer allowlisting the domain, removes it.
 
-import { config } from "./config";
+import { networkFor } from "./config";
 
 export type KeystoreRequest = { projectId: string; owner: string; profile: string };
 export type KeystoreKey = { pubkey: string; path: "direct" | "relay" };
@@ -34,7 +34,7 @@ function parse(text: string): string {
 
 export async function fetchKeystorePubkey(req: KeystoreRequest): Promise<KeystoreKey> {
   try {
-    const res = await fetch(`${config.outlayerApi}/secrets/pubkey`, {
+    const res = await fetch(`${networkFor(req.projectId.split("/")[0]).outlayerApi}/secrets/pubkey`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(keystoreBody(req)),

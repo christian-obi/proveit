@@ -10,7 +10,8 @@
 
 import { useEffect, useState } from "react";
 import { cardPath } from "@/lib/cards";
-import { config, WINDOWS, networkFor } from "@/lib/config";
+import { config, WINDOWS, networkFor, NETWORKS, type Network } from "@/lib/config";
+import { useNetwork } from "@/components/NetworkSwitch";
 import { encryptForKeystore } from "@/lib/ecies";
 import { explain } from "@/lib/errors";
 import { demoCardTransactions, liveCardTransactions, profileFor } from "@/lib/flow";
@@ -49,6 +50,11 @@ const ghost = "rounded-md border border-line px-3 py-1.5 text-sm text-muted hove
 const DEMO_WINDOW = 30;
 
 export default function CreateFlow() {
+  const network = useNetwork();
+  return <Flow key={network} network={network} />;
+}
+
+function Flow({ network }: { network: Network }) {
   const [mode, setMode] = useState<Mode>("live");
   const [near, setNear] = useState<NearSession | null>(null);
   const [evm, setEvm] = useState<`0x${string}` | null>(null);
@@ -62,12 +68,12 @@ export default function CreateFlow() {
 
   // On a mainnet site, demo cards still go to testnet, so a change of mode needs the other wallet.
   useEffect(() => {
-    if (config.network === "mainnet") setNear(null);
+    if (network === "mainnet") setNear(null);
   }, [mode]);
 
   async function onConnectNear() {
     try {
-      setNear(await connectNear(mode === "demo" ? networkFor(config.demoRegistry).network : config.network));
+      setNear(await connectNear(mode === "demo" ? networkFor(config.demoRegistry).network : network));
     } catch (e) {
       fail(e);
     }
@@ -91,7 +97,7 @@ export default function CreateFlow() {
         txs = demoCardTransactions(windowDays, agent ? "agent" : "trader");
       } else {
         if (!evm) return;
-        registry = config.registry;
+        registry = NETWORKS[network].registry;
         setPhase({ step: "working", label: "Waiting for your Hyperliquid wallet to sign…" });
         const nonce = randomNonce();
         const expiry = Math.floor(Date.now() / 1000) + VALIDITY_SECS;
@@ -100,11 +106,11 @@ export default function CreateFlow() {
 
         setPhase({ step: "working", label: "Encrypting your proof so only the enclave can read it…" });
         const profile = profileFor(nonce);
-        const key = await fetchKeystorePubkey({ projectId: config.enclaveProject, owner: near.accountId, profile });
+        const key = await fetchKeystorePubkey({ projectId: NETWORKS[network].enclaveProject, owner: near.accountId, profile });
         setKeyPath(key.path);
         const encrypted = encryptForKeystore(key.pubkey, JSON.stringify({ PROVEIT_SECRET: secretJson(proof) }));
-        const storageDeposit = await storageCost(config.enclaveProject, near.accountId, profile, encrypted);
-        txs = liveCardTransactions({ proof, keystorePubkey: key.pubkey, storageDeposit, windowDays, encrypted, kind: agent ? "agent" : "trader" }).txs;
+        const storageDeposit = await storageCost(NETWORKS[network].enclaveProject, near.accountId, profile, encrypted);
+        txs = liveCardTransactions({ proof, keystorePubkey: key.pubkey, storageDeposit, windowDays, encrypted, kind: agent ? "agent" : "trader", network }).txs;
       }
 
       setPhase({ step: "working", label: mode === "demo" ? "Approve the request in your NEAR wallet…" : "Approve the two transactions in your NEAR wallet…" });
@@ -158,7 +164,7 @@ export default function CreateFlow() {
             Connect NEAR wallet
           </button>
         )}
-        <p className="mt-2 text-xs text-muted">The card names this account as its issuer. Network: {config.network}.</p>
+        <p className="mt-2 text-xs text-muted">The card names this account as its issuer. Network: {mode === "demo" ? networkFor(config.demoRegistry).network : network}.</p>
       </Step>
 
       {mode === "live" && (

@@ -1,7 +1,7 @@
 // Discovery: every card on the registries, ranked. Revoked cards, replaced cards and cards
 // from retired builds are hidden; stale ones are badged. Public data only.
 
-import { config } from "./config";
+import { config, registriesOf, type Network } from "./config";
 import { getOffer, type OfferView } from "./keys";
 import { view, type CardRecord } from "./near";
 
@@ -59,15 +59,15 @@ async function load(registry: string, now: number): Promise<Entry[]> {
   return out;
 }
 
-export async function allCards(now = Math.floor(Date.now() / 1000)): Promise<Entry[]> {
-  const lists = await Promise.all([config.registry, config.demoRegistry].map((r) => load(r, now).catch(() => [])));
+export async function allCards(network: Network = config.network, now = Math.floor(Date.now() / 1000)): Promise<Entry[]> {
+  const lists = await Promise.all(registriesOf(network).map((r) => load(r, now).catch(() => [])));
   return lists.flat();
 }
 
 /** A profile: every card an account issued, newest first, grouped by trading account. */
 export async function cardsOf(account: string, now = Math.floor(Date.now() / 1000)): Promise<Entry[]> {
   const out: Entry[] = [];
-  for (const registry of [config.registry, config.demoRegistry]) {
+  for (const registry of [...registriesOf("testnet"), ...registriesOf("mainnet")]) {
     const cfg = await view<Config>(registry, "get_config").catch(() => null);
     if (!cfg) continue;
     const versions = new Map((await view<[string, { retired: boolean }][]>(registry, "get_versions")).map(([h, v]) => [h, v.retired]));

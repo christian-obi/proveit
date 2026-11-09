@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { boardData } from "@/lib/board";
 import { entryKey } from "@/lib/board-view";
+import { networkFor } from "@/lib/config";
 import { CARD_KEY } from "@/lib/reaction-kinds";
 import { addReaction, allCounts, allowClicks, countsOf, isKind } from "@/lib/reactions";
 
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   }
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowClicks(ip, n as number)) return NextResponse.json({ error: "too many clicks", counts: countsOf(card) }, { status: 429, headers });
-  const known = (await boardData()).entries.some((e) => entryKey(e) === card);
+  const known = (await boardData(networkFor(card.split(":")[0]).network)).entries.some((e) => entryKey(e) === card);
   if (!known) return NextResponse.json({ error: "no such card" }, { status: 404, headers });
   return NextResponse.json({ counts: addReaction(card, kind, n as number) }, { headers });
 }

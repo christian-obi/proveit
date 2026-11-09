@@ -32,15 +32,17 @@ export async function POST(req: Request) {
   if (!auth || typeof auth !== "object" || !AUTH_FIELDS.every((k) => typeof auth[k] === "string")) {
     return NextResponse.json({ error: "auth must be a NEP-413 signed message" }, { status: 400 });
   }
-  // After the move to mainnet the demo registry still runs on testnet OutLayer, with its own key.
+  // Each network's OutLayer needs its own payment key.
   const { network, outlayerApi } = networkFor(registry);
-  const key = network !== config.network ? process.env.OUTLAYER_TESTNET_PAYMENT_KEY : process.env.OUTLAYER_PAYMENT_KEY;
+  const mainKey = process.env.OUTLAYER_PAYMENT_KEY;
+  const mainIsTestnet = mainKey?.split(":")[0].endsWith(".testnet");
+  const key = network === "testnet" ? process.env.OUTLAYER_TESTNET_PAYMENT_KEY || (mainIsTestnet ? mainKey : undefined) : mainIsTestnet ? undefined : mainKey;
   if (!key) return NextResponse.json({ error: "the relay has no OutLayer payment key configured" }, { status: 503 });
 
   // Rebuild the input from the checked fields only, so nothing else can be smuggled in.
   const input: Record<string, unknown> = { op, card_id, auth: Object.fromEntries(AUTH_FIELDS.map((k) => [k, auth[k]])) };
   if (op === "feed") input.since = since ?? 0;
-  const project = registry === config.demoRegistry ? config.demoEnclaveProject : config.enclaveProject;
+  const project = registry === config.demoRegistry ? config.demoEnclaveProject : networkFor(registry).enclaveProject;
   // Run exactly the build the registry approved, so the attestation names it.
   const { active_version } = await view<{ active_version: string | null }>(registry, "get_config");
   if (!active_version) return NextResponse.json({ error: "the registry has no active enclave version" }, { status: 503 });

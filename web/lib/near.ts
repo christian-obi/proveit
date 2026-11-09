@@ -1,7 +1,7 @@
 // NEAR reads over RPC, and the transactions the create flow sends.
 
 import { view as rpcView } from "@proveit/verify/checks";
-import { config, networkFor, MAX_GAS, REQUEST_DEPOSIT_YOCTO } from "./config";
+import { networkFor, MAX_GAS, REQUEST_DEPOSIT_YOCTO } from "./config";
 
 /** A view call over the configured RPC endpoints, falling through on rate limits. */
 export function view<T>(contract: string, method: string, args: object = {}): Promise<T> {
@@ -52,12 +52,12 @@ export function storeSecretsArgs(projectId: string, owner: string, profile: stri
 /** Exact storage cost of the secret, from the OutLayer contract itself. */
 export async function storageCost(projectId: string, owner: string, profile: string, encryptedBase64: string): Promise<string> {
   const args = { ...storeSecretsArgs(projectId, owner, profile, encryptedBase64), owner };
-  return view<string>(config.outlayerContract, "estimate_storage_cost", args);
+  return view<string>(networkFor(projectId.split("/")[0]).outlayerContract, "estimate_storage_cost", args);
 }
 
 export function storeSecretsTx(projectId: string, owner: string, profile: string, encryptedBase64: string, deposit: string): Tx {
   return {
-    receiverId: config.outlayerContract,
+    receiverId: networkFor(projectId.split("/")[0]).outlayerContract,
     actions: [
       {
         type: "FunctionCall",

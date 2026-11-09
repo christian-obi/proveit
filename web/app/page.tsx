@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import Card from "@/components/Card";
 import FakeScreenshot from "@/components/FakeScreenshot";
@@ -5,7 +6,7 @@ import LiveBoard from "@/components/LiveBoard";
 import VerifyPanel from "@/components/VerifyPanel";
 import { boardData } from "@/lib/board";
 import { cardPath, loadCard } from "@/lib/cards";
-import { config } from "@/lib/config";
+import { config, NETWORK_COOKIE, parseNetwork } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +14,10 @@ export const dynamic = "force-dynamic";
 const [featuredRegistry, featuredId] = (process.env.NEXT_PUBLIC_FEATURED_CARD || `${config.demoRegistry}:3`).split(":");
 
 export default async function Home() {
-  const [featured, board] = await Promise.all([loadCard(featuredId, featuredRegistry).catch(() => null), boardData()]);
+  const [featured, board] = await Promise.all([loadCard(featuredId, featuredRegistry).catch(() => null), boardData(parseNetwork((await cookies()).get(NETWORK_COOKIE)?.value))]);
   return (
     <div className="wide space-y-14">
-      <LiveBoard initial={board} limit={6}>
+      <LiveBoard key={board.network} initial={board} limit={6}>
         <section className="space-y-5 pb-2">
           <p className="label">
             <span className="text-accent">{"//"} Verified</span> — signed in a TEE, recorded on NEAR

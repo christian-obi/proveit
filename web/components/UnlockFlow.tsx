@@ -11,7 +11,7 @@
 import { useEffect, useState } from "react";
 import { checkReveal, followerKey, openReveal, type Revealed, type RevealCheck } from "@proveit/verify/reveal";
 import { unhex } from "@proveit/verify/bytes";
-import { config, networkFor } from "@/lib/config";
+import { config, networkFor, NETWORKS } from "@/lib/config";
 import { explain } from "@/lib/errors";
 import {
   buyTx,
@@ -430,7 +430,7 @@ function CrossChainPay({ registry, cardId, buyer, onPaid }: { registry: string; 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [state, setState] = useState<UiState | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const mainnet = config.network === "mainnet" && registry === config.registry;
+  const mainnet = registry === NETWORKS.mainnet.registry;
 
   useEffect(() => {
     if (!open || !mainnet || tokens.length) return;

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cardPath } from "@/lib/cards";
-import { config } from "@/lib/config";
+import { config, registryForPath } from "@/lib/config";
 
 // Paste a card link (or "registry card-id") and open it with the checks running.
 export default function VerifyPage() {
@@ -18,9 +18,9 @@ export default function VerifyPage() {
     let registry: string | undefined;
     try {
       const u = new URL(v);
-      const m = u.pathname.match(/\/(c|demo)\/(\d+)/);
+      const m = u.pathname.match(/\/(c|t|demo)\/(\d+)/);
       id = m?.[2];
-      registry = m?.[1] === "demo" ? config.demoRegistry : config.registry;
+      registry = m ? registryForPath(m[1]) : undefined;
     } catch {
       const parts = v.split(/\s+/);
       if (parts.length === 2 && /^\d+$/.test(parts[1])) [registry, id] = parts;

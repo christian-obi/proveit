@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { FeedPageView } from "@/components/CardPageView";
-import { config } from "@/lib/config";
+import { NETWORKS } from "@/lib/config";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -12,5 +12,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  return <FeedPageView id={(await params).id} registry={config.registry} />;
+  return <FeedPageView id={(await params).id} registry={NETWORKS.mainnet.registry} />;
 }

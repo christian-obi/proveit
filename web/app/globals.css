@@ -190,3 +190,9 @@ button:disabled { cursor: not-allowed; }
 .card-picture { transition: transform 140ms ease-out; }
 a:hover > .card-picture { transform: scale(1.05) rotate(-2deg); }
 [data-fx="full"] .card-picture { filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 45%, transparent)); }
+
+.network-switch { display: inline-flex; border: 1px solid var(--line); font-family: var(--font-mono); font-size: 0.6875rem; }
+.network-switch button { padding: 0.1875rem 0.5rem; color: var(--muted); text-transform: lowercase; letter-spacing: 0; }
+.network-switch button:hover { color: var(--fg); }
+.network-switch button.is-on { background: var(--accent); color: var(--accent-fg); }
+.network-switch[data-network="mainnet"] button.is-on { background: var(--warn); }

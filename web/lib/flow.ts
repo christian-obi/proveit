@@ -1,6 +1,6 @@
 // The create flow's pure steps, kept free of React and wallets so tests can run them.
 
-import { config } from "./config";
+import { config, NETWORKS, type Network } from "./config";
 import { encryptForKeystore } from "./ecies";
 import { requestCardTx, storeSecretsTx, type Tx } from "./near";
 import { secretJson, type OwnershipProof } from "./ownership";
@@ -21,16 +21,18 @@ export function liveCardTransactions(opts: {
   windowDays: number;
   encrypted?: string;
   kind?: "trader" | "agent";
+  network?: Network;
 }): { txs: Tx[]; encrypted: string; profile: string } {
   const profile = profileFor(opts.proof.nonce);
+  const net = NETWORKS[opts.network ?? config.network];
   // The secret value is the JSON the enclave parses; the stored blob is {"PROVEIT_SECRET": value}.
   const encrypted = opts.encrypted ?? encryptForKeystore(opts.keystorePubkey, JSON.stringify({ PROVEIT_SECRET: secretJson(opts.proof) }));
   return {
     profile,
     encrypted,
     txs: [
-      storeSecretsTx(config.enclaveProject, opts.proof.nearAccount, profile, encrypted, opts.storageDeposit),
-      requestCardTx(config.registry, opts.windowDays, profile, opts.kind),
+      storeSecretsTx(net.enclaveProject, opts.proof.nearAccount, profile, encrypted, opts.storageDeposit),
+      requestCardTx(net.registry, opts.windowDays, profile, opts.kind),
     ],
   };
 }

@@ -1,25 +1,45 @@
 // Network configuration. Defaults are the testnet deployment from P3, so the app runs with
-// no environment variables at all; production on mainnet sets the NEXT_PUBLIC_* values.
+// no environment variables at all; the header switch picks a network per visitor.
 
 export type Network = "mainnet" | "testnet";
 
-// Each value must be read as a literal process.env.NEXT_PUBLIC_X: Next.js doesn't inline
-// dynamic lookups into the browser bundle, which would silently leave wallets on the defaults.
+export const NETWORKS = {
+  testnet: {
+    network: "testnet" as Network,
+    registry: "proveit-registry.testnet",
+    enclaveProject: "proveit-realist.testnet/enclave",
+    outlayerApi: "https://testnet-api.outlayer.ai",
+    outlayerContract: "outlayer.testnet",
+    nearRpc: ["https://rpc.testnet.fastnear.com", "https://rpc.testnet.near.org", "https://test.rpc.fastnear.com"],
+    explorer: "https://testnet.nearblocks.io",
+  },
+  mainnet: {
+    network: "mainnet" as Network,
+    registry: "proveit.near",
+    enclaveProject: "realist1036.near/enclave",
+    outlayerApi: "https://api.outlayer.ai",
+    outlayerContract: "outlayer.near",
+    nearRpc: ["https://rpc.mainnet.fastnear.com"],
+    explorer: "https://nearblocks.io",
+  },
+};
+
+const DEMO_REGISTRY = "proveit-demo-registry.testnet";
+
+/** The network used until a visitor picks one with the header switch. */
+const defaultNetwork: Network = process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "mainnet" : "testnet";
+
 export const config = {
-  network: (process.env.NEXT_PUBLIC_NETWORK || "testnet") as Network,
-  registry: process.env.NEXT_PUBLIC_REGISTRY || "proveit-registry.testnet",
-  demoRegistry: process.env.NEXT_PUBLIC_DEMO_REGISTRY || "proveit-demo-registry.testnet",
-  enclaveProject: process.env.NEXT_PUBLIC_ENCLAVE_PROJECT || "proveit-realist.testnet/enclave",
-  demoEnclaveProject: process.env.NEXT_PUBLIC_DEMO_ENCLAVE_PROJECT || "proveit-realist.testnet/enclave-demo",
-  outlayerApi: process.env.NEXT_PUBLIC_OUTLAYER_API || "https://testnet-api.outlayer.ai",
-  outlayerContract: process.env.NEXT_PUBLIC_OUTLAYER_CONTRACT || "outlayer.testnet",
-  /** Comma-separated; on a rate limit the next endpoint is tried. */
-  nearRpc: (process.env.NEXT_PUBLIC_NEAR_RPC || "https://rpc.testnet.fastnear.com,https://rpc.testnet.near.org,https://test.rpc.fastnear.com").split(","),
-  explorer: process.env.NEXT_PUBLIC_EXPLORER || "https://testnet.nearblocks.io",
+  ...NETWORKS[defaultNetwork],
+  demoRegistry: DEMO_REGISTRY,
+  demoEnclaveProject: "proveit-realist.testnet/enclave-demo",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://proveit-production-d47c.up.railway.app",
   /** Build-time switch for the Playwright tests' fake wallets. Never set in a deployed build. */
   e2e: process.env.NEXT_PUBLIC_E2E === "1",
 };
+
+export const NETWORK_COOKIE = "proveit-network";
+export const parseNetwork = (value: string | null | undefined): Network => (value === "mainnet" || value === "testnet" ? value : config.network);
 
 export const WINDOWS = [
   { days: 1, label: "1 day", note: "for live testing" },
@@ -33,24 +53,16 @@ export const WINDOWS = [
 export const REQUEST_DEPOSIT_YOCTO = "70000000000000000000000";
 export const MAX_GAS = "300000000000000";
 
+/** Which registries a network's board lists. Demo cards are testnet cards. */
+export const registriesOf = (network: Network) => (network === "testnet" ? [NETWORKS.testnet.registry, DEMO_REGISTRY] : [NETWORKS.mainnet.registry]);
+
 /** Cards are shown only from these registries: a card is only as good as the registry vouching for it. */
-export function isKnownRegistry(r: string): boolean {
-  return r === config.registry || r === config.demoRegistry;
-}
+export const isKnownRegistry = (r: string) => [...registriesOf("testnet"), ...registriesOf("mainnet")].includes(r);
 
-const TESTNET = {
-  network: "testnet" as Network,
-  rpc: ["https://rpc.testnet.fastnear.com", "https://rpc.testnet.near.org", "https://test.rpc.fastnear.com"],
-  outlayerApi: "https://testnet-api.outlayer.ai",
-};
-
-/**
- * Where an account lives. The demo registry stays on testnet after the site moves to mainnet,
- * so everything that touches a registry or token asks here instead of using config directly.
- */
+/** Where an account lives, from its name, so reads and writes never depend on the switch. */
 export function networkFor(account: string) {
-  if (config.network === "mainnet" && account.endsWith(".testnet")) return TESTNET;
-  return { network: config.network, rpc: config.nearRpc, outlayerApi: config.outlayerApi };
+  const n = account.endsWith(".testnet") ? NETWORKS.testnet : NETWORKS.mainnet;
+  return { ...n, rpc: n.nearRpc };
 }
 
 export const endpointsFor = (registry: string) => {
@@ -58,4 +70,5 @@ export const endpointsFor = (registry: string) => {
   return { rpc, outlayerApi };
 };
 
-export const endpoints = endpointsFor(config.registry);
+/** The registry behind a card address: /c/<id>, /t/<id> or /demo/<id>. */
+export const registryForPath = (segment: string) => (segment === "demo" ? DEMO_REGISTRY : segment === "t" ? NETWORKS.testnet.registry : NETWORKS.mainnet.registry);

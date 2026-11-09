@@ -44,7 +44,7 @@ export default function LiveBoard({ initial, initialSort = "return", limit, sort
       controller?.abort();
       controller = new AbortController();
       try {
-        const res = await fetch("/api/board", { signal: controller.signal, cache: "no-store" });
+        const res = await fetch(`/api/board?network=${initial.network}`, { signal: controller.signal, cache: "no-store" });
         if (!res.ok) return;
         const next = (await res.json()) as BoardData;
         lastOk.current = Date.now();
@@ -80,7 +80,7 @@ export default function LiveBoard({ initial, initialSort = "return", limit, sort
       document.removeEventListener("visibilitychange", poll);
       controller?.abort();
     };
-  }, []);
+  }, [initial.network]);
 
   const rows = useMemo(() => rank(data.entries, sort), [data.entries, sort]);
   const shown = limit ? rows.slice(0, limit) : rows;

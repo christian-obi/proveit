@@ -2,7 +2,7 @@
 // It rebuilds the request from three validated names, so it can never forward a secret,
 // and it passes OutLayer's answer through unchanged.
 
-import { config } from "@/lib/config";
+import { NETWORKS, networkFor } from "@/lib/config";
 import { keystoreBody } from "@/lib/keystore";
 
 const NAME = /^[a-z0-9._-]{2,64}(\/[A-Za-z0-9._/-]{1,64})?$/;
@@ -16,11 +16,11 @@ export async function POST(req: Request) {
     return new Response("expected JSON", { status: 400 });
   }
   const { projectId, owner, profile } = body;
-  if (typeof projectId !== "string" || projectId !== config.enclaveProject) return new Response("unknown project", { status: 400 });
+  if (typeof projectId !== "string" || ![NETWORKS.testnet.enclaveProject, NETWORKS.mainnet.enclaveProject].includes(projectId)) return new Response("unknown project", { status: 400 });
   if (typeof owner !== "string" || !NAME.test(owner)) return new Response("bad owner", { status: 400 });
   if (typeof profile !== "string" || !PROFILE.test(profile)) return new Response("bad profile", { status: 400 });
 
-  const upstream = await fetch(`${config.outlayerApi}/secrets/pubkey`, {
+  const upstream = await fetch(`${networkFor(projectId.split("/")[0]).outlayerApi}/secrets/pubkey`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "User-Agent": "proveit-keystore-relay" },
     body: JSON.stringify(keystoreBody({ projectId, owner, profile })),

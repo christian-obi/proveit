@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CardPageView, cardMetadata } from "@/components/CardPageView";
-import { config } from "@/lib/config";
+import { NETWORKS } from "@/lib/config";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ verify?: string }> };
 
@@ -8,9 +8,9 @@ type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ verify?:
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  return cardMetadata((await params).id, config.registry);
+  return cardMetadata((await params).id, NETWORKS.mainnet.registry);
 }
 
 export default async function Page({ params, searchParams }: Props) {
-  return <CardPageView id={(await params).id} registry={config.registry} autoRun={(await searchParams).verify === "1"} />;
+  return <CardPageView id={(await params).id} registry={NETWORKS.mainnet.registry} autoRun={(await searchParams).verify === "1"} />;
 }

@@ -96,3 +96,18 @@ test("tamper mode: a slow check of the unedited card can't overwrite the red res
   await expect(page.locator("[data-verdict]")).toHaveAttribute("data-verdict", "fail");
   expect(delayed).toBeGreaterThan(0); // the race was really staged
 });
+
+test("the header switch changes the board and the create flow, not card addresses", async ({ page }) => {
+  await page.goto("/explore");
+  await expect(page.locator("[data-board-status]")).toContainText("testnet", { ignoreCase: true, timeout: 60_000 });
+  await page.getByRole("button", { name: "mainnet" }).click();
+  await expect(page.locator("[data-board-status]")).toContainText("mainnet", { ignoreCase: true, timeout: 60_000 });
+  await page.reload();
+  await expect(page.locator("[data-board-status]")).toContainText("mainnet", { ignoreCase: true, timeout: 60_000 });
+  await expect(page.locator('[data-card-row^="proveit-demo-registry"]')).toHaveCount(0);
+  await page.goto("/demo/3");
+  await expect(page.getByText("demo card").first()).toBeVisible();
+  await page.goto("/create");
+  await page.getByRole("button", { name: "Connect" }).first().click();
+  await expect(page.getByText("Network: mainnet")).toBeVisible();
+});

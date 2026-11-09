@@ -1,10 +1,10 @@
 // Server-side card loading for pages and share images. Public data from the registry.
 //
-// Live cards live at /c/<id> and demo cards at /demo/<id>. They are separate paths, not a
+// Mainnet cards live at /c/<id>, testnet cards at /t/<id> and demo cards at /demo/<id>. They are separate paths, not a
 // ?registry= parameter, because share-image routes get no query string: a parameter would
 // make a demo link preview the live registry's card with the same number.
 
-import { config, isKnownRegistry } from "./config";
+import { config, isKnownRegistry, NETWORKS } from "./config";
 import { view, type CardRecord } from "./near";
 
 export type LoadedCard = { registry: string; record: CardRecord; card: any };
@@ -17,5 +17,6 @@ export async function loadCard(id: string, registry: string): Promise<LoadedCard
 }
 
 export function cardPath(id: number, registry: string): string {
-  return registry === config.demoRegistry ? `/demo/${id}` : `/c/${id}`;
+  if (registry === config.demoRegistry) return `/demo/${id}`;
+  return registry === NETWORKS.testnet.registry ? `/t/${id}` : `/c/${id}`;
 }
