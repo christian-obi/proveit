@@ -1,0 +1,16 @@
+  File "<string>", line 1
+    import json,sys; r=json.load(sys.stdin).get("result"); print(f"{int(r[\"amount\"])/1e24:.3f}" if r else "0")
+                                                                           ^
+SyntaxError: unexpected character after line continuation character
+✔ owner realist1036.near exists, balance 6.597 NEAR
+• proveit.near is free (the registry step creates it with 4 NEAR from realist1036.near)
+✘ OutLayer CLI is 'proveit-realist.testnet' on 'testnet'; run: outlayer login mainnet  (as realist1036.near)
+✔ NEAR CLI can read realist1036.near (signing uses its key from the keychain)
+✔ Docker is running
+preflight failed
+✔ owner realist1036.near exists, balance 6.597 NEAR
+• proveit.near is free (the registry step creates it with 4 NEAR from realist1036.near)
+✔ OutLayer CLI logged in as realist1036.near on mainnet
+✔ NEAR CLI can read realist1036.near (signing uses its key from the keychain)
+✔ Docker is running
+preflight passed

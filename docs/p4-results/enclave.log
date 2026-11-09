@@ -1,0 +1,25 @@
+Uploading to FastFS...
+  File: /Users/realist/projects/proveit/enclave/dist/proveit-enclave.wasm
+  Size: 765911 bytes
+  SHA256: 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a
+  Sender: realist1036.near
+  Receiver: outlayer.near
+
+  Uploading... tx: 4RR4qhkpGU79EaommX2kYKyMNPmJuUetcFQpLhoUxiFd
+
+Upload complete!
+
+FastFS URL: https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm
+
+Run directly:
+  outlayer run --wasm https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm '{}' 
+
+Or deploy as project version:
+  outlayer deploy <name> --wasm-url https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm
+waiting for FastFS to serve 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a...
+Deploying realist1036.near/enclave...
+  Source: WasmUrl (https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm)
+  Creating new project...
+  Project deployed
+
+Run with: outlayer run realist1036.near/enclave '{"command": "hello"}'

@@ -42,7 +42,7 @@ account_exists() {
 
 balance() {
   rpc "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"query\",\"params\":{\"request_type\":\"view_account\",\"finality\":\"final\",\"account_id\":\"$1\"}}" |
-    python3 -I -c 'import json,sys; r=json.load(sys.stdin).get("result"); print(f"{int(r[\"amount\"])/1e24:.3f}" if r else "0")'
+    python3 -I -c 'import json,sys; r=json.load(sys.stdin).get("result"); print("%.3f" % (int(r["amount"])/1e24) if r else "0")'
 }
 
 has_code() {
@@ -87,7 +87,8 @@ preflight() {
   if account_exists "$OWNER"; then
     bal=$(balance "$OWNER")
     echo "✔ owner $OWNER exists, balance $bal NEAR"
-    python3 -I -c 'import sys; sys.exit(0 if float(sys.argv[1]) >= 5 else 1)' "$bal" || { echo "✘ need at least 5 NEAR on $OWNER (registry storage ~3 NEAR, uploads and runs ~1 NEAR, margin)"; ok=0; }
+    # Only the first deploy needs this much; a re-run skips every step that's already done.
+    account_exists "$REGISTRY" || python3 -I -c 'import sys; sys.exit(0 if float(sys.argv[1]) >= 5 else 1)' "$bal" || { echo "✘ need at least 5 NEAR on $OWNER (registry storage ~3 NEAR, uploads and runs ~1 NEAR, margin)"; ok=0; }
   else
     echo "✘ owner $OWNER does not exist on mainnet"; ok=0
   fi

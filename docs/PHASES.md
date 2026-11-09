@@ -88,8 +88,8 @@ Mainnet build (reproducible, registry `proveit.near`): `16f515c2a8abf41de9ed6653
 
 | ID | Test | Status | Evidence |
 |---|---|---|---|
-| T4.1 | `deploy-mainnet.sh` twice; second run changes nothing | ☐ | needs a funded mainnet owner account and `outlayer login mainnet` |
-| T4.2 | `get_config`: active version = reproducible hash, key set, fixtures refused | ☐ | `deploy-mainnet.sh status` |
+| T4.1 | `deploy-mainnet.sh` twice; second run changes nothing | ✔ | 9 Nov, owner `realist1036.near`: every step on the second run reported "already", no balance spent ([log](p4-results/all.log)) |
+| T4.2 | `get_config`: active version = reproducible hash, key set, fixtures refused | ✔ | `deploy-mainnet.sh status`: version `27e7f6c4…8d6a`, enclave key set, fixtures refused, native USDC at 1% ([log](p4-results/status.log)) |
 | T4.3 | first card on mainnet, `verify_card` VALID | ☐ | needs the Hyperliquid account (1-day card: funded 24 h earlier, 20+ trades) |
 | T4.4 | attestation: `wasm_hash`, `output_hash`, project match | ☐ | `issue-demo-card.sh check` |
 | T4.5 | leak check: address in no transaction | ☐ | `issue-demo-card.sh check` |

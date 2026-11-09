@@ -1,0 +1,39 @@
+✔ owner realist1036.near exists, balance 2.574 NEAR
+✘ need at least 5 NEAR on realist1036.near (registry storage ~3 NEAR, uploads and runs ~1 NEAR, margin)
+✔ proveit.near exists with a contract
+✔ OutLayer CLI logged in as realist1036.near on mainnet
+✔ NEAR CLI can read realist1036.near (signing uses its key from the keychain)
+✔ Docker is running
+preflight failed
+✔ owner realist1036.near exists, balance 2.574 NEAR
+✔ proveit.near exists with a contract
+✔ OutLayer CLI logged in as realist1036.near on mainnet
+✔ NEAR CLI can read realist1036.near (signing uses its key from the keychain)
+✔ Docker is running
+preflight passed
+    Finished `release` profile [optimized] target(s) in 1m 10s
+27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a  dist/proveit-enclave.wasm  (registry proveit.near)
+recorded: live proveit.near 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a
+already deployed: realist1036.near/enclave at 27e7f6c4a2
+registry contract already deployed on proveit.near
+version 27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a already active
+enclave key already set
+payments already set to 17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
+proveit.near already registered with USDC
+{
+    "owner": "realist1036.near",
+    "outlayer": "outlayer.near",
+    "project_id": "realist1036.near/enclave",
+    "active_version": "27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a",
+    "card_pubkey": "629a88f497600363bcc2755c42140bcedd7cb3052954ba6d7e069075afea3a4e",
+    "accept_fixture_cards": false,
+    "stale_after_secs": 1209600,
+    "cards": 0,
+    "requests": 1,
+    "usdc": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "fee_bps": 100
+}
+✔ active version = reproducible build hash
+✔ enclave key set
+✔ fixture cards refused
+✔ viewing keys paid in native USDC, 1% fee

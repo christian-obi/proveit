@@ -1,0 +1,329 @@
+├  Unsigned transaction:
+│    signer_id:    realist1036.near
+│    receiver_id:  near
+│    actions:
+│       -- function call:      
+│                       method name:  create_account
+│                       args:         {
+│                                       "new_account_id": "proveit.near",
+│                                       "new_public_key": "ed25519:CbavKvLdPeJVbe8soaYF4SeBjKLgyrJeEybnqH5HsBaX"
+│                                     }
+│                       gas:          30.0 Tgas
+│                       deposit:      4 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:3S1vt3KoKVwVNGGFXiS7ADMR9rjiUBJWbAbj6sGPrEwN
+│    Signature:  ed25519:4x6heR54dEHcnarUNsiVVNjMw8NPfcW122bZozKPTPLECwbrwJwn1u2hNzDbmcNwAFkKDnyPD21qDNimYtVsLzdC
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.314 Tgas
+│    Transaction fee: 0.0000313733862085 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: EZhGCCv6HThVoHQAvaT4JmGLXYFode5gnFxv2TcHbjnv
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/EZhGCCv6HThVoHQAvaT4JmGLXYFode5gnFxv2TcHbjnv
+│     [0m
+├  Function execution logs:
+│    Logs [near]:   No logs
+│    Logs [proveit.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│    Logs [near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+true
+
+
+The "create_account" call to <near> on behalf of <realist1036.near> succeeded.
+
+The data for the access key is saved in the keychain
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near account create-account fund-myself proveit.near '4 NEAR' autogenerate-new-keypair --signature-scheme ed25519 save-to-keychain sign-as realist1036.near network-config mainnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+Migrating config.toml from V1 to V2...
+Migrating config.toml from V2 to V3...
+Migrating config.toml from V3 to v4...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+• Collecting cargo project metadata...
+• done
+
+• Checking rustc version...
+• done
+
+• Checking the host environment...
+• done
+
+• Generating ABI
+ │     Finished `dev` profile [unoptimized] target(s) in 0.18s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │     Finished `release` profile [optimized] target(s) in 0.18s
+
+Modification timestamps of:
+ |    "/Users/realist/projects/proveit/contract/target/wasm32-unknown-unknown/release/proveit_registry.wasm" = SystemTime { tv_sec: 1794133321, tv_nsec: 183213081 }
+ |    "/Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm" = SystemTime { tv_sec: 1794133322, tv_nsec: 1552797 }
+
+• Skipped running wasm-opt as final target exists and is newer than wasm produced by cargo
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /Users/realist/projects/proveit/contract/target/near/proveit_registry.wasm
+     -                  Size: 378.8 KB (378782 bytes)
+     - SHA-256 checksum hex : d2216416bde7b05bb6771643984347e08ae5ec00f2d23d8ac09806b7ba601c51
+     - SHA-256 checksum bs58: F9G9Zn85MPGA11gCFefMviDP4nKMvKKyUW2ah2HWFydA
+     -                   ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.json
+     -          Embedded ABI: /Users/realist/projects/proveit/contract/target/near/proveit_registry_abi.zst
+    Finished cargo near build in 2s
+├  [0mUnsigned transaction:
+│    signer_id:    proveit.near
+│    receiver_id:  proveit.near
+│    actions:
+│       -- deploy code <F9G9Zn85MPGA11gCFefMviDP4nKMvKKyUW2ah2HWFydA> to a account <proveit.near>
+│       -- function call:      
+│                       method name:  new
+│                       args:         {
+│                                       "accept_fixture_cards": false,
+│                                       "outlayer": "outlayer.near",
+│                                       "owner": "realist1036.near",
+│                                       "project_id": "realist1036.near/enclave"
+│                                     }
+│                       gas:          100.0 Tgas
+│                       deposit:      0 NEAR
+│     
+├  [0mYour transaction was signed successfully.
+│    Public key: ed25519:CbavKvLdPeJVbe8soaYF4SeBjKLgyrJeEybnqH5HsBaX
+│    Signature:  ed25519:5UDAf8hBG9QaNPDBw7hTpo47syA6Kho1gdbrrhmhcbRAnN9MQFDBDt3tv6cUVv8wSGFs1EYFkgY6FgjdUVbcMW53
+│     
+├  [0mTransaction Execution Info:
+│    Gas burned: 3.1 Tgas
+│    Transaction fee: 0.0003073750600836 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: ALc8a7h2hsKSTxtDAYy2zBUkYKxUSbqszxFdbRawEaTC
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/ALc8a7h2hsKSTxtDAYy2zBUkYKxUSbqszxFdbRawEaTC
+│     
+├  [0mFunction execution logs:
+│    Logs [proveit.near]:   No logs
+│    Logs [proveit.near]:   No logs
+│     
+├  [0mFunction execution return value:
+│    Empty return value
+│     
+
+Contract code has been successfully deployed.
+The "new" call to <proveit.near> on behalf of <proveit.near> succeeded.
+
+
+Here is the console command if you ever need to re-run it again:
+cargo near deploy build-non-reproducible-wasm proveit.near with-init-call new json-args '{"owner":"realist1036.near","outlayer":"outlayer.near","project_id":"realist1036.near/enclave","accept_fixture_cards":false}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config mainnet sign-with-keychain send
+
+cargo-near has a new update available 0.22.0 → 0.23.0
+To update run: /Users/realist/.cargo/bin/cargo-near near self-update
+Migrating config.toml from V4 to V5...
+Note: `near` CLI configuration is stored in "/Users/realist/Library/Application Support/near-cli/config.toml"
+├  Unsigned transaction:
+│    signer_id:    realist1036.near
+│    receiver_id:  proveit.near
+│    actions:
+│       -- function call:      
+│                       method name:  approve_version
+│                       args:         {
+│                                       "hash": "27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:3S1vt3KoKVwVNGGFXiS7ADMR9rjiUBJWbAbj6sGPrEwN
+│    Signature:  ed25519:3oAMHQgF3UUqptAgcLsiZyMEpdHDCHYnDrPuwniBaHXmns2r9wiPHv3XkwRhxoqqbV36jNYcG1e2mGK39AZuzU97
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031235103435 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: pdzLVurTPFYxsFXCp8sZ5qZtKJS87xr96fjQNPqGpMc
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/pdzLVurTPFYxsFXCp8sZ5qZtKJS87xr96fjQNPqGpMc
+│     [0m
+├  Function execution logs:
+│    Logs [proveit.near]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"version_approved","data":[{"hash":"27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a"}]}
+│    Logs [realist1036.near]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "approve_version" call to <proveit.near> on behalf of <realist1036.near> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit.near approve_version json-args '{"hash":"27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a"}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as realist1036.near network-config mainnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    realist1036.near
+│    receiver_id:  proveit.near
+│    actions:
+│       -- function call:      
+│                       method name:  bootstrap_key
+│                       args:         {}
+│                       gas:          300.0 Tgas
+│                       deposit:      0.05 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:3S1vt3KoKVwVNGGFXiS7ADMR9rjiUBJWbAbj6sGPrEwN
+│    Signature:  ed25519:4qZciH8ASXYbqr2CoZKrTMBPYHKCYFYgdyHDwQAkjhtGY9s1KvfNmh3b5Eycz8v9J8uTUKvSqZSxEpfm1LonZ5rF
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.309 Tgas
+│    Transaction fee: 0.0000308774755725 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: Azo34s1rJrJmArtryQGkzYhYp4f3YsMgmRrksEtTig8L
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/Azo34s1rJrJmArtryQGkzYhYp4f3YsMgmRrksEtTig8L
+│     [0m
+├  Function execution logs:
+│    Logs [proveit.near]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_started","data":[{"request":0,"signer":"realist1036.near","version":"27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a"}]}
+│    Logs [outlayer.near]:
+│      Resolved project: realist1036.near/enclave, version: "27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a", source: WasmUrl { url: "https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm", hash: "27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a", build_target: Some("wasm32-wasip2") }, uuid: p000000000000005e
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_requested","data":[{"request_data":"{\"request_id\":2882,\"sender_id\":\"realist1036.near\",\"predecessor_id\":\"proveit.near\",\"code_source\":{\"WasmUrl\":{\"url\":\"https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm\",\"hash\":\"27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a\",\"build_target\":\"wasm32-wasip2\"}},\"resource_limits\":{\"max_instructions\":30000000000,\"max_memory_mb\":256,\"max_execution_seconds\":120},\"input_data\":\"{\\\"op\\\":\\\"pubkey\\\"}\",\"input_data_in_state\":false,\"secrets_ref\":null,\"response_format\":\"Json\",\"payment\":\"50000000000000000000000\",\"attached_usd\":\"0\",\"timestamp\":1794238033365869313,\"compile_only\":false,\"force_rebuild\":false,\"store_on_fastfs\":false,\"use_bound_identity\":false,\"project_uuid\":\"p000000000000005e\",\"project_id\":\"realist1036.near/enclave\"}","data_id":[51,2,41,96,59,124,59,173,232,250,11,16,245,137,96,13,102,160,63,198,28,193,59,63,138,227,60,194,163,86,153,218],"timestamp":1794238033365869313}]}
+│    Logs [outlayer.near]:
+│      [[yNEAR charged: "1295600000000000000000"]]
+│      EVENT_JSON:{"standard":"near-outlayer","version":"1.0.0","event":"execution_completed","data":[{"sender_id":"realist1036.near","code_source":{"WasmUrl":{"url":"https://main.fastfs.io/realist1036.near/outlayer.near/27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a.wasm","hash":"27e7f6c4a2097a65319488c3c19a953327b81c78a8489c26a2abe63467cb8d6a","build_target":"wasm32-wasip2"}},"resources_used":{"instructions":56604,"time_ms":1995,"compile_time_ms":961},"success":true,"error_message":null,"payment_charged":"1295600000000000000000","payment_refunded":"48704400000000000000000","compilation_note":"Freshly compiled","timestamp":1794238042274164450}]}
+│      Execution completed successfully. Output: Json(91 bytes), Resources: { instructions: 56604, time_ms: 1995 }, Cost: 1295600000000000000000 yoctoNEAR, Refund: 48704400000000000000000 yoctoNEAR, Freshly compiled
+│    Logs [realist1036.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│    Logs [proveit.near]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"key_set","data":[{"pubkey":"629a88f497600363bcc2755c42140bcedd7cb3052954ba6d7e069075afea3a4e"}]}
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"request_done","data":[{"request":0,"outcome":{"KeySet":{"pubkey":"629a88f497600363bcc2755c42140bcedd7cb3052954ba6d7e069075afea3a4e"}}}]}
+│    Logs [realist1036.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "KeySet": {
+    "pubkey": "629a88f497600363bcc2755c42140bcedd7cb3052954ba6d7e069075afea3a4e"
+  }
+}
+
+
+The "bootstrap_key" call to <proveit.near> on behalf of <realist1036.near> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit.near bootstrap_key json-args {} prepaid-gas '300.0 Tgas' attached-deposit '0.05 NEAR' sign-as realist1036.near network-config mainnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+bootstrap: {"KeySet":{"pubkey":"629a88f497600363bcc2755c42140bcedd7cb3052954ba6d7e069075afea3a4e"}}
+├  Unsigned transaction:
+│    signer_id:    realist1036.near
+│    receiver_id:  proveit.near
+│    actions:
+│       -- function call:      
+│                       method name:  set_payments
+│                       args:         {
+│                                       "fee_bps": 100,
+│                                       "token": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:3S1vt3KoKVwVNGGFXiS7ADMR9rjiUBJWbAbj6sGPrEwN
+│    Signature:  ed25519:g7vsDDt1jYWxqMbqSsdGYv8CBoH7xDkuo69bUCyQvM3CeW5rPJsKJQWt8isDfJXZ6NEdZvpV2u6YHVUgrnsHssp
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031292323893 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: 2dcJgPvNoN3e1TvK1yhYotVjBDGpC2ii5UzbQAFpX5Fa
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/2dcJgPvNoN3e1TvK1yhYotVjBDGpC2ii5UzbQAFpX5Fa
+│     [0m
+├  Function execution logs:
+│    Logs [proveit.near]:   No logs
+│    Logs [realist1036.near]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "set_payments" call to <proveit.near> on behalf of <realist1036.near> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit.near set_payments json-args '{"token":"17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","fee_bps":100}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as realist1036.near network-config mainnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+├  Unsigned transaction:
+│    signer_id:    realist1036.near
+│    receiver_id:  17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
+│    actions:
+│       -- function call:      
+│                       method name:  storage_deposit
+│                       args:         {
+│                                       "account_id": "proveit.near",
+│                                       "registration_only": true
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0.00125 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:3S1vt3KoKVwVNGGFXiS7ADMR9rjiUBJWbAbj6sGPrEwN
+│    Signature:  ed25519:2UE1pFgBFdctd5KYxpxqGLYT7skipqpcctNjT7nWM791aAMJsrCgbmaUyvZXSBshm55mUkFVoVq6fp56z6Xviq1M
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.312 Tgas
+│    Transaction fee: 0.0000311349676335 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: BqvYYJNZ4aN5vjnc53ALX1ewJgS2wXZfqxHE8MCngrT6
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/BqvYYJNZ4aN5vjnc53ALX1ewJgS2wXZfqxHE8MCngrT6
+│     [0m
+├  Function execution logs:
+│    Logs [17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1]:   No logs
+│    Logs [realist1036.near]:   No logs
+│     [0m
+
+Function execution return value (printed to stdout):
+{
+  "available": "0",
+  "total": "1250000000000000000000"
+}
+
+
+The "storage_deposit" call to <17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1> on behalf of <realist1036.near> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction 17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1 storage_deposit json-args '{"account_id":"proveit.near","registration_only":true}' prepaid-gas '300.0 Tgas' attached-deposit '0.00125 NEAR' sign-as realist1036.near network-config mainnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
