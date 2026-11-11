@@ -155,6 +155,11 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
   return (
     <div className="space-y-4">
       <OfferSummary offer={offer} decimals={decimals} symbol={symbol} />
+      {!near && (
+        <p id="sell" className="rounded-md border border-dashed border-line p-3 text-sm text-muted">
+          <span className="font-medium text-fg">Selling keys for this card?</span> Connect <span className="font-mono text-fg">{issuer}</span>, the wallet that issued it, to set the price, how many followers can buy (seats), the delay and the duration.
+        </p>
+      )}
 
       {!near ? (
         <button className={button} onClick={onConnect} disabled={busy}>

@@ -1,0 +1,45 @@
+== T4.3 verify_card: VALID
+== T4.4 attestation
+  ✔ output_hash = sha256(output returned on-chain)
+  ✔ wasm_hash = the version the registry pinned
+  ✔ project is the registry's enclave project
+== T4.5 leak check
+scripts/issue-demo-card.sh: line 102: PROOF_FILE: set PROOF_FILE to the proof.json used for store
+== T4.3 verify_card: VALID
+== T4.4 attestation
+  ✔ output_hash = sha256(output returned on-chain)
+  ✔ wasm_hash = the version the registry pinned
+  ✔ project is the registry's enclave project
+== T4.5 leak check
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; print(json.load(open(sys.argv[1]))["proof"]["account"])
+                                     ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/realist/proof.json'
+== T4.3 verify_card: VALID
+== T4.4 attestation
+  ✔ output_hash = sha256(output returned on-chain)
+  ✔ wasm_hash = the version the registry pinned
+  ✔ project is the registry's enclave project
+== T4.5 leak check
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; print(json.load(open(sys.argv[1]))["proof"]["account"])
+                                     ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/realist/proof.json'
+== T4.3 verify_card: VALID
+== T4.4 attestation
+  ✔ output_hash = sha256(output returned on-chain)
+  ✔ wasm_hash = the version the registry pinned
+  ✔ project is the registry's enclave project
+== T4.5 leak check
+4AD49GdvzTEW9FKeFY4V2kC621myTHq6jRkvKaBjUdqZ: needle 1: 0, needle 2: 0
+5Jmicu53JrEvwhSvPSDstdtEiFVjBdA9rADafbKvALpn: needle 1: 0, needle 2: 0
+control 'f24cf6b98f1657737e7d8455fc65fcee24b9f9f28d37a945ed6656c3d9c856c0': 4 hit(s)
+PASS: no needle found
+== T4.6 card fields
+  ✔ no address
+  ✔ no transaction hash (0x + 64 hex)
+  ✔ no order or trade ids
+  ✔ volume is a band, not exact
+  ✔ no account value field

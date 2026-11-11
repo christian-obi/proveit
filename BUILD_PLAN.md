@@ -323,7 +323,7 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | P1 | Enclave core: ownership, data, stats | Wed 4 Nov | P0 | ✔ 10/10 |
 | P2 | Enclave card: commit, Merkle, signing, OutLayer testnet | Thu 5 Nov (AM) | P1 | ✔ 8/8 |
 | P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ◐ 6/7 built (T3.6: Hyperliquid account) |
-| P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ◐ 2/6: deployed to mainnet (T4.1, T4.2); T4.3–T4.6 need the Hyperliquid account |
+| P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ✔ 6/6: card #0 on `proveit.near`, attested, no leak |
 | P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ◐ 4/5 (T5.5: your wallet) |
 | P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/5 (T6.5: social previews) |
 | P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 built (T7.6: mainnet) |

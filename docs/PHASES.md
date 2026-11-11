@@ -88,10 +88,10 @@ Mainnet build (reproducible, registry `proveit.near`): `16f515c2a8abf41de9ed6653
 |---|---|---|---|
 | T4.1 | `deploy-mainnet.sh` twice; second run changes nothing | ✔ | 9 Nov, owner `realist1036.near`: every step on the second run reported "already", no balance spent ([log](p4-results/all.log)) |
 | T4.2 | `get_config`: active version = reproducible hash, key set, fixtures refused | ✔ | `deploy-mainnet.sh status`: version `7a2710db…7b7b` (upgraded 9 Nov for the $10 minimum; first deployed as `27e7f6c4…8d6a`), enclave key set, fixtures refused, native USDC at 1% ([log](p4-results/status.log)) |
-| T4.3 | first card on mainnet, `verify_card` VALID | ☐ | needs the Hyperliquid account (1-day card: funded 24 h earlier, 20+ trades) |
-| T4.4 | attestation: `wasm_hash`, `output_hash`, project match | ☐ | `issue-demo-card.sh check` |
-| T4.5 | leak check: address in no transaction | ☐ | `issue-demo-card.sh check` |
-| T4.6 | card has no address, tx hash, order IDs or exact amounts | ☐ | `issue-demo-card.sh check` |
+| T4.3 | first card on mainnet, `verify_card` VALID | ✔ | 10 Nov: card #0 on `proveit.near` by `realist1036.near`, 1-day window, 26 trades, `verify_card` VALID, browser checks 4 ✔ + freshness warn (1-day test card). `request_card` tx `5Jmicu53JrEvwhSvPSDstdtEiFVjBdA9rADafbKvALpn` |
+| T4.4 | attestation: `wasm_hash`, `output_hash`, project match | ✔ | `issue-demo-card.sh check 0`: output hash, build `7a2710db…` and project `realist1036.near/enclave` all match ([log](p4-results/check-0.log)) |
+| T4.5 | leak check: address in no transaction | ✔ | 11 Nov, run by the trader on their machine: 0 hits for the address (both forms) in the `store_secrets` and `request_card` transactions; the control (card hash) found 4 times ([log](p4-results/check-0.log), address redacted) |
+| T4.6 | card has no address, tx hash, order IDs or exact amounts | ✔ | same run: no address, no transaction hash, no order or trade IDs, volume as a band, no account value |
 
 **P4 status:** scripts built and rehearsed; 0 of 6 until mainnet access (owner account + ~5 NEAR) and the Hyperliquid account exist.
 

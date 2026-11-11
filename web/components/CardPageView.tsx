@@ -26,6 +26,7 @@ async function UnlockLink({ id, registry }: { id: number; registry: string }) {
   const token = offer?.token ? await tokenMeta(offer.token).catch(() => null) : null;
   const href = `${cardPath(id, registry)}/unlock`;
   return (
+    <div className="space-y-2">
     <Link href={href} className="flex items-center justify-between rounded-lg border border-line bg-panel p-4 text-sm hover:border-accent" data-unlock-link>
       <span>
         <span className="font-medium">Follow this trader</span>
@@ -33,6 +34,23 @@ async function UnlockLink({ id, registry }: { id: number; registry: string }) {
           {offer
             ? ` · viewing keys from ${Number(offer.offer.price) / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? "USDC"}, ${offer.seats_left} seat${offer.seats_left === 1 ? "" : "s"} left`
             : " · the trader can sell viewing keys to this card's trades"}
+        </span>
+      </span>
+      <span aria-hidden>→</span>
+    </Link>
+    <SellLink id={id} registry={registry} selling={!!offer} />
+    </div>
+  );
+}
+
+/** The trader's own way in: pricing and seats live on the unlock page, behind their wallet. */
+function SellLink({ id, registry, selling }: { id: number; registry: string; selling: boolean }) {
+  return (
+    <Link href={`${cardPath(id, registry)}/unlock#sell`} className="flex items-center justify-between rounded-lg border border-dashed border-line p-4 text-sm hover:border-accent" data-sell-link>
+      <span>
+        <span className="font-medium">Is this your card?</span>
+        <span className="text-muted">
+          {selling ? " · change your price, seats or delay" : " · sell viewing keys: set a price, how many followers can copy you, and a delay"}
         </span>
       </span>
       <span aria-hidden>→</span>

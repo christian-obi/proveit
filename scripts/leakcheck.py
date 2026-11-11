@@ -74,7 +74,8 @@ def main():
         blobs.append(blob)
         hits = {n: blob.count(n) for n in sorted(needles)}
         found += sum(hits.values())
-        print(f"{h}: {hits}")
+        # Counts only: the needle is the private address, so it is never printed.
+        print(f"{h}: " + ", ".join(f"needle {i + 1}: {n}" for i, n in enumerate(hits.values())))
 
     for c in a.control:
         n = sum(b.count(c.lower()) for b in blobs)

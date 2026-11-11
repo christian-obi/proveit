@@ -59,6 +59,12 @@ export default function Card({ card, id, edited, seed, reactionKey }: { card: Ca
         )}
         <p className="text-xs uppercase tracking-wide text-muted">Return, time-weighted</p>
         <p className={`font-mono text-5xl font-semibold tabular-nums tracking-tight ${up ? "glow-up text-accent" : "glow-down text-bad"}`}>{returnLabel(s)}</p>
+        <p className="mt-2 text-sm text-muted" data-issuer>
+          Trader{" "}
+          <a href={`/p/${card.issuer}`} className="font-mono text-fg underline decoration-line underline-offset-4 hover:text-accent">
+            {card.issuer}
+          </a>
+        </p>
         {s.k_anon !== undefined && (
           <p className="mt-1 text-xs text-muted" data-kanon>
             Rounded so the wallet can&apos;t be found: 1 of ≥ {s.k_anon} accounts on Hyperliquid&apos;s public leaderboard with this return

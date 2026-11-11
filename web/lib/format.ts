@@ -8,6 +8,7 @@ export const windowLabel = (days: number) => (days === 1 ? "1 day" : `${days} da
 export const volume = (band: string) => {
   const exp = Number(band.replace("1e", ""));
   const units = ["", "", "", "$1K+", "$10K+", "$100K+", "$1M+", "$10M+", "$100M+", "$1B+"];
+  if (exp < 3) return "under $1K";
   return units[exp] ?? `10^${exp}+`;
 };
 
@@ -18,6 +19,7 @@ export function returnLabel(s: { return_bps: number; return_precision_bps?: numb
   const lo = s.return_bps, hi = s.return_bps + p;
   const d = p < 100 ? 1 : 0;
   const f = (bps: number) => (bps / 100).toFixed(d);
-  const sign = lo >= 0 ? "+" : "";
-  return `${sign}${f(lo)}–${f(hi)}%`;
+  if (lo >= 0) return `+${f(lo)}–${f(hi)}%`;
+  // A dash between two negative numbers reads as a double minus, so spell out the range.
+  return `${f(lo)}% to ${hi > 0 ? "+" : ""}${f(hi)}%`;
 }

@@ -4,7 +4,7 @@
 
 Screenshots of PnL can be faked. Prove-It cards can't, and they don't give away the wallet.
 
-> Built at NEAR HACKATHON (Nov 2026). The website runs on **NEAR testnet and OutLayer testnet** today. The registry and enclave are **deployed on NEAR mainnet**, and the first mainnet card is pending (see [Status](#status)).
+> Built at NEAR HACKATHON (Nov 2026). The website opens on **NEAR testnet** by default. The registry and enclave run on **NEAR mainnet**, where the first real card, [#0](https://proveit-production-d47c.up.railway.app/c/0), is issued and verified (see [Status](#status)). A switch in the site header shows either network.
 
 ## Try it in 60 seconds, no wallet
 
@@ -108,7 +108,7 @@ Each prints a sha256; compare it with [enclave/expected-hashes.txt](enclave/expe
 
 | | Testnet (live now) | Mainnet |
 |---|---|---|
-| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (deployed; no cards yet) |
+| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (card [#0](https://proveit-production-d47c.up.railway.app/c/0)) |
 | OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | `realist1036.near/enclave` |
 | Demo cards | [#3](https://proveit-production-d47c.up.railway.app/demo/3) (trader), [#4](https://proveit-production-d47c.up.railway.app/demo/4) (AI agent) | pending |
 | Attestation (card #3) | https://testnet-api.outlayer.ai/attestations/by-request/13345 | |
@@ -138,7 +138,7 @@ Per-phase exit tests and live evidence: [docs/PHASES.md](docs/PHASES.md). The pl
 
 | Done (testnet, live) | Pending |
 |---|---|
-| issuance in the TEE, registry, verification + tamper mode, privacy guard, viewing keys with USDC, reveals, live feed over HTTPS, explore, profiles, agent guard, `/api/verify`, copy from a tab (simulated and signature-tested; no live order yet) | the first mainnet card (P4); a live 1Click payment from another chain (needs mainnet); a card from the team's own Hyperliquid account; the NEAR Intents venue (needs 1Click history access) |
+| issuance in the TEE, registry, verification + tamper mode, privacy guard, viewing keys with USDC, reveals, live feed over HTTPS, explore, profiles, agent guard, `/api/verify`, copy from a tab (simulated and signature-tested; no live order yet)  | a live 1Click payment from another chain (needs mainnet); a card from the team's own Hyperliquid account; the NEAR Intents venue (needs 1Click history access) |
 
 ## Roadmap
 

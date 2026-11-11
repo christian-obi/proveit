@@ -1,0 +1,18 @@
+{
+  "request_id": 2941,
+  "output": "{\"card\":{\"commitment\":\"20450d80fdc69e749012e7801a50daa53df70f7c6b67768087258069fce03919\",\"issued_at\":1794343856,\"issuer\":\"realist1036.near\",\"kind\":\"trader\",\"mode\":\"live\",\"nonce\":69287701171387,\"orders\":{\"count\":52,\"root\":\"74c5d0f466462b4123c17bb914d11f21ae294100d3ee89fdcfb1f8865a94e50b\"},\"outlayer_request_id\":\"2941\",\"scope\":\"account\",\"stats\":{\"active_days\":1,\"flow_turnover_bps\":0,\"k_anon\":42,\"k_min\":25,\"max_dd_bps\":182,\"profit_factor_x100\":0,\"return_bps\":-190,\"return_precision_bps\":10,\"trades\":26,\"volume_band\":\"1e2\",\"win_rate_bps\":0},\"v\":1,\"venue\":\"hyperliquid\",\"window\":{\"days\":1,\"end\":1794343862596,\"samples\":13,\"start\":1794255960032}},\"sig\":\"809164727eb2f3296c625f701fca32cf65aab8b72ab3800995d9cebaef86d701322abdb6c9b5ee7c96e84dd25aac4eae0a8eac226270178a1627953677ee1e03\",\"status\":\"ok\"}",
+  "output_bytes": 795,
+  "output_sha256": "f5b7e1c5d2ffcf042855b1134ed1abf0b09db49cd463cca605bbf9eaa372137e",
+  "attestation": {
+    "task_id": 1346846,
+    "wasm_hash": "7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b",
+    "executed_wasm_sha256": "7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b",
+    "input_hash": "cb89f4db555ec5aa91b90444da50f4f1d55b47ee5cf48626c71044461d99cd50",
+    "output_hash": "f5b7e1c5d2ffcf042855b1134ed1abf0b09db49cd463cca605bbf9eaa372137e",
+    "caller_account_id": "realist1036.near",
+    "project_id": "realist1036.near/enclave"
+  },
+  "checks": {
+    "output_hash matches": true
+  }
+}

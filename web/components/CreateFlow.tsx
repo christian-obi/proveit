@@ -238,6 +238,9 @@ function Status({ phase }: { phase: Phase }) {
         <a className="mt-2 inline-block text-accent underline" href={`${cardPath(o.Issued.card_id, phase.registry)}?verify=1`}>
           Open the card
         </a>
+        <a className="mt-2 ml-4 inline-block text-accent underline" href={`${cardPath(o.Issued.card_id, phase.registry)}/unlock#sell`}>
+          Sell viewing keys to followers
+        </a>
       </div>
     );
   }

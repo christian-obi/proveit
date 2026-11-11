@@ -21,5 +21,5 @@ Every claim in the README, with the test or live record that backs it. Test IDs 
 | C15 | AI agents can check a trader before following: `pnpm agent-guard` and `/api/verify` | T9.4 (`docs/agent-guard-demo.log`), T9.5 | `pnpm agent-guard https://proveit-production-d47c.up.railway.app/demo/3 --allow-demo --max-dd 70` → FOLLOW; add `--tamper return_bps=9000` → REFUSE |
 | C16 | Other contracts can gate on a verified card on-chain | `verify_card(card_id, card_json?)` view on the registry; T3 tests | `near contract call-function as-read-only proveit-demo-registry.testnet verify_card json-args '{"card_id":3}' network-config testnet now` |
 | C17 | The security checklist holds | T10.5 ([THREAT_MODEL.md](THREAT_MODEL.md)) | `pnpm test` |
-| C18 | On NEAR mainnet | Registry and enclave deployed: T4.1, T4.2 ([log](p4-results/status.log)). **First mainnet card pending** (T4.3) | `OWNER=realist1036.near scripts/deploy-mainnet.sh status` |
+| C18 | On NEAR mainnet | Registry and enclave deployed (T4.1, T4.2); card #0 issued, attested and leak-free (T4.3–T4.6) | `node packages/verify/bin/verify.ts https://proveit-production-d47c.up.railway.app/c/0` |
 | C19 | Followers can copy trades from a browser tab; the app server never sees their address or trading key | TC.1–TC.5. **A live filled order is pending** (TC.6) | `pnpm --filter web test && pnpm --filter web e2e copy` |
