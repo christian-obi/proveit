@@ -164,6 +164,12 @@ Confidential perps support is planned for after the hackathon. It isn't built. S
 - Main libraries: near-sdk, serde, k256, ed25519-dalek, x25519-dalek, chacha20poly1305, rust_decimal (Rust); Next.js, React, viem, @noble/* crypto, @hot-labs/near-connect (TypeScript).
 - Demo cards use a recorded public Hyperliquid account (`enclave/fixtures/winner`), computed in the real TEE and labelled as demo cards everywhere.
 
+## Other hackathon project
+
+A member of this team also built [Covenant](https://github.com/Len3hq/covenant) for NEAR
+HACKATHON (Nov 2026): a policy-enforced vault that lets AI agents pay on Bitcoin, EVM chains and
+Solana through NEAR Chain Signatures. The two projects are independent and share no code.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
