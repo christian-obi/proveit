@@ -12,6 +12,7 @@ export const NETWORKS = {
     outlayerContract: "outlayer.testnet",
     nearRpc: ["https://rpc.testnet.fastnear.com", "https://rpc.testnet.near.org", "https://test.rpc.fastnear.com"],
     explorer: "https://testnet.nearblocks.io",
+    archivalRpc: ["https://archival-rpc.testnet.fastnear.com", "https://archival-rpc.testnet.near.org"],
   },
   mainnet: {
     network: "mainnet" as Network,
@@ -21,6 +22,7 @@ export const NETWORKS = {
     outlayerContract: "outlayer.near",
     nearRpc: ["https://rpc.mainnet.fastnear.com"],
     explorer: "https://nearblocks.io",
+    archivalRpc: ["https://archival-rpc.mainnet.fastnear.com", "https://archival-rpc.mainnet.near.org"],
   },
 };
 

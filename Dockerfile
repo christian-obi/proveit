@@ -29,5 +29,7 @@ WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
 COPY --from=build /app /app
-# Railway sets PORT; next start listens on it.
-CMD ["pnpm", "--filter", "web", "start"]
+# Railway sets PORT; next start listens on it. start.mjs makes a requested stop exit cleanly,
+# so replaced deployments aren't reported as crashed.
+WORKDIR /app/web
+CMD ["node", "start.mjs"]

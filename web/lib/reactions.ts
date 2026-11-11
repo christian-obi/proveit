@@ -20,22 +20,31 @@ function load(): Map<string, Counts> {
 }
 
 // On globalThis because Next bundles each route separately, and they must share one store.
-const g = globalThis as unknown as { __reactions?: Store };
+const g = globalThis as unknown as { __reactions?: Store; __reactionsFlushOnStop?: boolean };
 const store = (): Store => (g.__reactions ??= { counts: load(), timer: null, buckets: new Map() });
+
+function writeNow() {
+  const s = store();
+  if (s.timer) clearTimeout(s.timer);
+  s.timer = null;
+  try {
+    const file = path();
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(`${file}.tmp`, JSON.stringify(Object.fromEntries(s.counts)));
+    renameSync(`${file}.tmp`, file);
+  } catch (error) {
+    console.error("could not save reactions", error);
+  }
+}
 
 function save() {
   const s = store();
-  s.timer ??= setTimeout(() => {
-    s.timer = null;
-    try {
-      const file = path();
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(`${file}.tmp`, JSON.stringify(Object.fromEntries(s.counts)));
-      renameSync(`${file}.tmp`, file);
-    } catch (error) {
-      console.error("could not save reactions", error);
-    }
-  }, 1_000);
+  if (!s.timer && !g.__reactionsFlushOnStop) {
+    // A deploy stops this process: write what's pending instead of losing the last second.
+    g.__reactionsFlushOnStop = true;
+    process.once("SIGTERM", () => store().timer && writeNow());
+  }
+  s.timer ??= setTimeout(writeNow, 1_000);
 }
 
 export const isKind = (k: unknown): k is Kind => KINDS.includes(k as Kind);

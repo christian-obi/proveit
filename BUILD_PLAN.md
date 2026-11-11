@@ -322,15 +322,15 @@ Build one phase at a time. Each phase has a goal, a target date, what it depends
 | P0 | Setup and risk spikes | Tue 3 Nov | — | ✔ 7/7 (the near.com and Intents checks moved to the roadmap) |
 | P1 | Enclave core: ownership, data, stats | Wed 4 Nov | P0 | ✔ 10/10 |
 | P2 | Enclave card: commit, Merkle, signing, OutLayer testnet | Thu 5 Nov (AM) | P1 | ✔ 8/8 |
-| P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ◐ 6/7 built (T3.6: Hyperliquid account) |
+| P3 | Registry contract on testnet | Thu 5 – Fri 6 Nov (AM) | P2 | ◐ 6/7 (T3.6: a testnet card; passed on mainnet) |
 | P4 | **M1:** first real card on mainnet | Fri 6 Nov | P3 | ✔ 6/6: card #0 on `proveit.near`, attested, no leak |
-| P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ◐ 4/5 (T5.5: your wallet) |
+| P5 | Web app: trader create flow (Railway) | Sat 7 Nov | P4 | ◐ 5/5 run (T5.5 time not measured) |
 | P6 | **M2:** card page, verify, tamper mode | Sun 8 Nov | P5 | ◐ 4/5 (T6.5: social previews) |
-| P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 built (T7.6: mainnet) |
-| P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 6/8 (T8.4, T8.9: mainnet card, 1Click key, Hyperliquid account) |
-| PC | Copy from a tab | added 9 Nov | P8 | ◐ 5/6 (TC.6: your wallet) |
+| P7 | Viewing keys: seats, expiry, live delay (direct USDC) | Mon 9 Nov | P4 (P6 for UI) | ◐ 8/9 (T7.6: key sold on mainnet, reveal not recorded) |
+| P8 | **M3:** 1Click unlock + copy-trade feed | Tue 10 Nov | P7 | ◐ 7/8 (T8.4 optional: pay from another chain) |
+| PC | Copy from a tab | added 9 Nov | P8 | ◐ 5/6 (TC.6: auto-copy live retest) |
 | P9 | Explore, privacy depth, agent guard | Wed 11 Nov | P6 | ✔ 6/6 |
-| P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ◐ 4/6 built (T10.2, T10.6: repo public, keys, mainnet) |
+| P10 | Hardening for the AI screeners | Thu 12 Nov | P8, P9 | ◐ 5/6 (T10.2: repo public) |
 | P11 | Demo, launch, submit | Fri 13 – Sat 14 Nov | P10 | ☐ |
 | PS | Stretch goals (optional) | only after P10 | P10 | ☐ |
 

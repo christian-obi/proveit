@@ -69,14 +69,14 @@ Offline: `cd contract && cargo test` (26 tests, in CI). Live: `scripts/e2e-testn
 | T3.3 | `bootstrap_key` from the enclave's own output | ✔ | live: demo registry `b5147545…200d`, live registry `641f094f…0cb0` (different keys: they're bound to the calling registry); non-owner panics |
 | T3.4 | `verify_card` statuses | ✔ | unit: all 9 statuses; live: VALID by id and by exact JSON, HASH_MISMATCH after +20pp on the return |
 | T3.5 | permissions and money | ✔ | unit (refund receipts asserted); live: refused card refunded exactly 0.02 NEAR ([log](p3-results/live-leakcheck.log)) |
-| T3.6 | real Hyperliquid account, real wallet signature, VALID card | ☐ | **waiting for a Hyperliquid account**: funded at least 24 hours earlier, with 20+ trades in the last day (a 1-day card). Everything up to it is proven live: an encrypted secret with an ownership proof (public test key) went through the live registry, the enclave verified the signature, fetched real Hyperliquid data and refused with `TOO_FEW_TRADES`; the address appears in neither transaction ([log](p3-results/live.log)) |
+| T3.6 | real Hyperliquid account, real wallet signature, VALID card | ☐ | not run on testnet yet (`proveit-registry.testnet` has no cards). The same flow passed on **mainnet** (T4.3, card #0, 10 Nov). The trades behind it fall out of the 1-day window around 21:30 UTC on 11 Nov, so a testnet card now needs a few new trades first |
 | T3.7 | gas under 300 Tgas with ≥ 20% margin | ✔ | 15.74 Tgas total, 95% margin; callback 3.94 of 60 Tgas ([log](p3-results/t3.7-gas.log)) |
 
 **Also done in P3:** the door check (T7.9's issue/pubkey part): a direct call to the live enclave is refused ([log](p3-results/door.log)); 7-day and **1-day** windows, with goldens (a 1-day card needs capital held for ~19 of the 24 hours, the account funded before the window, and 20 trades). After the 1-day change: enclave builds redeployed, both registries upgraded in place, card #1 issued and VALID, old card #0 still VALID.
 
 **Testnet:** registries `proveit-demo-registry.testnet` and `proveit-registry.testnet` (owner `proveit-realist.testnet`); current enclave builds `cbac5209…` (demo) and `2fc1b727…` (live), in `enclave/expected-hashes.txt` (earlier `84dfc867…`/`3cb8dd63…` stay approved).
 
-**P3 status:** 6 of 7. T3.6 waits for a Hyperliquid account; nothing else in P3 is open.
+**P3 status:** 6 of 7. T3.6 (a testnet card from the real account) isn't run yet; the same flow passed on mainnet in P4.
 
 ## P4 — M1: first real card on mainnet
 
@@ -93,7 +93,7 @@ Mainnet build (reproducible, registry `proveit.near`): `16f515c2a8abf41de9ed6653
 | T4.5 | leak check: address in no transaction | ✔ | 11 Nov, run by the trader on their machine: 0 hits for the address (both forms) in the `store_secrets` and `request_card` transactions; the control (card hash) found 4 times ([log](p4-results/check-0.log), address redacted) |
 | T4.6 | card has no address, tx hash, order IDs or exact amounts | ✔ | same run: no address, no transaction hash, no order or trade IDs, volume as a band, no account value |
 
-**P4 status:** scripts built and rehearsed; 0 of 6 until mainnet access (owner account + ~5 NEAR) and the Hyperliquid account exist.
+**P4 status:** ✔ 6 of 6. Card #0 on `proveit.near`, issued 10 Nov, attested and leak-free.
 
 ## P5 — Web app: trader create flow (Railway)
 
@@ -105,11 +105,11 @@ Live at https://proveit-production-d47c.up.railway.app/create (testnet). Tests: 
 | T5.2 | EIP-712 hash equals the test vector | ✔ | `web/test/eip712.test.ts`: digest equals the vector; viem's signature reproduces the vector signature byte for byte |
 | T5.3 | no request to the app's server contains the address | ✔ | `web/e2e/no-leak.spec.ts` in Chromium: full live flow, transactions carry only ciphertext, keystore reached directly with a placeholder; forced relay path sees no secret. A planted leak made both tests fail. |
 | T5.4 | Railway build + `/create` 200 | ✔ | 7 Nov: `/`, `/create`, `/healthz` 200; relay refuses unknown projects and returns the real keystore key |
-| T5.5 | a fresh NEAR account creates a card in < 2 min in the browser | ☐ | needs your browser wallets: Meteor (testnet) for NEAR. The **demo data** mode works without a Hyperliquid account; a live card needs the Hyperliquid account |
+| T5.5 | a fresh NEAR account creates a card in < 2 min in the browser | ◐ | demo card #5 was created from the browser by `proveit-realist.testnet` on 9 Nov, and mainnet card #0 on 10 Nov. The time wasn't measured |
 
 **Design note:** OutLayer's keystore allows browser calls only from listed origins (its dashboard and `localhost:3000`). The app calls it directly when allowed and otherwise uses a relay (`/api/keystore-pubkey`) that rebuilds the request with placeholder values, so it can't forward a secret; the UI tells the trader when the relay was used, because a dishonest relay could swap the key. Asking OutLayer to allowlist the domain removes the relay.
 
-**P5 status:** 4 of 5; T5.5 waits for you to run the flow with your wallet.
+**P5 status:** ◐ T5.5 ran in the browser; only its time wasn't measured.
 
 ## P6 — M2: card page, verify, tamper mode
 
@@ -121,7 +121,7 @@ Live at https://proveit-production-d47c.up.railway.app (testnet): `/`, `/verify`
 | T6.2 | `pnpm verify <railway>/demo/1` | ✔ | 7 Nov, exit 0: signature, record, code, attestation ✔; freshness amber because it is a demo card from a recorded public account (a live card shows 5/5, as in T6.1). A `/c/<id>` live card waits for the Hyperliquid account. |
 | T6.3 | `pnpm verify <railway>/demo/1 --tamper return_bps=3830` | ✔ | exit 1, "signature mismatch"; record and attestation also red |
 | T6.4 | og:image is a 1200×630 PNG | ✔ | `web/e2e/verify.spec.ts` plus `curl` on Railway: 200, `image/png`, 1200×630, `twitter:card` = `summary_large_image` |
-| T6.5 | X and Telegram previews show the card | ☐ | yours: paste https://proveit-production-d47c.up.railway.app/demo/1 into X and Telegram |
+| T6.5 | X and Telegram previews show the card | ☐ | yours: paste https://proveit-production-d47c.up.railway.app/c/0 into X and Telegram |
 
 Also in the browser suite: tamper mode goes red then green when the number is put back; the landing page's fake screenshot can't be verified while the real card can; a pasted link on `/verify` opens with checks running; unknown cards 404; a staged race (the unedited check held 4 s) can't overwrite the red result.
 
@@ -138,7 +138,7 @@ Testnet, 8 Nov: both registries upgraded in place (`migrate`; old cards still `V
 | T7.3 | `reveal::proofs_match_card` | ✔ | for every issuable fixture, delay 0 → `N/N` rebuilds `orders.root` and `count`; an edited, dropped, reordered record or a bigger count fails; prefix proofs proptested for n ≤ 300 (≤ ⌈log2 n⌉ hashes) |
 | T7.4 | `test-vectors/ecies-follower.json` | ✔ | Rust-sealed partial reveal (with a proof) opens in `packages/verify/src/reveal.test.ts`, plaintext byte-identical, root rebuilt; another key fails |
 | T7.5 | payments | ✔ | `contract/src/keys_tests.rs` (unit tests through the real entry points, token simulated): wrong token panics (the token's `ft_resolve_transfer` refunds), underpayment and bad `msg` refunded in full, exact payment → grant and issuer balance = price − 1%, overpayment refunds the excess, reveal without a grant panics, `withdraw` sends `ft_transfer`, a failed payout is owed again. **Live:** 0.5 tUSDC underpayment refunded (`Aii4VvZw…`), 1 tUSDC payment granted the key (`AfwVPUqd…`). Deviation: unit tests plus a live testnet run instead of a `near-workspaces` sandbox. |
-| T7.6 | live $1 USDC → "N/N Merkle-verified" | ◐ | **Testnet done:** `request_reveal` `Dc6MLncG…` from `proveit-follower.testnet`, OutLayer TEE answered, **91/91 Merkle-verified** (`scripts/open-reveal.ts`), and the same transaction replayed in the browser (`web/e2e/unlock.spec.ts`). **Mainnet:** waits for the mainnet deploy (P4) |
+| T7.6 | live $1 USDC → "N/N Merkle-verified" | ◐ | **Testnet done** (reveal `Dc6MLncG…`, 91/91 Merkle-verified). **Mainnet:** a key on card #0 sold for 1 USDC on 11 Nov (1 seat used), and the trader withdrew the payout after registering with USDC. The mainnet reveal result wasn't recorded |
 | T7.7 | `leakcheck.py` on payment and reveal | ✔ | fixture address: 0 matches in both; `Open Long`, `Close Long`, `size_bps`: 0 matches in the reveal tx; controls found |
 | T7.8 | offer terms | ✔ | unit tests: seat after `max_seats` refunded (renewals don't need a seat), seat frees on expiry; expired key fails `get_grant` and `request_reveal`; approval escrows (seat held, issuer unpaid), approve grants from approval time and pays, reject refunds in full; `revoke_grant` at ¼ refunds ¾, split between issuer and fee; offer changes don't change sold keys; revoked cards stop selling |
 | T7.9 | door checks | ✔ (on-chain) | `reveal` goes through the same registry-only door as `issue` (`enclave/tests/door.rs`, refused live in P3). **HTTPS reveal moves to P8** with the feed (NEP-413 follower signature + RPC grant check) |
@@ -150,7 +150,7 @@ Totals: enclave `cargo test` all pass (8 new reveal tests), contract 42 (16 new)
 - **Stored, not recomputed.** Hyperliquid's account-value windows roll forward, so recomputing records later would change sizes and the root. `issue` stores the coarsened records in encrypted worker storage; reveals never call Hyperliquid.
 - **The ciphertext is a return value.** `on_result` returns it to the follower's transaction and keeps only its sha256 in state; nothing readable is logged.
 
-**P7 status:** 8 of 9; T7.6 on mainnet with real USDC after the mainnet deploy.
+**P7 status:** ◐ 8 of 9; T7.6 sold a key on mainnet, and the mainnet reveal result is still to be recorded.
 
 ## P8 — M3: 1Click cross-chain unlock and the live feed
 
@@ -164,7 +164,7 @@ Testnet, 8 Nov: enclave builds `23b7d873…` (live) and `0ad3295a…` (demo) app
 | T8.4 | live $1 USDC from Base | ☐ | needs mainnet (`proveit.near`: 1Click refuses recipients that don't exist yet) and a 1Click partner API key (`ONECLICK_API_KEY` on Railway): non-dry quotes fail without one |
 | T8.7 | `enclave::feed_chain` | ✔ | `enclave/tests/feed.rs`: three polls extend one chain, each page continues from the kept head, a second follower ends at the same head; drop, reorder, edit or a rewritten start fail. Same checks in TypeScript against `test-vectors/feed.json` (`packages/verify/src/feed.test.ts`). Also: the delay holds back recent orders; a concurrent extension isn't lost (compare-and-swap) |
 | T8.8 | `enclave::feed_auth` | ✔ | bad or expired signature, a message valid for more than a day, another app's message, a key that isn't the account's, a function-call key, another card, no grant, an expired grant → each refused **before any stored data is read** (counted). **Live over HTTPS:** wrong account → `NEAR_ACCOUNT_MISMATCH`, no key for card #1 → `NO_GRANT`, `issue` over HTTPS → refused |
-| T8.9 | live feed shows a new trade (delay 0) | ☐ | needs the Hyperliquid account trading after its card. The path is live: `feed` over HTTPS for demo card #2 answered (0 entries: the recorded account never trades again), chain intact |
+| T8.9 | live feed shows a new trade (delay 0) | ✔ | 11 Nov, reported by the trader: a new BTC trade appeared on `/c/0/feed` for the key holder and was copied from the page. That run took about a minute, which led to the 30 s settle and 10 s polling now live |
 | T8.10 | no-leak for the feed | ✔ | `web/e2e/feed.spec.ts`: the page decrypts and chain-checks the feed; every request to the app's server carries only the card, a cursor and the signed message, with no address, trade, record field or secret. A forged page (a trade dropped) shows as broken, not as trades |
 
 **Live over HTTPS (testnet):** `follower.proveit-realist.testnet` (its own key, NEP-413-signed by `scripts/follow.ts`) bought a key on demo card #2 (`HHdfMj2M…`); `reveal` over HTTPS → **91/91 Merkle-verified**, `feed` → chain intact; about $0.001 per call, 2.5–3 s in the TEE.
@@ -174,7 +174,7 @@ Testnet, 8 Nov: enclave builds `23b7d873…` (live) and `0ad3295a…` (demo) app
 - The deposit address isn't shown as a QR code; it has a copy button.
 - **Railway needs `OUTLAYER_PAYMENT_KEY`** (an OutLayer payment key limited to this owner's projects) before the deployed relay can serve the feed, and `ONECLICK_API_KEY` for cross-chain quotes.
 
-**P8 status:** 6 of 8: T8.1–T8.3, T8.7, T8.8, T8.10 done; T8.4 and T8.9 need the mainnet card, a 1Click key and the Hyperliquid account.
+**P8 status:** 7 of 8: T8.1–T8.3, T8.7–T8.10 done; T8.4 (paying from another chain) is optional.
 
 ## P9 — Explore, privacy depth, profile, agent guard
 
@@ -204,11 +204,11 @@ Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) app
 | T10.3 | CI green on `main` incl. the reproducible-hash job | ✔ | run 42474099723 on `7038145`: enclave, contract, typescript, web and reproducible-build all green (the three enclave builds match `expected-hashes.txt`). It had failed since P6 because the reproducible-build job never installed the workspace packages; fixed in `.github/workflows/ci.yml` |
 | T10.4 | `docs/CLAIMS.md` | ✔ | 18 claims, each mapped to a test ID or live record and a command to check it; the commands were run |
 | T10.5 | security checklist | ✔ | `docs/THREAT_MODEL.md`: every item with its test. New: `enclave/tests/security.rs` (only the card code signs; EIP-712 domain and bindings), `contract::callbacks_are_private` plus a live refusal (`docs/p10-results/private-callback.log`). The relayer item is n/a (fallback B isn't used) |
-| T10.6 | Railway production | ◐ | `docs/p10-results/routes.log`: `/`, `/create`, `/verify`, `/explore`, card, unlock, feed, `/api/verify`, OG image, `/healthz` all 200 (`/c/0` is 404 because the live registry has no card until the Hyperliquid account's). The mainnet env vars wait for the mainnet deploy; the relay and 1Click keys are yours to set |
+| T10.6 | Railway production | ✔ | 11 Nov: every route returns 200, `/api/verify` passes card #0 on mainnet, both OutLayer payment keys and the 1Click key are set, reactions persist on a volume. The header switch replaced the mainnet build variables. Replaced deployments now exit cleanly, so Railway no longer reports them as crashed |
 
 Also: README rewritten for the screeners (60-second demo, live links, where each part runs, proven / not proven, reproducible hashes, deployments, NEAR protocols, status, disclosures); `docs/TRUST_MODEL.md`, `docs/THREAT_MODEL.md`, `docs/CLAIMS.md`; `docs/METHODOLOGY.md` gains the privacy guard and order records; `pnpm demo` (`scripts/demo.ts`) and `pnpm test` (`scripts/test-all.sh`); the verify CLI prints the return bucket.
 
-**P10 status:** T10.1, T10.3, T10.4, T10.5 done; T10.2 and T10.6 need you (repo public, keys, mainnet).
+**P10 status:** 5 of 6; T10.2 needs the repo public.
 
 ## PC — Copy from a tab
 
@@ -219,15 +219,17 @@ Also: README rewritten for the screeners (60-second demo, live links, where each
 | TC.3 | browser flow against a simulated Hyperliquid: simulate needs no wallet, demo cards can't use real money, one approval, correct order, only new trades auto-copied | ✔ | `web/e2e/copy.spec.ts` |
 | TC.4 | the follower's address and agent key never reach this app's server | ✔ | `web/e2e/copy.spec.ts` |
 | TC.5 | the real exchange accepts the signing format | ✔ | Hyperliquid testnet, 9 Nov: an order signed by a throwaway key was answered with that exact key's address and "does not exist", so the action hash and signature were read correctly. No order was placed |
-| TC.6 | live: approve a key and fill a sample order on Hyperliquid testnet | ☐ | yours: needs your wallet and testnet funds |
+| TC.6 | live: approve a key and copy a trade | ◐ | 11 Nov, reported by the trader: a real-money copy filled from the Copy button. Auto-copy didn't fire then; it is fixed and covered by `web/e2e/copy.spec.ts`, and waits for a live retest |
 
-**PC status:** 5 of 6; TC.6 needs your wallet. The roadmap has the rest of copying.
+**PC status:** ◐ 5 of 6; TC.6 copied a real trade by hand, and auto-copy waits for a live retest.
 
 ## 11 Nov: feedback from live testing
 
 | Change | Where | Tested by |
 |---|---|---|
 | Sales pay the trader in the same transaction; revoking an already-paid key is funded by the trader | contract (all three registries redeployed 11 Nov) | `contract/src/keys_tests.rs` (47 tests) |
+| Reveals fall back to archival NEAR nodes, which keep transactions older than a few days | `web/lib/keys.ts` | `web/e2e/unlock.spec.ts` |
+| Railway no longer reports replaced deployments as crashed: `web/start.mjs` turns a requested stop into exit 0 | `Dockerfile`, `web/start.mjs` | local: SIGTERM → exit 0 |
 | Withdrawing and selling register the trader with USDC first, if needed | `web/components/UnlockFlow.tsx` | live: the first withdrawal failed because `realist1036.near` wasn't registered |
 | Feed orders settle after 30 s instead of 2 min | enclave builds `3de3334a…`, `c818c20a…`, `fc6ccb06…` | enclave tests, regenerated `test-vectors/feed.json` |
 | Feed checks every 10 s while auto-copy is on | `web/components/FeedFlow.tsx` | `web/e2e/copy.spec.ts` |

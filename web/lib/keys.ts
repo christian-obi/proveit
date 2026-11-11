@@ -80,9 +80,11 @@ type TxResult = { status?: { SuccessValue?: string; Failure?: unknown }; final_e
  */
 export async function waitForReveal(registry: string, hash: string, sender: string, onTick?: (s: number) => void): Promise<RequestOutcome> {
   const started = Date.now();
-  for (;;) {
+  const { rpc: recent, archivalRpc } = networkFor(registry);
+  for (let attempt = 0; ; attempt++) {
     try {
-      const r = await rpc<TxResult>(networkFor(registry).rpc, "tx", { tx_hash: hash, sender_account_id: sender, wait_until: "FINAL" });
+      // Regular nodes forget transactions after a few days; every other try asks an archival one.
+      const r = await rpc<TxResult>(attempt % 2 ? archivalRpc : recent, "tx", { tx_hash: hash, sender_account_id: sender, wait_until: "FINAL" });
       if (r.status?.Failure) throw new Error(`the transaction failed: ${JSON.stringify(r.status.Failure)}`);
       if (r.status?.SuccessValue) return JSON.parse(atob(r.status.SuccessValue));
     } catch (e) {
