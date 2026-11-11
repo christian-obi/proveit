@@ -25,7 +25,7 @@ use crate::reveal::Stored;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-pub const SETTLE_MS: u64 = 120_000;
+pub const SETTLE_MS: u64 = 30_000;
 pub const PAGE_LIMIT: usize = 200;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

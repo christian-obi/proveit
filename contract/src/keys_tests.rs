@@ -101,7 +101,9 @@ fn t7_5_exact_payment_grants_and_pays_the_issuer_net_of_the_fee() {
     assert_eq!(buy(&mut r, BUYER, now()), 0);
     let g = grant(&r, BUYER).unwrap();
     assert_eq!((g.expires_at, g.delay_secs, g.paid.0), (now() + 30 * DAY, 3_600, PRICE));
-    assert_eq!(balance(&r, TRADER), PRICE - PRICE / 100);
+    // The trader is paid at once; only the fee stays in the contract.
+    assert_eq!(token_transfers(), vec![(TRADER.to_string(), PRICE - PRICE / 100)]);
+    assert_eq!(balance(&r, TRADER), 0);
     assert_eq!(balance(&r, OWNER), PRICE / 100);
     // Overpaying keeps only the price.
     assert_eq!(pay(&mut r, BUYER2, PRICE + 500, r#"{"card_id":0}"#, now()), 500);
@@ -120,19 +122,18 @@ fn t7_5_reveal_without_a_grant_panics() {
 }
 
 #[test]
-fn t7_5_withdraw_pays_out_and_a_failed_payout_is_owed_again() {
+fn t7_5_a_failed_sale_payout_is_owed_and_withdrawn_later() {
     let mut r = market();
     offer(&mut r, 0, 10, false);
     buy(&mut r, BUYER, now());
+    // The transfer failed (say, TRADER isn't registered with USDC): the money is owed instead.
+    ctx(REGISTRY, NearToken::from_near(0), vec![PromiseResult::Failed], now());
+    r.on_payout(TRADER.parse().unwrap(), U128(PRICE - PRICE / 100));
+    assert_eq!(balance(&r, TRADER), PRICE - PRICE / 100);
     ctx(TRADER, NearToken::from_near(0), vec![], now());
     assert_eq!(r.withdraw().0, PRICE - PRICE / 100);
     assert_eq!(token_transfers(), vec![(TRADER.to_string(), PRICE - PRICE / 100)]);
     assert_eq!(balance(&r, TRADER), 0);
-
-    // The transfer failed (say, TRADER isn't registered with USDC): the money is owed again.
-    ctx(REGISTRY, NearToken::from_near(0), vec![PromiseResult::Failed], now());
-    r.on_payout(TRADER.parse().unwrap(), U128(PRICE - PRICE / 100));
-    assert_eq!(balance(&r, TRADER), PRICE - PRICE / 100);
 }
 
 #[test]
@@ -243,7 +244,7 @@ fn t7_8_approval_escrows_then_approve_grants_and_pays() {
     ctx(TRADER, NearToken::from_near(0), vec![], now() + 60);
     let g = r.approve_buyer(0, BUYER.parse().unwrap());
     assert_eq!(g.expires_at, now() + 60 + 30 * DAY, "the key runs from approval");
-    assert_eq!(balance(&r, TRADER), PRICE - PRICE / 100);
+    assert_eq!(token_transfers(), vec![(TRADER.to_string(), PRICE - PRICE / 100)], "paid on approval");
     assert!(r.get_waiting(0).is_empty());
 }
 
@@ -264,15 +265,49 @@ fn t7_8_revoke_refunds_the_unused_share() {
     let mut r = market();
     offer(&mut r, 0, 10, false);
     buy(&mut r, BUYER, now());
-    // A quarter of the way through: three quarters back.
-    ctx(TRADER, NearToken::from_near(0), vec![], now() + 30 * DAY / 4);
-    let refund = r.revoke_grant(0, BUYER.parse().unwrap()).0;
-    assert_eq!(refund, PRICE * 3 / 4);
-    assert_eq!(token_transfers(), vec![(BUYER.to_string(), refund)]);
+    // A quarter of the way through: three quarters back. The trader was already paid, so they
+    // fund their share of the refund; the fee's share comes from the fee balance.
+    let later = now() + 30 * DAY / 4;
+    ctx(TRADER, NearToken::from_near(0), vec![], later);
+    let (refund, owed) = r.get_revoke_cost(0, BUYER.parse().unwrap()).unwrap();
+    assert_eq!(refund.0, PRICE * 3 / 4);
+    assert_eq!(owed.0, refund.0 - refund.0 / 100);
+    let msg = format!(r#"{{"card_id":0,"buyer":"{BUYER}","revoke":true}}"#);
+    assert_eq!(pay(&mut r, TRADER, owed.0 + 7, &msg, later), 0);
+    assert_eq!(token_transfers(), vec![(BUYER.to_string(), refund.0)]);
     assert!(grant(&r, BUYER).is_none());
-    // Taken from the issuer and the fee in the same split as the sale.
-    assert_eq!(balance(&r, TRADER), (PRICE - PRICE / 100) - (refund - refund / 100));
-    assert_eq!(balance(&r, OWNER), PRICE / 100 - refund / 100);
+    assert_eq!(balance(&r, TRADER), 7, "anything above the refund stays withdrawable");
+    assert_eq!(balance(&r, OWNER), PRICE / 100 - refund.0 / 100);
+}
+
+#[test]
+#[should_panic(expected = "is needed for the refund")]
+fn revoking_without_funding_the_refund_fails() {
+    let mut r = market();
+    offer(&mut r, 0, 10, false);
+    buy(&mut r, BUYER, now());
+    ctx(TRADER, NearToken::from_near(0), vec![], now() + DAY);
+    r.revoke_grant(0, BUYER.parse().unwrap());
+}
+
+#[test]
+fn only_the_issuer_can_fund_a_revoke_and_a_short_payment_is_returned() {
+    let mut r = market();
+    offer(&mut r, 0, 10, false);
+    buy(&mut r, BUYER, now());
+    let msg = format!(r#"{{"card_id":0,"buyer":"{BUYER}","revoke":true}}"#);
+    assert_eq!(pay(&mut r, BUYER2, PRICE, &msg, now()), PRICE, "not the issuer: refunded");
+    assert!(grant(&r, BUYER).is_some());
+}
+
+#[test]
+#[should_panic(expected = "is needed for the refund")]
+fn a_short_revoke_payment_panics_so_the_token_returns_it() {
+    let mut r = market();
+    offer(&mut r, 0, 10, false);
+    buy(&mut r, BUYER, now());
+    let msg = format!(r#"{{"card_id":0,"buyer":"{BUYER}","revoke":true}}"#);
+    pay(&mut r, TRADER, 1, &msg, now() + DAY);
 }
 
 #[test]

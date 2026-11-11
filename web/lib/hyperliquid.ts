@@ -111,7 +111,7 @@ export async function loadMarket(network: HlNetwork, coin: string): Promise<Mark
   return asset < 0 || !mid ? null : { asset, szDecimals: meta.universe[asset].szDecimals, mid };
 }
 
-type Clearinghouse = { marginSummary: { accountValue: string }; assetPositions: { position: { coin: string; szi: string; positionValue: string } }[] };
+type Clearinghouse = { marginSummary: { accountValue: string }; assetPositions: { position: { coin: string; szi: string; positionValue: string; unrealizedPnl?: string } }[] };
 type Spot = { balances: { coin: string; total: string }[] };
 
 /** Read fresh for every copy. Unified accounts keep their USDC on the spot side, so read both. */
@@ -142,9 +142,12 @@ export type Agent = { account: PrivateKeyAccount; network: HlNetwork; lastNonce:
  * A new trading-only key, approved by one wallet signature. It lives in this tab's memory and
  * is gone when the tab closes; it can't withdraw, and it expires by itself after 30 days.
  */
-export async function approveNewAgent(network: HlNetwork, owner: Hex): Promise<Agent> {
+export type ApprovedAgent = { agent: Agent; privateKey: Hex; expiresAt: number };
+
+export async function approveNewAgent(network: HlNetwork, owner: Hex): Promise<ApprovedAgent> {
   if (!window.ethereum) throw new Error("No EVM wallet found. Install Rabby or MetaMask.");
-  const account = privateKeyToAccount(generatePrivateKey());
+  const privateKey = generatePrivateKey();
+  const account = privateKeyToAccount(privateKey);
   const nonce = Date.now();
   const message = {
     hyperliquidChain: network === "mainnet" ? "Mainnet" : "Testnet",
@@ -175,10 +178,13 @@ export async function approveNewAgent(network: HlNetwork, owner: Hex): Promise<A
   const signature = (await window.ethereum.request({ method: "eth_signTypedData_v4", params: [owner, JSON.stringify(typedData)] })) as Hex;
   const action = { type: "approveAgent", signatureChainId: SIGNATURE_CHAIN[network].hex, hyperliquidChain: message.hyperliquidChain, agentAddress: message.agentAddress, agentName: message.agentName, nonce };
   await exchange(network, action, nonce, split(signature));
-  return { account, network, lastNonce: nonce };
+  return { agent: { account, network, lastNonce: nonce }, privateKey, expiresAt: nonce + AGENT_LIFETIME_MS };
 }
 
-export type OrderResult = { status: "filled"; size: string; price: string } | { status: "resting" } | { status: "error"; message: string };
+/** An agent approved earlier, from the key this browser kept. */
+export const agentFromKey = (privateKey: Hex, network: HlNetwork): Agent => ({ account: privateKeyToAccount(privateKey), network, lastNonce: Date.now() });
+
+export type OrderResult = { status: "filled"; size: string; price: string; oid: number } | { status: "resting"; oid: number } | { status: "error"; message: string };
 
 /** Order keys must stay in this order: the hash covers the encoded bytes. */
 export const orderAction = (o: { asset: number; isBuy: boolean; price: string; size: string; reduceOnly: boolean; cloid?: Hex; tif?: "Ioc" | "Gtc" }) => ({
@@ -193,10 +199,33 @@ export async function placeOrder(agent: Agent, order: Parameters<typeof orderAct
   const nonce = agent.lastNonce;
   const response = await exchange(agent.network, action, nonce, await signL1Action(agent.account, action, nonce, agent.network));
   const status = response?.data?.statuses?.[0];
-  if (status?.filled) return { status: "filled", size: status.filled.totalSz, price: status.filled.avgPx };
-  if (status?.resting) return { status: "resting" };
+  if (status?.filled) return { status: "filled", size: status.filled.totalSz, price: status.filled.avgPx, oid: status.filled.oid };
+  if (status?.resting) return { status: "resting", oid: status.resting.oid };
   return { status: "error", message: status?.error ?? "no order status returned" };
 }
 
 /** The same trade always gets the same client id, so a retry or a second tab can't double it. */
 export const cloidFor = (cardHash: string, seq: number): Hex => toHex(toBytes(keccak256(toBytes(`proveit-copy-v1|${cardHash}|${seq}`))).slice(0, 16));
+
+export async function loadMids(network: HlNetwork): Promise<Record<string, number>> {
+  const mids = await info<Record<string, string>>(network, { type: "allMids" });
+  return Object.fromEntries(Object.entries(mids).map(([k, v]) => [k, Number(v)]));
+}
+
+export type CopyPnl = { realized: number; fees: number; open: number };
+
+/** P&L of the orders this browser copied: closed P&L and fees of their fills, plus the open
+ *  P&L of positions in the coins they traded. */
+export async function loadCopyPnl(network: HlNetwork, user: string, oids: Set<number>, coins: Set<string>): Promise<CopyPnl> {
+  type Fill = { oid: number; closedPnl: string; fee: string };
+  const [fills, perp] = await Promise.all([info<Fill[]>(network, { type: "userFills", user }), info<Clearinghouse>(network, { type: "clearinghouseState", user })]);
+  let realized = 0;
+  let fees = 0;
+  for (const f of fills) {
+    if (!oids.has(f.oid)) continue;
+    realized += Number(f.closedPnl);
+    fees += Number(f.fee);
+  }
+  const open = perp.assetPositions.filter((p) => coins.has(p.position.coin)).reduce((sum, p) => sum + Number(p.position.unrealizedPnl ?? 0), 0);
+  return { realized, fees, open };
+}

@@ -45,8 +45,11 @@ function record(page: Page) {
 async function runLiveFlow(page: Page) {
   await page.goto("/create");
   await page.getByRole("button", { name: "Connect NEAR wallet" }).click();
-  await expect(page.getByText("e2e-trader.testnet")).toBeVisible();
-  await page.getByRole("button", { name: "Connect EVM wallet" }).click();
+  // The account also shows in the header now, so look for it in the flow itself.
+  await expect(page.getByText("Issuing as")).toBeVisible();
+  // An EVM wallet that already allowed this site is picked up without a click.
+  await page.getByRole("button", { name: "Connect EVM wallet" }).click({ timeout: 5_000 }).catch(() => undefined);
+  await expect(page.getByText("Only the enclave will see the full address")).toBeVisible();
   await page.getByRole("button", { name: "30 days" }).click();
   await page.getByRole("button", { name: "Sign and create card" }).click();
   await expect(page.getByText("Transactions sent.")).toBeVisible({ timeout: 60_000 });

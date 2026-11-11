@@ -375,3 +375,51 @@ To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_m
 enclave key already set
 payments already set to 17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
 proveit.near already registered with USDC
+registry contract already deployed on proveit.near
+├  Unsigned transaction:
+│    signer_id:    realist1036.near
+│    receiver_id:  proveit.near
+│    actions:
+│       -- function call:      
+│                       method name:  approve_version
+│                       args:         {
+│                                       "hash": "fc6ccb06aff25125395881885201051cc9cb8ca3f86a99147539744b7223995d"
+│                                     }
+│                       gas:          300.0 Tgas
+│                       deposit:      0 NEAR
+│     [0m
+├  Your transaction was signed successfully.
+│    Public key: ed25519:3S1vt3KoKVwVNGGFXiS7ADMR9rjiUBJWbAbj6sGPrEwN
+│    Signature:  ed25519:26uWPKaG8Kc1xW1HU2UVkavU4Cbw24Tdo4QH69nPkLGNHhDodCKpkJ9xQRY2CkLoBv6r6XZi7vSsEYT645KPBa42
+│     [0m
+├  Transaction Execution Info:
+│    Gas burned: 0.313 Tgas
+│    Transaction fee: 0.000031235103435 NEAR (USD equivalent is unavailable due to an error: Failed to parse the response from Coingecko API as JSON: error decoding response body)
+│    Transaction ID: BpKvd4Yoz8PxugXuvict8BPX8vKixSjCFsb9fW4Jc2or
+│    To see the transaction in the transaction explorer, please open this url in your browser:
+│    https://explorer.near.org/transactions/BpKvd4Yoz8PxugXuvict8BPX8vKixSjCFsb9fW4Jc2or
+│     [0m
+├  Function execution logs:
+│    Logs [proveit.near]:
+│      EVENT_JSON:{"standard":"proveit","version":"1.0.0","event":"version_approved","data":[{"hash":"fc6ccb06aff25125395881885201051cc9cb8ca3f86a99147539744b7223995d"}]}
+│    Logs [realist1036.near]:   No logs
+│     [0m
+├  Function execution return value:
+│    Empty return value
+│     [0m
+
+
+The "approve_version" call to <proveit.near> on behalf of <realist1036.near> succeeded.
+
+
+
+
+Here is your console command if you need to script it or re-run:
+    [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near contract call-function as-transaction proveit.near approve_version json-args '{"hash":"fc6ccb06aff25125395881885201051cc9cb8ca3f86a99147539744b7223995d"}' prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' sign-as realist1036.near network-config mainnet sign-with-keychain send[39m
+
+
+`near` CLI has a new update available [2m0.30.1[0m →  [32m0.31.1[0m
+To update `near` CLI use: [33m/opt/homebrew/lib/node_modules/near-cli-rs/node_modules/.bin_real/near extensions self-update[39m
+enclave key already set
+payments already set to 17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
+proveit.near already registered with USDC

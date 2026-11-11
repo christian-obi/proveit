@@ -86,8 +86,9 @@ test("auto-copy takes only trades that arrive while it's on, once each", async (
   const res = await fetch("https://rpc.testnet.fastnear.com", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params: { request_type: "call_function", finality: "final", account_id: "proveit-demo-registry.testnet", method_name: "get_card", args_base64: args } }) });
   const hash = JSON.parse(Buffer.from((await res.json()).result.result).toString()).card_hash as string;
 
-  const old: FeedEntry = { seq: 0, record: { hour: 490000, coin: "BTC", dir: "Open Long", size_bps: 2_000, pnl_bps: 0, fills: 1 } };
-  const fresh: FeedEntry = { seq: 1, record: { hour: 490001, coin: "ETH", dir: "Open Long", size_bps: 2_000, pnl_bps: 0, fills: 1 } };
+  const hour = Math.floor(Date.now() / 3_600_000);
+  const old: FeedEntry = { seq: 0, record: { hour: hour - 1, coin: "BTC", dir: "Open Long", size_bps: 2_000, pnl_bps: 0, fills: 1 } };
+  const fresh: FeedEntry = { seq: 1, record: { hour, coin: "ETH", dir: "Open Long", size_bps: 2_000, pnl_bps: 0, fills: 1 } };
   const makePage = (from: number, entries: FeedEntry[], prev: string): FeedPage => {
     let head = prev;
     for (const e of entries) head = link(head, e);
@@ -118,4 +119,36 @@ test("auto-copy takes only trades that arrive while it's on, once each", async (
   expect(orders).toHaveLength(1);
   expect(orders[0].body.action.orders[0].a).toBe(1);
   expect(orders[0].body.action.orders[0].c).toMatch(/^0x[0-9a-f]{32}$/);
+});
+
+test("a reload keeps the wallet, the feed and auto-copy", async ({ page }) => {
+  await wallet(page);
+  await fakeHyperliquid(page);
+  await page.route("**/api/reveal", (route) => route.fulfill({ json: { output: { status: "error", code: "UPSTREAM", message: "offline in this test" } } }));
+  await page.addInitScript(
+    ([account, secret]) => {
+      (window as any).__proveitE2eAccount = account;
+      (window as any).__proveitFollowerSecret = secret;
+    },
+    [ACCOUNT, SECRET],
+  );
+  await page.goto(`/demo/${reveal.card_id}/feed`);
+  await page.getByRole("button", { name: "Hyperliquid testnet" }).click();
+  await page.getByRole("button", { name: "Approve a trading key" }).click();
+  await page.getByRole("button", { name: "Start auto-copy" }).click();
+  await page.getByRole("button", { name: "Connect wallet and follow" }).click();
+  await expect(page.getByText(`Following as ${ACCOUNT}`)).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator("[data-copy-state]")).toHaveAttribute("data-copy-state", "on");
+  await expect(page.getByText(`Following as ${ACCOUNT}`)).toBeVisible();
+  await expect(page.locator(`[data-wallet="${ACCOUNT}"]`)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Approve a trading key" })).toHaveCount(0);
+});
+
+test("the simulation keeps a P&L", async ({ page }) => {
+  await fakeHyperliquid(page);
+  await page.goto(`/demo/${reveal.card_id}/feed`);
+  await page.getByRole("button", { name: "Try a sample trade" }).click();
+  await expect(page.locator("[data-copy-pnl]")).toContainText("Your copy P&L");
 });

@@ -196,3 +196,9 @@ a:hover > .card-picture { transform: scale(1.05) rotate(-2deg); }
 .network-switch button:hover { color: var(--fg); }
 .network-switch button.is-on { background: var(--accent); color: var(--accent-fg); }
 .network-switch[data-network="mainnet"] button.is-on { background: var(--warn); }
+
+.wallet-connect { border: 1px solid var(--accent); padding: 0.25rem 0.625rem; font-size: 0.6875rem; color: var(--accent); }
+.wallet-connect:hover { background: var(--accent); color: var(--accent-fg); }
+.wallet-chip { display: inline-flex; max-width: 13rem; align-items: center; gap: 0.375rem; border: 1px solid var(--line); padding: 0.1875rem 0.25rem 0.1875rem 0.5rem; font-size: 0.6875rem; color: var(--fg); }
+.wallet-chip button { padding: 0 0.25rem; color: var(--muted); letter-spacing: 0; }
+.wallet-chip button:hover { color: var(--bad); }

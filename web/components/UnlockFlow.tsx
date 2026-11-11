@@ -28,9 +28,10 @@ import {
   type OfferView,
   type TokenMeta,
 } from "@/lib/keys";
-import { view } from "@/lib/near";
+import { view, type Tx } from "@/lib/near";
 import { uiState, type OneClickToken, type Quote, type UiState } from "@/lib/oneclick";
-import { connectNear, type NearSession } from "@/lib/wallets";
+import type { NearSession } from "@/lib/wallets";
+import { useNear } from "@/lib/use-wallet";
 
 declare global {
   interface Window {
@@ -67,7 +68,7 @@ function hourLabel(hour: number) {
 const bps = (n: number, signed = false) => `${signed && n > 0 ? "+" : ""}${(n / 100).toFixed(2)}%`;
 
 export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders, initialOffer, token }: Props) {
-  const [near, setNear] = useState<NearSession | null>(null);
+  const { near, connect } = useNear(networkFor(registry).network);
   const [offer, setOffer] = useState<OfferView | null>(initialOffer);
   const [grant, setGrant] = useState<Grant | null>(null);
   const [waiting, setWaiting] = useState(false);
@@ -89,8 +90,7 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
   async function onConnect() {
     try {
       setPhase({ step: "working", label: "Connecting…" });
-      const s = await connectNear(networkFor(registry).network);
-      setNear(s);
+      const s = await connect();
       await refresh(s.accountId);
       setPhase({ step: "idle" });
     } catch (e) {
@@ -149,6 +149,12 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
       fail(e);
     }
   }
+
+  // A wallet connected on another page, or before a reload, is used straight away.
+  useEffect(() => {
+    if (near) void refresh(near.accountId).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [near?.accountId]);
 
   const isIssuer = near?.accountId === issuer;
 
@@ -226,7 +232,7 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
               Reveal trades
             </button>
             <a className="rounded-md border border-line px-4 py-2 text-sm" href={`${typeof window !== "undefined" ? window.location.pathname.replace(/\/unlock$/, "") : ""}/feed`} data-feed-link>
-              Follow new trades live →
+              Open the live feed and copy trades →
             </a>
           </div>
         </div>
@@ -338,10 +344,27 @@ function IssuerPanel({
     view<string>(registry, "get_balance", { account: near.accountId }).then(setEarned).catch(() => {});
   }, [registry, cardId, near.accountId, offer]);
 
+  // A token can only be sent to an account registered with it. Sales are paid out at once and
+  // withdrawals send USDC, so register the trader's account first when it isn't yet.
+  const registration = async (): Promise<Tx[]> => {
+    if (!offer?.token) return [];
+    const has = await view<unknown>(offer.token, "storage_balance_of", { account_id: near.accountId }).catch(() => null);
+    if (has) return [];
+    return [
+      {
+        receiverId: offer.token,
+        actions: [{ type: "FunctionCall", params: { methodName: "storage_deposit", args: { account_id: near.accountId, registration_only: true }, gas: "30000000000000", deposit: "1250000000000000000000" } }],
+      },
+    ];
+  };
+
   const call = async (methodName: string, args: object) => {
     try {
       setMsg("Confirm in your wallet…");
-      await near.signAndSendTransactions([{ receiverId: registry, actions: [{ type: "FunctionCall", params: { methodName, args, gas: "100000000000000", deposit: "0" } }] }]);
+      const needsPayouts = methodName === "withdraw" || methodName === "set_offer";
+      const first = needsPayouts ? await registration() : [];
+      if (first.length) setMsg("First, a one-time 0.00125 NEAR registration so USDC can be paid to you. Confirm in your wallet…");
+      await near.signAndSendTransactions([...first, { receiverId: registry, actions: [{ type: "FunctionCall", params: { methodName, args, gas: "100000000000000", deposit: "0" } }] }]);
       setMsg("Done.");
       await onChange();
     } catch (e) {
@@ -398,7 +421,7 @@ function IssuerPanel({
         )}
         {BigInt(earned) > 0n && (
           <button className={ghost} onClick={() => call("withdraw", {})}>
-            Withdraw {formatAmount(earned, decimals)} {symbol}
+            Withdraw {formatAmount(earned, decimals)} {symbol} held by the contract
           </button>
         )}
       </div>

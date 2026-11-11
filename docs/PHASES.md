@@ -222,3 +222,17 @@ Also: README rewritten for the screeners (60-second demo, live links, where each
 | TC.6 | live: approve a key and fill a sample order on Hyperliquid testnet | ☐ | yours: needs your wallet and testnet funds |
 
 **PC status:** 5 of 6; TC.6 needs your wallet. The roadmap has the rest of copying.
+
+## 11 Nov: feedback from live testing
+
+| Change | Where | Tested by |
+|---|---|---|
+| Sales pay the trader in the same transaction; revoking an already-paid key is funded by the trader | contract (all three registries redeployed 11 Nov) | `contract/src/keys_tests.rs` (47 tests) |
+| Withdrawing and selling register the trader with USDC first, if needed | `web/components/UnlockFlow.tsx` | live: the first withdrawal failed because `realist1036.near` wasn't registered |
+| Feed orders settle after 30 s instead of 2 min | enclave builds `3de3334a…`, `c818c20a…`, `fc6ccb06…` | enclave tests, regenerated `test-vectors/feed.json` |
+| Feed checks every 10 s while auto-copy is on | `web/components/FeedFlow.tsx` | `web/e2e/copy.spec.ts` |
+| One wallet connection for every page, restored after a reload | `web/lib/wallets.ts`, header button | `web/e2e/copy.spec.ts` (reload test) |
+| Feed session, copy settings, trading key and auto-copy survive a reload | `FeedFlow`, `CopyPanel` | `web/e2e/copy.spec.ts` |
+| Auto-copy takes every trade after it is switched on, once, if under an hour old | `CopyPanel` | `web/e2e/copy.spec.ts` |
+| The follower's copy P&L (closed, open, fees); a simulated book in simulation | `CopyPanel`, `lib/hyperliquid.ts` | `web/e2e/copy.spec.ts` |
+| "Copy this trader" on every card, the unlock page and the feed page | card, unlock and feed pages | manual |

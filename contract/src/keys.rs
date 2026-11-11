@@ -79,6 +79,8 @@ pub struct OfferView {
 struct BuyMsg {
     card_id: u64,
     buyer: Option<AccountId>,
+    /// From the issuer: this transfer funds the refund for revoking `buyer`'s key early.
+    revoke: Option<bool>,
 }
 
 impl Registry {
@@ -114,12 +116,13 @@ impl Registry {
         amount * self.fee_bps as u128 / 10_000
     }
 
-    /// Split a sale between the payout account and the fee account (the owner).
+    /// Split a sale: the payout account is paid at once, the fee stays with the owner. If the
+    /// transfer fails (say, the payout account isn't registered with USDC), on_payout owes it.
     fn pay_issuer(&mut self, payout: &AccountId, amount: u128) {
         let fee = self.fee_of(amount);
         let owner = self.owner.clone();
         self.credit(&owner, fee);
-        self.credit(payout, amount - fee);
+        self.pay_out(payout, amount - fee);
     }
 
     /// Write or extend `buyer`'s key. Expired grants are dropped here.
@@ -168,6 +171,24 @@ impl Registry {
             )
             .then(Self::ext(env::current_account_id()).with_static_gas(PAYOUT_CALLBACK_GAS).on_payout(account.clone(), U128(amount)))
             .detach();
+    }
+
+    /// The issuer pays for an early revoke. A shortfall panics, and the token then returns the
+    /// whole transfer; anything above the refund stays in the payout account's balance.
+    fn fund_revoke(&mut self, sender: &AccountId, amount: U128, card_id: u64, buyer: &AccountId) -> PromiseOrValue<U128> {
+        let Some(card) = self.cards.get(&card_id) else {
+            return self.refuse_payment(sender, amount, "UNKNOWN_CARD", "no such card");
+        };
+        if &card.issuer != sender {
+            return self.refuse_payment(sender, amount, "NOT_ISSUER", "only the card's issuer can revoke its keys");
+        }
+        let now = now_secs();
+        let Some(g) = self.grants.get(&card_id).and_then(|v| v.iter().find(|g| &g.buyer == buyer && g.expires_at > now).cloned()) else {
+            return self.refuse_payment(sender, amount, "NO_KEY", "no live key for this buyer");
+        };
+        self.credit(&g.payout, amount.0);
+        self.revoke_inner(card_id, buyer);
+        PromiseOrValue::Value(U128(0))
     }
 
     fn refuse_payment(&self, sender: &AccountId, amount: U128, code: &str, message: &str) -> PromiseOrValue<U128> {
@@ -240,23 +261,41 @@ impl Registry {
 
     /// End a key early. The buyer gets back the unused share of what they paid, taken from
     /// the payout account's balance and the fee in the same proportion.
+    /// Sales are paid out at once, so the payout account's share of the refund must be in its
+    /// Prove-It balance; otherwise send it with `ft_transfer_call` and `{"card_id","buyer","revoke":true}`.
     pub fn revoke_grant(&mut self, card_id: u64, buyer: AccountId) -> U128 {
         self.assert_issuer(card_id);
+        U128(self.revoke_inner(card_id, &buyer))
+    }
+
+    /// What revoking `buyer` now would refund, and the part the payout account has to fund.
+    pub fn get_revoke_cost(&self, card_id: u64, buyer: AccountId) -> Option<(U128, U128)> {
         let now = now_secs();
-        let mut grants: Vec<Grant> = self.grants.get(&card_id).cloned().unwrap_or_default();
-        let i = grants.iter().position(|g| g.buyer == buyer && g.expires_at > now).unwrap_or_else(|| env::panic_str("no live key for this buyer"));
-        let g = grants.remove(i);
-        self.grants.insert(card_id, grants);
+        let g = self.grants.get(&card_id)?.iter().find(|g| g.buyer == buyer && g.expires_at > now)?.clone();
+        let refund = Self::unused_share(&g, now);
+        Some((U128(refund), U128(refund - self.fee_of(refund))))
+    }
+
+    fn unused_share(g: &Grant, now: u64) -> u128 {
         let span = (g.expires_at - g.granted_at).max(1) as u128;
         let unused = (g.expires_at - now.max(g.granted_at)) as u128;
-        let refund = g.paid.0 * unused / span;
+        g.paid.0 * unused / span
+    }
+
+    fn revoke_inner(&mut self, card_id: u64, buyer: &AccountId) -> u128 {
+        let now = now_secs();
+        let mut grants: Vec<Grant> = self.grants.get(&card_id).cloned().unwrap_or_default();
+        let i = grants.iter().position(|g| &g.buyer == buyer && g.expires_at > now).unwrap_or_else(|| env::panic_str("no live key for this buyer"));
+        let g = grants.remove(i);
+        self.grants.insert(card_id, grants);
+        let refund = Self::unused_share(&g, now);
         let fee = self.fee_of(refund);
         let owner = self.owner.clone();
         self.debit(&g.payout, refund - fee);
         self.debit(&owner, fee);
         event("viewing_key_revoked", json!({ "card_id": card_id, "buyer": buyer, "refund": U128(refund) }));
-        self.pay_out(&buyer, refund);
-        U128(refund)
+        self.pay_out(buyer, refund);
+        refund
     }
 
     fn take_waiting(&mut self, card_id: u64, buyer: &AccountId) -> Waiting {
@@ -298,6 +337,9 @@ impl Registry {
             return self.refuse_payment(&sender_id, amount, "BAD_MSG", "msg must be {\"card_id\": N}");
         };
         let buyer = m.buyer.unwrap_or_else(|| sender_id.clone());
+        if m.revoke == Some(true) {
+            return self.fund_revoke(&sender_id, amount, m.card_id, &buyer);
+        }
         let Some(offer) = self.offers.get(&m.card_id).cloned() else {
             return self.refuse_payment(&sender_id, amount, "NO_OFFER", "this card has no viewing keys for sale");
         };

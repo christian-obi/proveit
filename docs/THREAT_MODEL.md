@@ -39,7 +39,7 @@ Each threat, what stops it, and the test that shows it. Test IDs are in `docs/PH
 
 | Threat | Mitigation | Test |
 |---|---|---|
-| The trading key is stolen | It's created per session, kept only in tab memory, expires after 30 days and can't withdraw. It can still place bad trades until then | TC.3 |
+| The trading key is stolen | It can't withdraw and its approval expires after 30 days. It is kept in browser storage so copying survives a reload (opt out on shared computers), so malware or a script injected into the site could use it to place trades until then | TC.3 |
 | The app's server learns who is copying | The browser talks to Hyperliquid directly | TC.4 |
 | A trade is copied twice | A fixed client order ID per trade, plus a record in the browser | TC.2, TC.3 |
 | A huge trade drains a small follower | The follower's per-trade, leverage and slippage limits always apply | TC.2 |

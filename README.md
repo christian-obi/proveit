@@ -100,9 +100,9 @@ Each prints a sha256; compare it with [enclave/expected-hashes.txt](enclave/expe
 
 | Build | Registry | sha256 |
 |---|---|---|
-| live | `proveit-registry.testnet` | `8db6b1722e86c92a970720830f336b5150005ac8d9708498e7477684c0e0c375` |
-| demo-fixture | `proveit-demo-registry.testnet` | `d0e03b6e0b5cbcc0297d46c64ebafab94dfbbf34befba7c2dc50c0215e71beef` |
-| live (mainnet) | `proveit.near` | `7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b` |
+| live | `proveit-registry.testnet` | `3de3334ab0465bd5ea5b84656c554c827648761142bc0c3bfc0c6d2a118a7320` |
+| demo-fixture | `proveit-demo-registry.testnet` | `c818c20a9240ba4e4b8aa2f448a2dbe3819ef1e8c88cd3570944338dc56ae251` |
+| live (mainnet) | `proveit.near` | `fc6ccb06aff25125395881885201051cc9cb8ca3f86a99147539744b7223995d` |
 
 ## Deployments
 

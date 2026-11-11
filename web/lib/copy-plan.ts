@@ -8,7 +8,7 @@ export const MIN_ORDER_USD = 10;
 export type CopySettings = { multiplierPct: number; maxUsd: number; slippagePct: number; maxLeverage: number };
 export const DEFAULT_SETTINGS: CopySettings = { multiplierPct: 100, maxUsd: 25, slippagePct: 0.5, maxLeverage: 3 };
 
-export type CopyRecord = { coin: string; dir: string; size_bps: number };
+export type CopyRecord = { coin: string; dir: string; size_bps: number; hour?: number };
 
 export type Plan =
   | { kind: "skip"; reason: string }

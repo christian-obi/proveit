@@ -18,7 +18,8 @@ import { demoCardTransactions, liveCardTransactions, profileFor } from "@/lib/fl
 import { fetchKeystorePubkey } from "@/lib/keystore";
 import { requestNumber, storageCost, waitForRequest, type RequestOutcome } from "@/lib/near";
 import { randomNonce, secretJson, VALIDITY_SECS, type OwnershipProof } from "@/lib/ownership";
-import { connectEvm, connectNear, signOwnership, type NearSession } from "@/lib/wallets";
+import { signOwnership } from "@/lib/wallets";
+import { useEvm, useNear } from "@/lib/use-wallet";
 
 type Mode = "live" | "demo";
 type Phase =
@@ -56,8 +57,6 @@ export default function CreateFlow() {
 
 function Flow({ network }: { network: Network }) {
   const [mode, setMode] = useState<Mode>("live");
-  const [near, setNear] = useState<NearSession | null>(null);
-  const [evm, setEvm] = useState<`0x${string}` | null>(null);
   const [windowDays, setWindowDays] = useState<number>(30);
   const [agent, setAgent] = useState(false);
   const [keyPath, setKeyPath] = useState<"direct" | "relay" | null>(null);
@@ -66,14 +65,13 @@ function Flow({ network }: { network: Network }) {
   const busy = phase.step === "working" || phase.step === "waiting";
   const fail = (e: unknown) => setPhase({ step: "error", message: e instanceof Error ? e.message : String(e) });
 
-  // On a mainnet site, demo cards still go to testnet, so a change of mode needs the other wallet.
-  useEffect(() => {
-    if (network === "mainnet") setNear(null);
-  }, [mode]);
+  // Demo cards always go to testnet, so they use the testnet wallet.
+  const { near, connect: connectNearWallet } = useNear(mode === "demo" ? networkFor(config.demoRegistry).network : network);
+  const { evm, connect: connectEvmWallet } = useEvm();
 
   async function onConnectNear() {
     try {
-      setNear(await connectNear(mode === "demo" ? networkFor(config.demoRegistry).network : network));
+      await connectNearWallet();
     } catch (e) {
       fail(e);
     }
@@ -81,7 +79,7 @@ function Flow({ network }: { network: Network }) {
 
   async function onConnectEvm() {
     try {
-      setEvm(await connectEvm());
+      await connectEvmWallet();
     } catch (e) {
       fail(e);
     }
@@ -155,7 +153,7 @@ function Flow({ network }: { network: Network }) {
             <span>
               Issuing as <span className="font-mono">{near.accountId}</span>
             </span>
-            <button className={ghost} onClick={() => near.disconnect().then(() => setNear(null))} disabled={busy}>
+            <button className={ghost} onClick={() => void near.disconnect()} disabled={busy}>
               Disconnect
             </button>
           </div>

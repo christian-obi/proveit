@@ -29,11 +29,11 @@ async function UnlockLink({ id, registry }: { id: number; registry: string }) {
     <div className="space-y-2">
     <Link href={href} className="flex items-center justify-between rounded-lg border border-line bg-panel p-4 text-sm hover:border-accent" data-unlock-link>
       <span>
-        <span className="font-medium">Follow this trader</span>
+        <span className="font-medium">Copy this trader</span>
         <span className="text-muted">
           {offer
-            ? ` · viewing keys from ${Number(offer.offer.price) / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? "USDC"}, ${offer.seats_left} seat${offer.seats_left === 1 ? "" : "s"} left`
-            : " · the trader can sell viewing keys to this card's trades"}
+            ? ` · viewing keys from ${Number(offer.offer.price) / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? "USDC"}, ${offer.seats_left} seat${offer.seats_left === 1 ? "" : "s"} left · buy one and copy their trades automatically`
+            : " · once the trader sells viewing keys, you can copy their trades automatically"}
         </span>
       </span>
       <span aria-hidden>→</span>
@@ -128,7 +128,7 @@ export async function FeedPageView({ id, registry }: { id: string; registry: str
     <section className="space-y-6">
       <Card card={card} id={record.id} seed={record.card_hash} reactionKey={`${registry}:${record.id}`} />
       <div>
-        <h1 className="text-lg font-semibold">Live feed</h1>
+        <h1 className="text-lg font-semibold">Live feed and copy trading</h1>
         <p className="text-sm text-muted">
           The trader&apos;s orders after this card, one hash chain for every follower, encrypted to this browser by the enclave. Coarsened like the card: hour, side, size and
           PnL as a share of the account.

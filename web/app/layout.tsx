@@ -4,6 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import FxToggle from "@/components/FxToggle";
 import NetworkSwitch from "@/components/NetworkSwitch";
+import WalletButton from "@/components/WalletButton";
 import { config } from "@/lib/config";
 import "./globals.css";
 
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Link>
               ))}
               <NetworkSwitch />
+              <WalletButton />
             </span>
           </nav>
         </header>
