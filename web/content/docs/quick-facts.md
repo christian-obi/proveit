@@ -13,5 +13,5 @@ description: "What Prove-It is, who it is for and how it works, in one table."
 | Where are cards recorded? | A NEAR smart contract (the registry) |
 | Does verifying need an account? | No. It reads public NEAR RPC and OutLayer attestation data |
 | How do followers pay? | USDC on NEAR. Payment from other chains through NEAR Intents 1Click is built but not yet tested live |
-| Web app | https://proveit-production-d47c.up.railway.app |
+| Web app | https://proveit.up.railway.app |
 | Source code | https://github.com/christian-obi/proveit |

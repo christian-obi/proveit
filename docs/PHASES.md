@@ -12,7 +12,7 @@ One row per exit test from BUILD_PLAN §5. A phase is complete only when every r
 | T0.4 | Encrypted secret reaches the enclave (hash matches); plaintext in no tx argument | ✔ | 6 Nov: enclave read the 78-char secret, sha256 `1b18c287…d08e` = expected (request 10535); `scripts/leakcheck.py` found the address in neither `store_secrets` (`2o66pg…`) nor the run (`9h5zoq…`), with a positive control ([log](p0-results/t04-leakcheck.log)) |
 | T0.5 | Leaderboard fetch + parse < 60 s and within memory limit | ✔ | 4 Nov: 8.3 s total, runs under a 128 MB cap (fails at 96 MB); k = 101 for 18–19% |
 | T0.6 | 0.9 KB, 4 KB and 16 KB outputs arrive intact; gas and latency recorded | ✔ | 6 Nov: 922 / 4,073 / 16,074 bytes arrived intact (requests 10543–10545); 11 blocks each; 0.00104 NEAR each, independent of size ([log](p0-results/t05.log)) |
-| T0.7 | Railway URL answers `HTTP/2 200` | ✔ | 6 Nov: https://proveit-production-d47c.up.railway.app → `HTTP/2 200`, `/healthz` → `ok` (project `proveit`, environment `production`) |
+| T0.7 | Railway URL answers `HTTP/2 200` | ✔ | 6 Nov: https://proveit.up.railway.app → `HTTP/2 200`, `/healthz` → `ok` (project `proveit`, environment `production`) |
 
 **P0 status:** ✔ 7 of 7 (T0.1–T0.7). Confidential perps ownership and NEAR Intents history moved to the post-hackathon roadmap, so their tests were dropped.
 
@@ -97,7 +97,7 @@ Mainnet build (reproducible, registry `proveit.near`): `16f515c2a8abf41de9ed6653
 
 ## P5 — Web app: trader create flow (Railway)
 
-Live at https://proveit-production-d47c.up.railway.app/create (testnet). Tests: `pnpm --filter web test` (vitest) and `pnpm --filter web e2e` (Playwright), both in CI.
+Live at https://proveit.up.railway.app/create (testnet). Tests: `pnpm --filter web test` (vitest) and `pnpm --filter web e2e` (Playwright), both in CI.
 
 | ID | Test | Status | Evidence |
 |---|---|---|---|
@@ -113,7 +113,7 @@ Live at https://proveit-production-d47c.up.railway.app/create (testnet). Tests: 
 
 ## P6 — M2: card page, verify, tamper mode
 
-Live at https://proveit-production-d47c.up.railway.app (testnet): `/`, `/verify`, `/c/<id>`, `/demo/<id>`. Tests: `node --test packages/verify/src/*.test.ts`, `pnpm --filter web test`, `pnpm --filter web e2e`, all in CI.
+Live at https://proveit.up.railway.app (testnet): `/`, `/verify`, `/c/<id>`, `/demo/<id>`. Tests: `node --test packages/verify/src/*.test.ts`, `pnpm --filter web test`, `pnpm --filter web e2e`, all in CI.
 
 | ID | Test | Status | Evidence |
 |---|---|---|---|
@@ -121,7 +121,7 @@ Live at https://proveit-production-d47c.up.railway.app (testnet): `/`, `/verify`
 | T6.2 | `pnpm verify <railway>/demo/1` | ✔ | 7 Nov, exit 0: signature, record, code, attestation ✔; freshness amber because it is a demo card from a recorded public account (a live card shows 5/5, as in T6.1). A `/c/<id>` live card waits for the Hyperliquid account. |
 | T6.3 | `pnpm verify <railway>/demo/1 --tamper return_bps=3830` | ✔ | exit 1, "signature mismatch"; record and attestation also red |
 | T6.4 | og:image is a 1200×630 PNG | ✔ | `web/e2e/verify.spec.ts` plus `curl` on Railway: 200, `image/png`, 1200×630, `twitter:card` = `summary_large_image` |
-| T6.5 | X and Telegram previews show the card | ☐ | yours: paste https://proveit-production-d47c.up.railway.app/c/0 into X and Telegram |
+| T6.5 | X and Telegram previews show the card | ☐ | yours: paste https://proveit.up.railway.app/c/0 into X and Telegram |
 
 Also in the browser suite: tamper mode goes red then green when the number is put back; the landing page's fake screenshot can't be verified while the real card can; a pasted link on `/verify` opens with checks running; unknown cards 404; a staged race (the unedited check held 4 s) can't overwrite the red result.
 
@@ -178,7 +178,7 @@ Testnet, 8 Nov: enclave builds `23b7d873…` (live) and `0ad3295a…` (demo) app
 
 ## P9 — Explore, privacy depth, profile, agent guard
 
-Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) approved; mainnet build `27e7f6c4…`; registry code redeployed to both testnet registries (no state change; old cards still `VALID`). Live: https://proveit-production-d47c.up.railway.app/explore. Logs: `docs/p9-results/`, `docs/agent-guard-demo.log`.
+Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) approved; mainnet build `27e7f6c4…`; registry code redeployed to both testnet registries (no state change; old cards still `VALID`). Live: https://proveit.up.railway.app/explore. Logs: `docs/p9-results/`, `docs/agent-guard-demo.log`.
 
 | ID | Test | Status | Evidence |
 |---|---|---|---|

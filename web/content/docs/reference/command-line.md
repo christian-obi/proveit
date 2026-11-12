@@ -10,8 +10,8 @@ Needs Node 22+ and pnpm. Nothing here needs a wallet.
 git clone https://github.com/christian-obi/proveit && cd proveit
 pnpm i
 pnpm demo                # verifies a real card, then an edited copy that fails
-pnpm verify https://proveit-production-d47c.up.railway.app/demo/3
-pnpm agent-guard https://proveit-production-d47c.up.railway.app/demo/3 --allow-demo --max-dd 70
+pnpm verify https://proveit.up.railway.app/demo/3
+pnpm agent-guard https://proveit.up.railway.app/demo/3 --allow-demo --max-dd 70
 ```
 
 `pnpm agent-guard` accepts `--min-trades N`, `--max-dd PCT`, `--min-days N`, `--allow-demo`, `--allow-warnings`, `--tamper field=value` and `--json`.

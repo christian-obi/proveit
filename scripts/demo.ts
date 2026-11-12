@@ -12,7 +12,7 @@
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
-const CARD = process.env.PROVEIT_DEMO_CARD ?? "https://proveit-production-d47c.up.railway.app/demo/3";
+const CARD = process.env.PROVEIT_DEMO_CARD ?? "https://proveit.up.railway.app/demo/3";
 const cli = join(import.meta.dirname, "..", "packages", "verify", "bin", "verify.ts");
 const run = (...args: string[]) => {
   const r = spawnSync(process.execPath, [cli, CARD, ...args], { stdio: "inherit" });

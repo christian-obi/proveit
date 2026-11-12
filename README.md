@@ -4,7 +4,7 @@
 
 Screenshots of PnL can be faked. Prove-It cards can't, and they don't give away the wallet.
 
-> Built at NEAR HACKATHON (Nov 2026). The website opens on **NEAR testnet** by default. The registry and enclave run on **NEAR mainnet**, where the first real card, [#0](https://proveit-production-d47c.up.railway.app/c/0), is issued and verified (see [Status](#status)). A switch in the site header shows either network.
+> Built at NEAR HACKATHON (Nov 2026). The website opens on **NEAR testnet** by default. The registry and enclave run on **NEAR mainnet**, where the first real card, [#0](https://proveit.up.railway.app/c/0), is issued and verified (see [Status](#status)). A switch in the site header shows either network.
 
 ## Try it in 60 seconds, no wallet
 
@@ -35,10 +35,10 @@ The amber check 5 is expected: the demo card is computed in the real TEE but fro
 
 ## Try it live
 
-- **A card:** https://proveit-production-d47c.up.railway.app/demo/3: press **Verify**, then **Tamper mode** and change a number: three checks go red.
-- **Explore** verified traders: https://proveit-production-d47c.up.railway.app/explore
-- **Viewing key:** https://proveit-production-d47c.up.railway.app/demo/3/unlock (testnet, paid in test USDC)
-- **For agents:** `https://proveit-production-d47c.up.railway.app/api/verify?card=3&registry=proveit-demo-registry.testnet&guard=1`
+- **A card:** https://proveit.up.railway.app/demo/3: press **Verify**, then **Tamper mode** and change a number: three checks go red.
+- **Explore** verified traders: https://proveit.up.railway.app/explore
+- **Viewing key:** https://proveit.up.railway.app/demo/3/unlock (testnet, paid in test USDC)
+- **For agents:** `https://proveit.up.railway.app/api/verify?card=3&registry=proveit-demo-registry.testnet&guard=1`
 
 ## How it works
 
@@ -108,15 +108,15 @@ Each prints a sha256; compare it with [enclave/expected-hashes.txt](enclave/expe
 
 | | Testnet (live now) | Mainnet |
 |---|---|---|
-| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (card [#0](https://proveit-production-d47c.up.railway.app/c/0)) |
+| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (card [#0](https://proveit.up.railway.app/c/0)) |
 | OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | `realist1036.near/enclave` |
-| Demo cards | [#3](https://proveit-production-d47c.up.railway.app/demo/3) (trader), [#4](https://proveit-production-d47c.up.railway.app/demo/4) (AI agent) | pending |
+| Demo cards | [#3](https://proveit.up.railway.app/demo/3) (trader), [#4](https://proveit.up.railway.app/demo/4) (AI agent) | pending |
 | Attestation (card #3) | https://testnet-api.outlayer.ai/attestations/by-request/13345 | |
-| Web app | https://proveit-production-d47c.up.railway.app | |
+| Web app | https://proveit.up.railway.app | |
 
 ## Issue your own card
 
-Open https://proveit-production-d47c.up.railway.app/create with a NEAR testnet wallet (e.g. Meteor) and an EVM wallet holding the Hyperliquid account (MetaMask, Rabby). The account needs 20+ trades in the window and must have held capital for (almost) all of it. "Demo data" mode issues a card from a recorded public account without an EVM wallet.
+Open https://proveit.up.railway.app/create with a NEAR testnet wallet (e.g. Meteor) and an EVM wallet holding the Hyperliquid account (MetaMask, Rabby). The account needs 20+ trades in the window and must have held capital for (almost) all of it. "Demo data" mode issues a card from a recorded public account without an EVM wallet.
 
 ## Tests
 

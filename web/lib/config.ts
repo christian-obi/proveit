@@ -35,7 +35,7 @@ export const config = {
   ...NETWORKS[defaultNetwork],
   demoRegistry: DEMO_REGISTRY,
   demoEnclaveProject: "proveit-realist.testnet/enclave-demo",
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://proveit-production-d47c.up.railway.app",
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://proveit.up.railway.app",
   /** Build-time switch for the Playwright tests' fake wallets. Never set in a deployed build. */
   e2e: process.env.NEXT_PUBLIC_E2E === "1",
 };
