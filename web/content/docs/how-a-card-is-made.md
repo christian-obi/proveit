@@ -4,6 +4,9 @@ description: "The steps from a trader's signature to a signed card on NEAR."
 
 # How a card is made
 
+
+![The Create a card page: connect a NEAR wallet, connect the Hyperliquid account's EVM wallet, choose a 1, 7, 30, 90 or 180-day window, then sign and create the card](https://proveit.up.railway.app/screenshots/create-card.png)
+
 1. **The trader proves ownership.** They sign an EIP-712 message from the Hyperliquid account's key. It is bound to their NEAR account, a single-use nonce and an expiry. No API key is involved.
 2. **The browser encrypts the proof.** The proof is encrypted to the OutLayer keystore, so only the enclave can read the address.
 3. **The registry requests the card.** `request_card` on the NEAR contract triggers the enclave. Only the registry compiled into the build can do this.

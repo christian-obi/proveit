@@ -15,3 +15,7 @@ Every verifier (web panel, command line and API) uses the same code and runs the
 | `freshness` | Freshness and privacy | The card's age and demo status, and that `k_anon ≥ k_min` |
 
 Each check returns `pass`, `warn` or `fail`. A demo card always shows `warn` on `freshness`, which is expected.
+
+Changing one number fails three checks. The code check still passes because the build is unchanged:
+
+![Tamper mode: the return edited to +34.94%, with signature, record and attestation marked failed, code passed, freshness amber, and "Not verified: 3 checks failed"](https://proveit.up.railway.app/screenshots/tamper-mode.png)

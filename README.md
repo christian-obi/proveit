@@ -6,6 +6,10 @@ Screenshots of PnL can be faked. Prove-It cards can't, and they don't give away 
 
 > Built at NEAR HACKATHON (Nov 2026). The website opens on **NEAR testnet** by default. The registry and enclave run on **NEAR mainnet**, where the first real card, [#0](https://proveit.up.railway.app/c/0), is issued and verified (see [Status](#status)). A switch in the site header shows either network.
 
+![Mainnet card #0 on the Prove-It website after pressing Verify: all four integrity checks pass (enclave signature, on-chain record on proveit.near, enclave build 7a2710db, Intel TDX attestation for OutLayer request 2941), with an amber note that it is a 1-day test card shared by at least 42 leaderboard accounts](web/public/screenshots/card-verified.png)
+
+*Mainnet card [#0](https://proveit.up.railway.app/c/0?verify=1), verified in the browser from public data only. It is a real 1-day test card, so it shows a small loss and an amber freshness note.*
+
 ## Try it in 60 seconds, no wallet
 
 Needs Node 22+ and pnpm.
@@ -39,6 +43,28 @@ The amber check 5 is expected: the demo card is computed in the real TEE but fro
 - **Explore** verified traders: https://proveit.up.railway.app/explore
 - **Viewing key:** https://proveit.up.railway.app/demo/3/unlock (testnet, paid in test USDC)
 - **For agents:** `https://proveit.up.railway.app/api/verify?card=3&registry=proveit-demo-registry.testnet&guard=1`
+
+### What you'll see
+
+**Tamper mode.** Change the return from +14.94% to +34.94%, as a faked screenshot would. The signature, on-chain record and TEE attestation checks fail. The enclave code check still passes, because the build is unchanged.
+
+![Tamper mode on demo card 1: the original card above, an edited copy outlined in red showing +34.94%, and the verification panel with three red crosses (signature mismatch, the registry holds a different card, the TEE run produced different output) and the verdict "Not verified: 3 checks failed"](web/public/screenshots/tamper-mode.png)
+
+**Explore.** Every card recorded by the registry, ranked, with a live tape of new cards. Each row links to its viewing keys and has a Share button.
+
+![The Explore page on testnet: totals (6 verified cards, 1 trader, 252 trades proven, 2 keys for sale), sort tabs, ranked card rows with their emblem, return, drawdown, trades and win rate, and a tape of the latest cards signed by the enclave](web/public/screenshots/explore.png)
+
+**Viewing key reveal.** A follower who bought a key sees the trades behind the card. They are decrypted in the browser and each one is checked against the card's Merkle root ("91/91 Merkle-verified"), 25 per page. Records are coarsened: the hour, not the second, and sizes and PnL as a share of the account.
+
+![The reveal of demo card 2's trades: "91/91 Merkle-verified", a table of hour, coin, side, size and PnL as a percentage of equity, and fill count, showing trades 1 to 25 of 91 with Prev and Next buttons](web/public/screenshots/reveal-trades.png)
+
+**Copy trading.** A key holder copies the trader's new orders from an open tab: simulated, on Hyperliquid testnet, or with real money on live cards. One wallet signature approves a trading-only key that can't withdraw and expires in 30 days. This shot uses a simulated exchange.
+
+![The Copy this trader panel on Hyperliquid testnet: a trading key approved until 13 Dec 2026, sizing limits (size 100%, max $25 per trade, 0.5% slippage, 3x leverage), copy P&L, and a log line "Open Long BTC, 25% of equity: Filled 0.00025 BTC at $100100"](web/public/screenshots/copy-trading.png)
+
+**Sharing.** Every card has a Share button. The link unfurls on X and Telegram into a 1200×630 picture of the card.
+
+![A card with its Share menu open: Post on X, Share on Telegram, Copy link, Copy post text, Save image](web/public/screenshots/share-menu.png)
 
 ## How it works
 
@@ -118,6 +144,8 @@ Each prints a sha256; compare it with [enclave/expected-hashes.txt](enclave/expe
 
 Open https://proveit.up.railway.app/create with a NEAR testnet wallet (e.g. Meteor) and an EVM wallet holding the Hyperliquid account (MetaMask, Rabby). The account needs 20+ trades in the window and must have held capital for (almost) all of it. "Demo data" mode issues a card from a recorded public account without an EVM wallet.
 
+![The Create a card page: three steps (connect a NEAR wallet, connect the Hyperliquid account's EVM wallet, choose a 1, 7, 30, 90 or 180-day window), an AI-agent checkbox, and a note that 0.07 NEAR is attached, mostly refunded](web/public/screenshots/create-card.png)
+
 ## Tests
 
 ```bash
@@ -125,6 +153,8 @@ pnpm test                    # enclave + contract (Rust), verifier + web (TypeSc
 pnpm --filter web e2e        # browser tests against testnet (Playwright)
 scripts/p2-check.sh          # reproducible builds vs. expected-hashes.txt (Docker)
 ```
+
+The screenshots in this README and the docs are taken by [web/e2e/screenshots.spec.ts](web/e2e/screenshots.spec.ts) from the running app: `cd web && SCREENSHOTS=1 pnpm exec playwright test e2e/screenshots.spec.ts`.
 
 Per-phase exit tests and live evidence: [docs/PHASES.md](docs/PHASES.md).
 
@@ -166,7 +196,7 @@ Confidential perps support is planned for after the hackathon. It isn't built. S
 
 ## Other hackathon project
 
-A member of this team also built [Covenant](https://github.com/Len3hq/covenant) for NEAR
+A member of this team also contributed to [Covenant](https://github.com/Len3hq/covenant) for NEAR
 HACKATHON (Nov 2026): a policy-enforced vault that lets AI agents pay on Bitcoin, EVM chains and
 Solana through NEAR Chain Signatures. The two projects are independent and share no code.
 

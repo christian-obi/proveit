@@ -34,6 +34,9 @@ The panel shows the follower's own P&L from copying: closed P&L and fees of the 
 
 ## The trading key
 
+![The Copy this trader panel on Hyperliquid testnet (exchange simulated): a trading key approved for 30 days, sizing limits, copy P&L, and a sample order filled](https://proveit.up.railway.app/screenshots/copy-trading.png)
+
+
 - It is created in the browser. By default it is kept in that browser's storage so copying survives a reload; untick **Keep the trading key in this browser** on a shared computer.
 - It is a Hyperliquid agent wallet, which can place trades but can't withdraw funds.
 - Its approval expires after 30 days.

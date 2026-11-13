@@ -87,6 +87,7 @@ button:disabled { cursor: not-allowed; }
 .chip { display: inline-block; border: 1px solid var(--line); padding: 0.25rem 0.625rem; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: border-color 120ms, color 120ms; }
 .chip:hover, .chip.is-on { border-color: var(--accent); color: var(--accent); }
 .share-menu button { text-transform: none; letter-spacing: 0; }
+.docs img { display: block; max-width: 100%; height: auto; margin: 1.25rem 0; border: 1px solid var(--line); }
 
 /* Board */
 .board-row { position: relative; border: 1px solid var(--line); background: var(--panel); transition: border-color 120ms, background-color 120ms; }

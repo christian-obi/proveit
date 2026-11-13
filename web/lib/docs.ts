@@ -37,6 +37,13 @@ function render(markdown: string, file: string) {
   const toc: { id: string; text: string }[] = [];
   const marked = new Marked({
     walkTokens(token) {
+      // Screenshots are linked by full URL so GitBook, GitHub and raw-Markdown readers can load
+      // them; this site serves them itself.
+      if (token.type === "image") {
+        const image = token as Tokens.Image;
+        image.href = image.href.replace(/^https:\/\/proveit\.up\.railway\.app(?=\/screenshots\/)/, "");
+        return;
+      }
       // GitBook links between pages by relative file path; here they're routes.
       if (token.type !== "link") return;
       const link = token as Tokens.Link;
