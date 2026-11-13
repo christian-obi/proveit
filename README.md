@@ -4,7 +4,7 @@
 
 Screenshots of PnL can be faked. Prove-It cards can't, and they don't give away the wallet.
 
-> Built at NEAR HACKATHON (Nov 2026). The website opens on **NEAR testnet** by default. The registry and enclave run on **NEAR mainnet**, where the first real card, [#0](https://proveit.up.railway.app/c/0), is issued and verified (see [Status](#status)). A switch in the site header shows either network.
+> Built at NEAR HACKATHON (Nov 2026). The website opens on **NEAR testnet** by default. The registry and enclave also run on **NEAR mainnet**, where two real cards from the team's own Hyperliquid account, [#0](https://proveit.up.railway.app/c/0) and [#1](https://proveit.up.railway.app/c/1), are issued and verify, and a follower has bought a 1 USDC viewing key (see [Status](#status)). A switch in the site header shows either network.
 
 ![Mainnet card #0 on the Prove-It website after pressing Verify: all four integrity checks pass (enclave signature, on-chain record on proveit.near, enclave build 7a2710db, Intel TDX attestation for OutLayer request 2941), with an amber note that it is a 1-day test card shared by at least 42 leaderboard accounts](web/public/screenshots/card-verified.png)
 
@@ -27,7 +27,7 @@ pnpm demo
 ✔ On-chain record    card #3 is recorded on proveit-demo-registry.testnet …
 ✔ Enclave code       enclave build 653e74f1177e…: open source, rebuild it with enclave/build.sh and compare
 ✔ TEE attestation    Intel TDX attestation for OutLayer request 13345: this build, this project, this issuer, this exact output
-! Freshness and privacy issued today; a demo card from a recorded public account …; 1 of ≥ 98
+! Freshness and privacy issued 5 days ago; a demo card from a recorded public account …; 1 of ≥ 98
 …
 ✘ Enclave signature  signature mismatch: these numbers are not what the enclave signed
 ✘ On-chain record    the registry holds a different card under #3: this one was edited
@@ -124,25 +124,34 @@ REGISTRY=proveit-registry.testnet      enclave/build.sh                 # the li
 
 Each prints a sha256; compare it with [enclave/expected-hashes.txt](enclave/expected-hashes.txt), with the registry's `get_versions`, and with the `wasm_hash` in any card's attestation. The registry's account is compiled in (only it may ask for cards), so each registry has its own hash. CI rebuilds every line on each push.
 
+The current code builds these:
+
 | Build | Registry | sha256 |
 |---|---|---|
 | live | `proveit-registry.testnet` | `3de3334ab0465bd5ea5b84656c554c827648761142bc0c3bfc0c6d2a118a7320` |
 | demo-fixture | `proveit-demo-registry.testnet` | `c818c20a9240ba4e4b8aa2f448a2dbe3819ef1e8c88cd3570944338dc56ae251` |
-| live (mainnet) | `proveit.near` | `fc6ccb06aff25125395881885201051cc9cb8ca3f86a99147539744b7223995d` |
+| live (mainnet) | `proveit.near` | `fc6ccb06aff25125395881885201051cc9cb8ca3f86a99147539744b7223995d` (card [#1](https://proveit.up.railway.app/c/1)) |
+
+A card keeps the build that issued it, and registries keep older builds approved. To reproduce an older card's build, check out the commit where `expected-hashes.txt` lists it:
+
+| Card | Build | Rebuild from |
+|---|---|---|
+| mainnet [#0](https://proveit.up.railway.app/c/0) | `7a2710dbcbf4219d3c94d4af89dbefaf0f9157e69718047bc274a8153f237b7b` | `git checkout 37ebbb6` |
+| demo [#3](https://proveit.up.railway.app/demo/3) (the one `pnpm demo` checks) | `653e74f1177e…` | `git checkout f64b09f` |
 
 ## Deployments
 
 | | Testnet (live now) | Mainnet |
 |---|---|---|
-| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near` (card [#0](https://proveit.up.railway.app/c/0)) |
+| Registry | `proveit-registry.testnet` (live cards), `proveit-demo-registry.testnet` (demo cards) | `proveit.near`: cards [#0](https://proveit.up.railway.app/c/0) and [#1](https://proveit.up.railway.app/c/1) |
 | OutLayer projects | `proveit-realist.testnet/enclave`, `proveit-realist.testnet/enclave-demo` | `realist1036.near/enclave` |
-| Demo cards | [#3](https://proveit.up.railway.app/demo/3) (trader), [#4](https://proveit.up.railway.app/demo/4) (AI agent) | pending |
-| Attestation (card #3) | https://testnet-api.outlayer.ai/attestations/by-request/13345 | |
-| Web app | https://proveit.up.railway.app | |
+| Demo cards | [#3](https://proveit.up.railway.app/demo/3) (trader), [#4](https://proveit.up.railway.app/demo/4) (AI agent) | none: demo cards are testnet only |
+| Attestation | card #3: https://testnet-api.outlayer.ai/attestations/by-request/13345 | card #0: https://api.outlayer.ai/attestations/by-request/2941 |
+| Web app | https://proveit.up.railway.app (opens on testnet; switch in the header) | same site, mainnet in the header switch |
 
 ## Issue your own card
 
-Open https://proveit.up.railway.app/create with a NEAR testnet wallet (e.g. Meteor) and an EVM wallet holding the Hyperliquid account (MetaMask, Rabby). The account needs 20+ trades in the window and must have held capital for (almost) all of it. "Demo data" mode issues a card from a recorded public account without an EVM wallet.
+Open https://proveit.up.railway.app/create with a NEAR wallet (e.g. Meteor; pick testnet or mainnet in the header switch) and an EVM wallet holding the Hyperliquid account (MetaMask, Rabby). The account needs 20+ trades in the window, must have held capital for (almost) all of it, and must have held at least $10. "Demo data" mode issues a card from a recorded public account without an EVM wallet.
 
 ![The Create a card page: three steps (connect a NEAR wallet, connect the Hyperliquid account's EVM wallet, choose a 1, 7, 30, 90 or 180-day window), an AI-agent checkbox, and a note that 0.07 NEAR is attached, mostly refunded](web/public/screenshots/create-card.png)
 
@@ -166,9 +175,16 @@ Per-phase exit tests and live evidence: [docs/PHASES.md](docs/PHASES.md).
 
 ## Status
 
-| Done (testnet, live) | Pending |
-|---|---|
-| issuance in the TEE, registry, verification + tamper mode, privacy guard, viewing keys with USDC, reveals, live feed over HTTPS, explore, profiles, agent guard, `/api/verify`, copy from a tab (simulated and signature-tested; no live order yet)  | a live 1Click payment from another chain (needs mainnet); a card from the team's own Hyperliquid account; the NEAR Intents venue (needs 1Click history access) |
+**Done on NEAR mainnet** (`proveit.near`, enclave `realist1036.near/enclave`):
+
+- Two cards issued in the TEE from the team's own Hyperliquid account, [#0](https://proveit.up.railway.app/c/0) and [#1](https://proveit.up.railway.app/c/1). `pnpm verify` passes the four integrity checks on both; check 5 is amber because they are 1-day test cards.
+- A viewing key sold on card #0: `xinju.near` paid 1 USDC (tx `5PF8hJ7r…`, 11 Nov), the trader was paid out, and the follower ran reveals.
+- The live feed (delay 0) showed the trader's new BTC trade, and real-money copy orders filled on Hyperliquid mainnet: from the Copy button on 11 Nov, and with auto-copy, which copies each new trade without a click, on 13 Nov. Hyperliquid orders are public, but the follower's address is private.
+- Paying for a key from another chain through NEAR Intents 1Click is live on mainnet: the unlock page quotes the price in the follower's token, gives a deposit address on their chain, tracks the swap, and 1Click delivers the USDC to the registry with the card and buyer.
+
+**Done on testnet:** issuance, verification and tamper mode, the privacy guard, viewing keys paid in test USDC, reveals (91/91 Merkle-verified), the live feed over HTTPS, Explore, profiles, the agent guard, `/api/verify`, and copy from a tab (simulated, and signed orders on Hyperliquid testnet).
+
+**Pending:** the NEAR Intents venue, which needs 1Click history access.
 
 ## Roadmap
 
