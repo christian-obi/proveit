@@ -29,3 +29,4 @@ test-results/
 playwright-report/
 next-env.d.ts
 .data/
+brag-output/

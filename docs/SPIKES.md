@@ -61,7 +61,7 @@ These need your own accounts, so they are not automated.
 5. **S6** is on the post-hackathon roadmap: see `spikes/s6-chainsig-match/README.md`.
 
 ## G0 decision
-Recorded after the live tests. Rules (from BUILD_PLAN §5, P0):
+Recorded after the live tests. Rules:
 - S1 + S2 green → the plan stands.
 - S2 red → sign with a `PROTECTED_` generated ed25519 secret and prove the key with a `pubkey` run attestation.
 - S3 red → store secrets with the `outlayer secrets set` CLI for the demo and document it.

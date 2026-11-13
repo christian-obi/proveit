@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# P2 exit tests that run without a network or wallet (BUILD_PLAN §5, P2). The cargo tests
+# P2 exit tests that run without a network or wallet. The cargo tests
 # for T2.1–T2.4 run in scripts/p1-check.sh; this adds the cross-language and build checks.
 #
 #   scripts/p2-check.sh              everything, including two reproducible builds (~6 min)

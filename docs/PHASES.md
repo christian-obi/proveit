@@ -1,6 +1,6 @@
 # Phase test log
 
-One row per exit test from BUILD_PLAN §5. A phase is complete only when every row in it is ✔. Paste the evidence (command output, tx hash, URL) in the last column or link a log in `docs/p0-results/`.
+One row per exit test. A phase is complete only when every row in it is ✔. Paste the evidence (command output, tx hash, URL) in the last column or link a log in `docs/p0-results/`.
 
 ## P0 — Setup and risk spikes
 
@@ -195,18 +195,18 @@ Testnet, 8 Nov: enclave builds `c4162179…` (live) and `653e74f1…` (demo) app
 
 **P9 status:** ✔ T9.1–T9.6 done.
 
-## P10 — Hardening for the AI screeners
+## P10 — Hardening and reproducibility
 
 | ID | Test | Status | Evidence |
 |---|---|---|---|
 | T10.1 | clean machine: `pnpm i && pnpm demo` | ✔ | `docs/p10-results/clean-machine.log`: a `node:22` container with only the repository's files; the real card verifies (4 ✔, check 5 amber because it's a demo card), the edited copy fails signature, record and attestation, exit 0. On mainnet the live card will show 5/5 |
-| T10.2 | simulated screener (a fresh Claude Code session follows the README) | ☐ | needs the repo public (or a fresh session given local access); yours to start |
+| T10.2 | fresh-reader run: a new Claude Code session follows the README from a clean clone | ☐ | runs once the repository is public |
 | T10.3 | CI green on `main` incl. the reproducible-hash job | ✔ | run 42474099723 on `7038145`: enclave, contract, typescript, web and reproducible-build all green (the three enclave builds match `expected-hashes.txt`). It had failed since P6 because the reproducible-build job never installed the workspace packages; fixed in `.github/workflows/ci.yml` |
 | T10.4 | `docs/CLAIMS.md` | ✔ | 18 claims, each mapped to a test ID or live record and a command to check it; the commands were run |
 | T10.5 | security checklist | ✔ | `docs/THREAT_MODEL.md`: every item with its test. New: `enclave/tests/security.rs` (only the card code signs; EIP-712 domain and bindings), `contract::callbacks_are_private` plus a live refusal (`docs/p10-results/private-callback.log`). The relayer item is n/a (fallback B isn't used) |
 | T10.6 | Railway production | ✔ | 11 Nov: every route returns 200, `/api/verify` passes card #0 on mainnet, both OutLayer payment keys and the 1Click key are set, reactions persist on a volume. The header switch replaced the mainnet build variables. Replaced deployments now exit cleanly, so Railway no longer reports them as crashed |
 
-Also: README rewritten for the screeners (60-second demo, live links, where each part runs, proven / not proven, reproducible hashes, deployments, NEAR protocols, status, disclosures); `docs/TRUST_MODEL.md`, `docs/THREAT_MODEL.md`, `docs/CLAIMS.md`; `docs/METHODOLOGY.md` gains the privacy guard and order records; `pnpm demo` (`scripts/demo.ts`) and `pnpm test` (`scripts/test-all.sh`); the verify CLI prints the return bucket.
+Also: README rewritten for a first-time reader (60-second demo, live links, where each part runs, proven / not proven, reproducible hashes, deployments, NEAR protocols, status, disclosures); `docs/TRUST_MODEL.md`, `docs/THREAT_MODEL.md`, `docs/CLAIMS.md`; `docs/METHODOLOGY.md` gains the privacy guard and order records; `pnpm demo` (`scripts/demo.ts`) and `pnpm test` (`scripts/test-all.sh`); the verify CLI prints the return bucket.
 
 **P10 status:** 5 of 6; T10.2 needs the repo public.
 

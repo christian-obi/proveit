@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# P1 exit tests (BUILD_PLAN §5, P1). Runs everything and writes evidence to docs/p1-results/.
+# P1 exit tests. Runs everything and writes evidence to docs/p1-results/.
 #
 #   scripts/p1-check.sh            all tests, including T1.9 against the live leaderboard
 #   OFFLINE=1 scripts/p1-check.sh  skip T1.9 (no network)

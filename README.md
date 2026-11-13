@@ -126,7 +126,7 @@ pnpm --filter web e2e        # browser tests against testnet (Playwright)
 scripts/p2-check.sh          # reproducible builds vs. expected-hashes.txt (Docker)
 ```
 
-Per-phase exit tests and live evidence: [docs/PHASES.md](docs/PHASES.md). The plan: [BUILD_PLAN.md](BUILD_PLAN.md).
+Per-phase exit tests and live evidence: [docs/PHASES.md](docs/PHASES.md).
 
 ## NEAR protocols used
 

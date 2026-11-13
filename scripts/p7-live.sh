@@ -18,7 +18,7 @@
 #              or any plaintext trade
 #   all        every step in order
 #
-# Logs go to docs/p7-results/<step>.log; state between steps in docs/p7-results/state.env.
+# Logs go to docs/p7-results/<step>.log; state between steps in docs/p7-results/state.txt.
 
 set -euo pipefail
 
@@ -34,7 +34,7 @@ FOLLOWER="${FOLLOWER:-proveit-follower.testnet}"
 DEMO_ADDRESS="0xe986b8e58b5870dca58700c23b5303f20f6823a7"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LOG_DIR="$ROOT/docs/p7-results"
-STATE="$LOG_DIR/state.env"
+STATE="$LOG_DIR/state.txt"
 LIVE_WASM="$ROOT/enclave/dist/proveit-enclave.wasm"
 DEMO_WASM="$ROOT/enclave/dist/proveit-enclave-demo-fixture.wasm"
 REGISTRY_WASM="$ROOT/contract/target/near/proveit_registry.wasm"
