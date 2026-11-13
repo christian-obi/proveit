@@ -149,29 +149,60 @@ const ARBITRUM: Record<HlNetwork, { chainName: string; rpcUrls: string[]; blockE
   testnet: { chainName: "Arbitrum Sepolia", rpcUrls: ["https://sepolia-rollup.arbitrum.io/rpc"], blockExplorerUrls: ["https://sepolia.arbiscan.io"] },
 };
 
+type Eip1193 = { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
+
+/** Every error code in a wallet error, however deeply the wallet wrapped it. */
+function codesOf(e: unknown, depth = 0): number[] {
+  if (!e || typeof e !== "object" || depth > 4) return [];
+  const o = e as { code?: unknown; data?: unknown; error?: unknown; cause?: unknown; originalError?: unknown };
+  return [...(typeof o.code === "number" ? [o.code] : []), ...[o.data, o.error, o.cause, o.originalError].flatMap((x) => codesOf(x, depth + 1))];
+}
+const messageOf = (e: unknown) => String((e as { message?: unknown })?.message ?? "");
+
+const declined = (e: unknown) => codesOf(e).includes(4001) || /reject|denied|cancel/i.test(messageOf(e));
+/** MetaMask says 4902; some builds wrap it in -32603, others only say so in words. */
+const unknownChain = (e: unknown) => codesOf(e).includes(4902) || /unrecognized chain|unknown chain|add(ing)? the chain|wallet_addEthereumChain/i.test(messageOf(e));
+
 /**
  * Hyperliquid's approval is signed for Arbitrum's chain id, and MetaMask refuses to sign typed
- * data for any chain but the active one. So move the wallet to Arbitrum first (adding it if the
- * wallet doesn't know it). Nothing is sent on Arbitrum; it is only the signature's domain.
+ * data for any chain but the active one. So move the wallet to Arbitrum first, adding the chain
+ * if the wallet doesn't know it. Nothing is sent on Arbitrum; it is only the signature's domain.
  */
-async function useSigningChain(network: HlNetwork) {
-  const eth = window.ethereum!;
+export async function ensureSigningChain(eth: Eip1193, network: HlNetwork): Promise<void> {
   const want = SIGNATURE_CHAIN[network].hex;
-  const active = String(await eth.request({ method: "eth_chainId" }).catch(() => "")).toLowerCase();
-  if (active === want) return;
+  const name = ARBITRUM[network].chainName;
+  const active = async () => String(await eth.request({ method: "eth_chainId" }).catch(() => "")).toLowerCase();
+  if ((await active()) === want) return;
+
+  const why = `Hyperliquid signs trading-key approvals for ${name}; nothing is sent on it and it costs no gas.`;
   try {
     await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: want }] });
   } catch (e) {
-    const code = (e as { code?: number; data?: { originalError?: { code?: number } } })?.code ?? (e as { data?: { originalError?: { code?: number } } })?.data?.originalError?.code;
-    if (code === 4001) throw new Error(`Switch your wallet to ${ARBITRUM[network].chainName} to approve the trading key. Hyperliquid signs approvals for that chain; nothing is sent on it.`);
-    if (code !== 4902) throw e;
-    await eth.request({ method: "wallet_addEthereumChain", params: [{ chainId: want, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, ...ARBITRUM[network] }] });
+    if (declined(e)) throw new Error(`Switch your wallet to ${name} to approve the trading key. ${why}`);
+    if (!unknownChain(e)) throw new Error(`Your wallet couldn't switch to ${name}: ${messageOf(e) || "no reason given"}. Switch to it in the wallet and try again.`);
+    try {
+      // Adding a chain also switches to it in MetaMask and most other wallets.
+      await eth.request({ method: "wallet_addEthereumChain", params: [{ chainId: want, chainName: name, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: ARBITRUM[network].rpcUrls, blockExplorerUrls: ARBITRUM[network].blockExplorerUrls }] });
+    } catch (e2) {
+      if (declined(e2)) throw new Error(`Add ${name} to your wallet to approve the trading key. ${why}`);
+      throw new Error(`Your wallet couldn't add ${name}: ${messageOf(e2) || "no reason given"}. Add it in the wallet (chain id ${SIGNATURE_CHAIN[network].id}) and try again.`);
+    }
+    if ((await active()) !== want) {
+      try {
+        await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: want }] });
+      } catch (e3) {
+        if (declined(e3)) throw new Error(`Switch your wallet to ${name} to approve the trading key. ${why}`);
+        throw new Error(`Your wallet couldn't switch to ${name}: ${messageOf(e3) || "no reason given"}.`);
+      }
+    }
   }
+  const now = await active();
+  if (now && now !== want) throw new Error(`Your wallet is still on chain ${parseInt(now, 16)}. Switch it to ${name} and try again.`);
 }
 
 export async function approveNewAgent(network: HlNetwork, owner: Hex): Promise<ApprovedAgent> {
   if (!window.ethereum) throw new Error("No EVM wallet found. Install Rabby or MetaMask.");
-  await useSigningChain(network);
+  await ensureSigningChain(window.ethereum as Eip1193, network);
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
   const nonce = Date.now();

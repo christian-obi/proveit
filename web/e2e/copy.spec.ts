@@ -37,7 +37,15 @@ async function fakeHyperliquid(page: Page, equity = "1000") {
 const wallet = (page: Page) =>
   page.addInitScript(
     ([owner, sig]) => {
-      (window as any).ethereum = { request: async ({ method }: { method: string }) => (method === "eth_requestAccounts" || method === "eth_accounts" ? [owner] : method === "eth_chainId" ? "0xa4b1" : sig) };
+      let active = "0xa4b1";
+      (window as any).ethereum = {
+        request: async ({ method, params }: { method: string; params?: any[] }) => {
+          if (method === "eth_requestAccounts" || method === "eth_accounts") return [owner];
+          if (method === "eth_chainId") return active;
+          if (method === "wallet_switchEthereumChain") return void (active = params![0].chainId);
+          return sig;
+        },
+      };
     },
     [OWNER, SIG],
   );
@@ -77,6 +85,71 @@ test("testnet: one approval, then a correct order, and nothing private reaches t
   expect(orders[0].body.action.orders[0]).toMatchObject({ a: 0, b: true, p: "100500", s: "0.00025", r: false, t: { limit: { tif: "Ioc" } } });
   expect(sent.join("\n").toLowerCase()).not.toContain(OWNER.slice(2));
   expect(sent.join("\n")).not.toContain(approvals[0].body.action.agentAddress);
+});
+
+/** Behaves like MetaMask: starts on Ethereum, doesn't know Arbitrum Sepolia (and says so the
+ *  wrapped way), and refuses typed data for any chain but the active one. */
+const strictMetaMask = (page: Page, opts: { rejectAdd?: boolean } = {}) =>
+  page.addInitScript(
+    ([owner, sig, rejectAdd]) => {
+      let active = "0x1";
+      const known = new Set(["0x1"]);
+      const calls: string[] = [];
+      (window as any).__walletCalls = calls;
+      (window as any).ethereum = {
+        request: async ({ method, params }: { method: string; params?: any[] }) => {
+          calls.push(method);
+          if (method === "eth_requestAccounts" || method === "eth_accounts") return [owner];
+          if (method === "eth_chainId") return active;
+          if (method === "wallet_switchEthereumChain") {
+            const id = params![0].chainId;
+            if (!known.has(id)) throw { code: -32603, message: `Unrecognized chain ID "${id}". Try adding the chain using wallet_addEthereumChain first.`, data: { originalError: { code: 4902 } } };
+            active = id;
+            return null;
+          }
+          if (method === "wallet_addEthereumChain") {
+            if (rejectAdd) throw { code: 4001, message: "User rejected the request." };
+            known.add(params![0].chainId);
+            active = params![0].chainId;
+            return null;
+          }
+          if (method === "eth_signTypedData_v4") {
+            const chainId = Number(JSON.parse(params![1]).domain.chainId);
+            if (chainId !== parseInt(active, 16)) throw { code: -32602, message: `Provided chainId "${chainId}" must match the active chainId "${parseInt(active, 16)}"` };
+            return sig;
+          }
+          throw { code: -32601, message: `unsupported ${method}` };
+        },
+      };
+    },
+    [OWNER, SIG, opts.rejectAdd ?? false] as const,
+  );
+
+test("MetaMask on Ethereum: adds Arbitrum Sepolia, then approves and trades", async ({ page }) => {
+  await strictMetaMask(page);
+  const { orders, approvals } = await fakeHyperliquid(page);
+  await page.goto(`/demo/${reveal.card_id}/feed`);
+  await page.getByRole("button", { name: "Hyperliquid testnet" }).click();
+  await page.getByRole("button", { name: "Approve a trading key" }).click();
+  await page.getByRole("button", { name: "Try a sample trade" }).click();
+  await expect(page.locator("[data-copy-log]")).toContainText("Filled 0.00025 BTC at $100100");
+  const calls: string[] = await page.evaluate(() => (window as any).__walletCalls);
+  expect(calls).toContain("wallet_addEthereumChain");
+  expect(calls.indexOf("wallet_addEthereumChain")).toBeLessThan(calls.indexOf("eth_signTypedData_v4"));
+  expect(approvals).toHaveLength(1);
+  expect(orders).toHaveLength(1);
+  await expect(page.getByText("[object Object]")).toHaveCount(0);
+});
+
+test("declining to add the chain says why, not [object Object]", async ({ page }) => {
+  await strictMetaMask(page, { rejectAdd: true });
+  const { approvals } = await fakeHyperliquid(page);
+  await page.goto(`/demo/${reveal.card_id}/feed`);
+  await page.getByRole("button", { name: "Hyperliquid testnet" }).click();
+  await page.getByRole("button", { name: "Approve a trading key" }).click();
+  await expect(page.getByText(/Add Arbitrum Sepolia to your wallet to approve the trading key/)).toBeVisible();
+  await expect(page.getByText("[object Object]")).toHaveCount(0);
+  expect(approvals).toHaveLength(0);
 });
 
 test("auto-copy takes only trades that arrive while it's on, once each", async ({ page }) => {
