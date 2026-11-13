@@ -7,6 +7,7 @@ import type { Entry } from "@/lib/explore";
 import type { Counts } from "@/lib/reaction-kinds";
 import CardPicture from "@/components/CardPicture";
 import Reactions from "@/components/Reactions";
+import ShareButton from "@/components/ShareButton";
 
 export default function CardRow({ e, showIssuer = true, rank, maxReturn, flash, counts }: { e: Entry; showIssuer?: boolean; rank?: number; maxReturn?: number; flash?: boolean; counts?: Counts }) {
   const s = e.card.stats;
@@ -59,8 +60,9 @@ export default function CardRow({ e, showIssuer = true, rank, maxReturn, flash, 
           "No viewing keys for sale"
         )}
       </p>
-      <div className="mt-2">
+      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <Reactions cardKey={`${e.registry}:${e.record.id}`} counts={counts} />
+        <ShareButton path={cardPath(e.record.id, e.registry)} stats={s} days={e.card.window.days} demo={e.card.mode !== "live"} />
       </div>
       </div>
     </li>

@@ -3,6 +3,8 @@
 
 import CardPicture from "@/components/CardPicture";
 import Reactions from "@/components/Reactions";
+import ShareButton from "@/components/ShareButton";
+import { cardPath } from "@/lib/cards";
 import { date, pct, returnLabel, volume, windowLabel } from "@/lib/format";
 
 export type CardData = {
@@ -29,6 +31,9 @@ export type CardData = {
 export default function Card({ card, id, edited, seed, reactionKey }: { card: CardData; id?: number; edited?: boolean; seed?: string; reactionKey?: string }) {
   const s = card.stats;
   const up = s.return_bps >= 0;
+  // A recorded card (it has a number and a "registry:id" reaction key) gets a Share button.
+  const registry = reactionKey?.slice(0, reactionKey.lastIndexOf(":"));
+  const sharePath = registry && id !== undefined ? cardPath(id, registry) : null;
   const rows: [string, string][] = [
     ["Max drawdown", pct(-s.max_dd_bps)],
     ["Win rate", pct(s.win_rate_bps)],
@@ -86,8 +91,9 @@ export default function Card({ card, id, edited, seed, reactionKey }: { card: Ca
         )}
       </div>
       {reactionKey && (
-        <div className="px-5 pb-12">
+        <div className="flex flex-wrap items-start justify-between gap-3 px-5 pb-12">
           <Reactions cardKey={reactionKey} />
+          {sharePath && <ShareButton path={sharePath} stats={s} days={card.window.days} demo={card.mode !== "live"} />}
         </div>
       )}
       <div className="flex flex-wrap justify-between gap-2 border-t border-line px-5 py-3 text-xs text-muted">
