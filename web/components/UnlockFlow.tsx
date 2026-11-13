@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { checkReveal, followerKey, openReveal, type Revealed, type RevealCheck } from "@proveit/verify/reveal";
 import { unhex } from "@proveit/verify/bytes";
 import { config, networkFor, NETWORKS } from "@/lib/config";
-import { explain } from "@/lib/errors";
+import { errorText, explain } from "@/lib/errors";
 import {
   buyTx,
   duration,
@@ -77,7 +77,7 @@ export default function UnlockFlow({ registry, cardId, cardHash, issuer, orders,
   const decimals = token?.decimals ?? 6;
   const symbol = token?.symbol ?? "USDC";
   const busy = phase.step === "working" || phase.step === "waiting";
-  const fail = (e: unknown) => setPhase({ step: "error", message: e instanceof Error ? e.message : String(e) });
+  const fail = (e: unknown) => setPhase({ step: "error", message: errorText(e) });
 
   async function refresh(account: string) {
     const [o, g, w] = await Promise.all([getOffer(registry, cardId), getGrant(registry, cardId, account), isWaiting(registry, cardId, account)]);
@@ -272,7 +272,14 @@ function OfferSummary({ offer, decimals, symbol }: { offer: OfferView | null; de
   );
 }
 
+const TRADES_PER_PAGE = 25;
+
 function Trades({ data, check }: { data: Revealed; check: RevealCheck }) {
+  const [page, setPage] = useState(0);
+  const pages = Math.max(1, Math.ceil(data.records.length / TRADES_PER_PAGE));
+  const current = Math.min(page, pages - 1);
+  const first = current * TRADES_PER_PAGE;
+  const shown = data.records.slice(first, first + TRADES_PER_PAGE);
   return (
     <div className="rounded-lg border border-line bg-panel p-4">
       <p className={`mb-3 text-sm font-medium ${check.ok ? "text-accent" : "text-bad"}`} data-reveal-check={check.ok ? "pass" : "fail"}>
@@ -291,8 +298,8 @@ function Trades({ data, check }: { data: Revealed; check: RevealCheck }) {
             </tr>
           </thead>
           <tbody>
-            {data.records.map((r, i) => (
-              <tr key={i} className="border-t border-line">
+            {shown.map((r, i) => (
+              <tr key={first + i} className="border-t border-line" data-trade-row>
                 <td className="py-1 pr-3 font-mono text-xs">{hourLabel(r.hour)}</td>
                 <td className="py-1 pr-3">{r.coin}</td>
                 <td className="py-1 pr-3">{r.dir}</td>
@@ -304,6 +311,24 @@ function Trades({ data, check }: { data: Revealed; check: RevealCheck }) {
           </tbody>
         </table>
       </div>
+      {pages > 1 && (
+        <div className="mt-3 flex items-center justify-between gap-3 text-xs" data-trade-pages>
+          <span className="font-mono text-muted tabular-nums">
+            {first + 1}–{first + shown.length} of {data.records.length} trades
+          </span>
+          <span className="flex items-center gap-2">
+            <button type="button" className="chip disabled:opacity-40" onClick={() => setPage(current - 1)} disabled={current === 0}>
+              ← Prev
+            </button>
+            <span className="font-mono text-muted tabular-nums">
+              {current + 1}/{pages}
+            </span>
+            <button type="button" className="chip disabled:opacity-40" onClick={() => setPage(current + 1)} disabled={current >= pages - 1}>
+              Next →
+            </button>
+          </span>
+        </div>
+      )}
       <p className="mt-3 text-xs text-muted">
         Coarsened so they can&apos;t be matched back to the wallet: the hour, not the second; sizes and PnL as a share of the account, not dollars; no order IDs or hashes.
         Decrypted in this browser; the key never left it.
@@ -368,7 +393,7 @@ function IssuerPanel({
       setMsg("Done.");
       await onChange();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : String(e));
+      setMsg(errorText(e));
     }
   };
 
@@ -468,7 +493,7 @@ function CrossChainPay({ registry, cardId, buyer, onPaid }: { registry: string; 
         setTokens(d.tokens ?? []);
         setAsset(d.tokens?.[0]?.assetId ?? "");
       })
-      .catch((e) => setErr(String(e)));
+      .catch((e) => setErr(errorText(e)));
   }, [open, mainnet, tokens.length]);
 
   useEffect(() => {

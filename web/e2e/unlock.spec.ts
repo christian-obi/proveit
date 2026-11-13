@@ -54,7 +54,14 @@ test("T7.6 (testnet): a key holder's real reveal decrypts in the page and every 
   const check = page.locator("[data-reveal-check]");
   await expect(check).toHaveAttribute("data-reveal-check", "pass", { timeout: 60_000 });
   await expect(check).toContainText(`${fx.shown}/${fx.total} Merkle-verified`);
-  await expect(page.locator("tbody tr")).toHaveCount(fx.shown);
+  // 25 trades per page; Next shows the rest.
+  const rows = page.locator("[data-trade-row]");
+  await expect(rows).toHaveCount(Math.min(fx.shown, 25));
+  if (fx.shown > 25) {
+    await expect(page.locator("[data-trade-pages]")).toContainText(`1–25 of ${fx.shown} trades`);
+    await page.getByRole("button", { name: "Next →" }).click();
+    await expect(rows).toHaveCount(Math.min(fx.shown - 25, 25));
+  }
   // The reveal tx asked for this browser's key and nothing else.
   const [[tx]] = await page.evaluate(() => window.__proveitSent!);
   expect(tx.actions[0].params.methodName).toBe("request_reveal");

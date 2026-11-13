@@ -23,3 +23,27 @@ const MESSAGES: Record<string, string> = {
 export function explain(code: string, message: string): string {
   return MESSAGES[code] ?? `${code}: ${message}`;
 }
+
+/**
+ * Anything thrown, as a sentence a person can read. Wallets throw plain objects ({ code,
+ * message }) rather than Errors, which String() would show as "[object Object]".
+ */
+export function errorText(e: unknown): string {
+  if (typeof e === "string") return e;
+  const o = (e ?? {}) as { code?: unknown; message?: unknown; shortMessage?: unknown; reason?: unknown; error?: unknown; data?: unknown };
+  if (o.code === 4001 || o.code === "ACTION_REJECTED") return "You declined the request in your wallet.";
+  for (const v of [o.shortMessage, o.message, o.reason]) if (typeof v === "string" && v) return v;
+  for (const inner of [o.error, o.data]) {
+    if (inner && typeof inner === "object") {
+      const text = errorText(inner);
+      if (text !== UNKNOWN) return text;
+    }
+  }
+  try {
+    const json = JSON.stringify(e);
+    if (json && json !== "{}" && json !== "null") return json;
+  } catch {}
+  return UNKNOWN;
+}
+
+const UNKNOWN = "Something went wrong.";

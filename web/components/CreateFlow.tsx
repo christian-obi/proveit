@@ -13,7 +13,7 @@ import { cardPath } from "@/lib/cards";
 import { config, WINDOWS, networkFor, NETWORKS, type Network } from "@/lib/config";
 import { useNetwork } from "@/components/NetworkSwitch";
 import { encryptForKeystore } from "@/lib/ecies";
-import { explain } from "@/lib/errors";
+import { errorText, explain } from "@/lib/errors";
 import { demoCardTransactions, liveCardTransactions, profileFor } from "@/lib/flow";
 import { fetchKeystorePubkey } from "@/lib/keystore";
 import { requestNumber, storageCost, waitForRequest, type RequestOutcome } from "@/lib/near";
@@ -63,7 +63,7 @@ function Flow({ network }: { network: Network }) {
   const [phase, setPhase] = useState<Phase>({ step: "idle" });
 
   const busy = phase.step === "working" || phase.step === "waiting";
-  const fail = (e: unknown) => setPhase({ step: "error", message: e instanceof Error ? e.message : String(e) });
+  const fail = (e: unknown) => setPhase({ step: "error", message: errorText(e) });
 
   // Demo cards always go to testnet, so they use the testnet wallet.
   const { near, connect: connectNearWallet } = useNear(mode === "demo" ? networkFor(config.demoRegistry).network : network);

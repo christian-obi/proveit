@@ -3,6 +3,7 @@
 // Runs the five checks from packages/verify in the browser, against public data only, and
 // offers tamper mode: edit a number and watch the checks fail.
 
+import { errorText } from "@/lib/errors";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { verifyCard, type Cache, type Check, type Report } from "@proveit/verify/checks";
 import Card, { type CardData } from "@/components/Card";
@@ -51,7 +52,7 @@ export default function VerifyPanel({ registry, cardId, cardJson, autoRun = fals
       const r = await verifyCard({ registry, cardId, cardJson: edited ? JSON.stringify(edited) : undefined }, endpointsFor(registry), fetch, cache.current);
       if (id === latest.current) setReport(r);
     } catch (e) {
-      if (id === latest.current) setError(e instanceof Error ? e.message : String(e));
+      if (id === latest.current) setError(errorText(e));
     } finally {
       if (id === latest.current) setRunning(false);
     }

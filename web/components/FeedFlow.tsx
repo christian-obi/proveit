@@ -15,7 +15,7 @@ import { followerKey, openSealed } from "@proveit/verify/reveal";
 import { unhex } from "@proveit/verify/bytes";
 import CopyPanel, { type CopyHandle } from "@/components/CopyPanel";
 import { config, networkFor } from "@/lib/config";
-import { explain } from "@/lib/errors";
+import { errorText, explain } from "@/lib/errors";
 import { useNear } from "@/lib/use-wallet";
 import type { SignedMessage } from "@/lib/wallets";
 
@@ -95,7 +95,7 @@ export default function FeedFlow({ registry, cardId, cardHash, isLive = false }:
       save(key, s);
       setSession(s);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
       setStatus("");
     }
   }
@@ -147,7 +147,7 @@ export default function FeedFlow({ registry, cardId, cardHash, isLive = false }:
         setError(null);
         setStatus(`Up to date · ${new Date().toLocaleTimeString()} · checking every ${every / 1000} s`);
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(errorText(e));
         setStatus("");
       }
     }

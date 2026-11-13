@@ -5,6 +5,7 @@
 // not withdraw. The settings, the key (unless the follower opts out) and auto-copy are kept in
 // this browser, so a reload carries on. The app's server never sees the address or the key.
 
+import { errorText } from "@/lib/errors";
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { DEFAULT_SETTINGS, planCopy, type CopyRecord, type CopySettings, type Plan } from "@/lib/copy-plan";
 import { agentFromKey, approveNewAgent, cloidFor, loadCopyPnl, loadFollower, loadMarket, loadMids, placeOrder, wirePrice, wireSize, type Agent, type CopyPnl, type Follower, type HlNetwork, type Market } from "@/lib/hyperliquid";
@@ -266,7 +267,7 @@ export default function CopyPanel({
           log(label, result.status === "filled" ? `Filled ${result.size} ${record.coin} at $${result.price}` : "Order placed", "good");
         } catch (e) {
           errors.current += 1;
-          log(label, `Failed: ${e instanceof Error ? e.message : String(e)}`, "bad");
+          log(label, `Failed: ${errorText(e)}`, "bad");
           if (errors.current >= MAX_ERRORS && live.current.auto) {
             setAuto(false);
             setError(`Automatic copying stopped after ${MAX_ERRORS} failures in a row.`);
@@ -310,7 +311,7 @@ export default function CopyPanel({
       agent.current = approved.agent;
       setAgentInfo({ key: approved.privateKey, network: destination, expiresAt: approved.expiresAt });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(false);
     }

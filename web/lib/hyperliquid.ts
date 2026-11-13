@@ -144,8 +144,34 @@ export type Agent = { account: PrivateKeyAccount; network: HlNetwork; lastNonce:
  */
 export type ApprovedAgent = { agent: Agent; privateKey: Hex; expiresAt: number };
 
+const ARBITRUM: Record<HlNetwork, { chainName: string; rpcUrls: string[]; blockExplorerUrls: string[] }> = {
+  mainnet: { chainName: "Arbitrum One", rpcUrls: ["https://arb1.arbitrum.io/rpc"], blockExplorerUrls: ["https://arbiscan.io"] },
+  testnet: { chainName: "Arbitrum Sepolia", rpcUrls: ["https://sepolia-rollup.arbitrum.io/rpc"], blockExplorerUrls: ["https://sepolia.arbiscan.io"] },
+};
+
+/**
+ * Hyperliquid's approval is signed for Arbitrum's chain id, and MetaMask refuses to sign typed
+ * data for any chain but the active one. So move the wallet to Arbitrum first (adding it if the
+ * wallet doesn't know it). Nothing is sent on Arbitrum; it is only the signature's domain.
+ */
+async function useSigningChain(network: HlNetwork) {
+  const eth = window.ethereum!;
+  const want = SIGNATURE_CHAIN[network].hex;
+  const active = String(await eth.request({ method: "eth_chainId" }).catch(() => "")).toLowerCase();
+  if (active === want) return;
+  try {
+    await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: want }] });
+  } catch (e) {
+    const code = (e as { code?: number; data?: { originalError?: { code?: number } } })?.code ?? (e as { data?: { originalError?: { code?: number } } })?.data?.originalError?.code;
+    if (code === 4001) throw new Error(`Switch your wallet to ${ARBITRUM[network].chainName} to approve the trading key. Hyperliquid signs approvals for that chain; nothing is sent on it.`);
+    if (code !== 4902) throw e;
+    await eth.request({ method: "wallet_addEthereumChain", params: [{ chainId: want, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, ...ARBITRUM[network] }] });
+  }
+}
+
 export async function approveNewAgent(network: HlNetwork, owner: Hex): Promise<ApprovedAgent> {
   if (!window.ethereum) throw new Error("No EVM wallet found. Install Rabby or MetaMask.");
+  await useSigningChain(network);
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
   const nonce = Date.now();
